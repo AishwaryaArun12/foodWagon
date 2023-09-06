@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+<header class="d-flex justify-content-between">
+    <div class="ms-5"><h1>Product Details</h1></div>
+    <div class="d-flex justify-content-end">
+        <a class="me-4" href="../edit/Item/<%=products._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a>
+        <% if(products.blocked == false){ %>
+            <a href="" class="me-4"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+            <% }else{ %>
+                <a href="" class="me-4"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                <% } %>
+    </div>
+</header>
+<div id="myModal" class="modal">
+
+    <!-- The Close Button -->
+    <span class="close">&times;</span>
+  
+    <!-- Modal Content (The Image) -->
+    <img class="modal-content" id="img01">
+  
+    <!-- Modal Caption (Image Text) -->
+    <div id="caption"></div>
+</div>
+<div class="d-flex">
+    <div class="product-images">
+        <% if (products.images && products.images.length > 0) { %>
+            <% for (let i = 0; i < products.images.length; i++) { %>
+                <div class="ms-5 mt-2 mb-4"><img class="myImg" src="/sellers/getImage/<%=products._id%>/<%=i%>" width="100px" height="100px" alt="image"></div>
+            <% } %>
+        <% } %>
+    </div>
+<main class="m-3">
+    <section class="product-details">
+        <div class="product-info">
+            <h1 id="product-name"><%=products.name%></h1>
+            <h2 class="m-3"><strong>Description:</strong><span id="product-price"><%=products.description%></span></h2>
+            <h2 class="m-3"><strong>Price:</strong>&#8377;<span id="product-price"><%=products.price%></span></h2>
+            <h2 class="m-3"><strong>Discount:</strong> <span id="product-discount"><%=products.discount%></span>%</h2>
+            <h2 class="m-3"><strong>Quantity:</strong> <span id="product-quantity"><%=products.qty%></span></h2>
+            <h2 class="m-3"><strong>Taste or Capacity:</strong> <span id="product-taste"><%=products.tasteOrcapacity%></span></h2>
+            <h2 class="m-3"><strong>Stock:</strong> <span id="product-stock"><%=products.stock%></span></h2>
+            <h2 class="m-3"><strong>Food Type:</strong> <span id="product-food-type"><%=products.foodType%></span></h2>
+            <h2 class="m-3"><strong>Category:</strong> <span id="product-category"><%=products.category%></span></h2>
+        </div>
+    </section>
+</main>
+<video id="product-video" controls autoplay muted>
+    <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</div>
+<script>
+        var modal = document.getElementById("myModal");
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var imgs = document.getElementsByClassName("myImg");
+var modalImg = document.getElementById("img01");
+var captionText = document.getElementById("caption");
+
+for (let i=0;i<imgs.length;i++) {
+  imgs[i].onclick = function(){
+  modal.style.display = "block";
+  modalImg.src = this.src;
+  captionText.innerHTML = this.alt;
+}
+}
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,45 @@
+<%- include('../partials/header') %>
+ <div>
+    <h2>Users</h2>
+ </div>
+ <div m-4 p-2>
+    <table class="table table-striped table-hover table-dark">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Password</th>
+            <th scope="col">Orders</th>
+            <th scope="col">Status</th>
+            <th scope="col">Location</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%for(let i = 0;i<users.length;i++){%>
+            <tr>
+                <th scope="row"><%= i+1 %></th>
+                <td><%= users[i].name %></td>
+                <td><%= users[i].email %></td>
+                <td><%= users[i].password %></td>
+                <td><%= users[i].orders %></td>
+                <td><% if(users[i].blocked == false){ %>
+                    Active
+                    <% }else{ %>
+                        Blocked
+                        <% } %></td>
+                <td><%= users[i].location %></td>
+                <td><a href=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
+                <td><% if(users[i].blocked == false){ %>
+                    <a href="" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+                    <% }else{ %>
+                        <a href=""><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                        <% } %>
+              </tr>
+            <%}%>
+        </tbody>
+      </table>
+ </div>
+<%- include('../partials/footer') %>

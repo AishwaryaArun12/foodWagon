@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+    <div class="login-box">
+      <% if(error){ %>
+        <div class="container w-100 border border-dark mb-3" id="error">
+          <div class="text-center">
+            <h3><%=error%></h3>
+          </div>
+        <div class="text-center">
+          <button class="btn btn-primary mb-2" onclick="errorBtn('<%=user %>')">Ok</button>
+        </div>
+      </div>
+        <%}%>
+        <h2>Login with OTP</h2>
+        <form id="signUpForm" method="post" action='../<%=user%>/otpVerification'>
+          <div class="user-box">
+            <input type="text" name="otp" required="true">
+            <label >OTP</label>
+          </div>
+          
+          
+          <button type="submit">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            Submit
+          </button>
+        </form>
+      </div>
+      <script>
+        function errorBtn(user){
+          const div = document.getElementById('error');
+          div.style.display = 'none';
+          window.location.href = `/${user}/otp`;
+        }
+      </script>
+</body>
+</html>
