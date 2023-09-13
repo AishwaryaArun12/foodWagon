@@ -30,10 +30,9 @@
                 <h5 class="modal-title" id="staticBackdropLabel">Create new item</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-dialog modal-dialog-scrollable">
+              
+              <div >
                 <div class="modal-body">
-
-
                   <div >
                     <form onsubmit="addFoodType()" method="post" onsubmit="(e)=>e.preventDefault()"
                       action="../sellers/addFoodType">
@@ -54,7 +53,7 @@
                     <form class="row g-3 m-3" enctype="multipart/form-data" onsubmit="(e)=>e.preventDefault()"
                       method="post" action="../sellers/addVideo">
                       <div class="col-lg-6">
-                        <input type="file" class="form-control" id="video" name="video" multiple accept="video/*">
+                        <input type="file" class="form-control" id="video" name="video" multiple accept="video/*" required>
                       </div>
                       <div class="col-lg-4">
                         <button type="submit">Add Video</button>
@@ -124,13 +123,13 @@
     </div>
     </div>
 
-  <div class="container">
-    <form class="d-flex" action="../sellers/search">
-      <input class="form-control m-3  border border-danger" type="search" placeholder="Search Items.." aria-label="Search" name="q">
+    <div class="container">
+      <form class="d-flex" action="../sellers/search">
+        <input class="form-control m-3  border border-danger" type="search" placeholder="Search Items.." aria-label="Search" name="q">
 
-      <button class="btn btn-danger m-3" type="submit">Search</button>
-    </form>
-  </div>
+        <button class="btn btn-danger m-3" type="submit">Search</button>
+      </form>
+    </div>
   </div>
  
 <div id="search">
@@ -154,7 +153,7 @@
         <tr>
           
           <td><%= item.name %></td>
-          <td><img src="/sellers/getImage/<%=item._id%>" width="100px" height="100px" alt="image"></td>
+          <td><img src="/sellers/getImage/<%=item._id%>/0" width="100px" height="100px" alt="image"></td>
           <td><%= item.discount %></td>
           <td><%= item.price %></td>
           <td><%= item.stock %></td>
@@ -179,8 +178,9 @@
   <div class="container-fluid" id="menu">
     <% menus.menu.forEach(menuItem => { %>
       <%if(menuItem.category.length != 0){%>
+        <h2><%= menuItem.name %></h2>
         <% menuItem.category.forEach(category => { %>
-          <h2><%= menuItem.name %></h2>
+          
           <div class="d-flex">
             <h3><%= category.name %></h3>
             <h3 class="ms-auto "><% if(category.blocked == false){ %>
@@ -189,9 +189,9 @@
                   Blocked
                   <% } %></h3>
             <% if(category.blocked == false){ %>
-              <a href="" class="ms-auto p-2"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+              <a href="/sellers/block/<%=category.name%>/<%=menus._id%>" class="ms-auto p-2"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
               <% }else{ %>
-                  <a href=""><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                  <a href="/sellers/unblock/<%=category.name%>/<%=menus._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                   <% } %>
           </div>
           <table class="table table-dark table-hover align-middle table-striped">
@@ -226,7 +226,7 @@
 
                     <td>
                       <%for(let i=0;i<item.item.images.length;i++){%>
-                      <img class="myImg" src="/sellers/getImage/<%=item.item._id%>/<%=i%>" width="100px" height="100px" alt="image">
+                      <img class="myImg m-3" src="/sellers/getImage/<%=item.item._id%>/<%=i%>" width="100px" height="100px" alt="image">
                       <%}%>
                     </td>
                       <div id="myModal" class="modal">
@@ -258,11 +258,11 @@
                       <% }else{ %>
                           Blocked
                           <% } %></td>
-                    <td><a href="../edit/Item/<%=item.item._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
+                    <td><a href="/sellers/editItem/<%=item.item._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
                     <td><% if(item.item.blocked == false){ %>
-                        <a href="" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+                        <a href="/sellers/block/item/<%=item.item._id%>" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
                         <% }else{ %>
-                            <a href=""><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                            <a href="/sellers/unblock/item/<%=item.item._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                             <% } %>
                   </tr>
                   <%}%>
@@ -276,7 +276,11 @@
   </div>
   
   <script>
-    console.log('hai..')
+    function errorBtn(user){
+          const div = document.getElementById('error');
+          div.style.display = 'none';
+          window.location.href = `/${user}`;
+        }
     var modal = document.getElementById("myModal");
     // Get the image and insert it inside the modal - use its "alt" text as a caption
     var imgs = document.getElementsByClassName("myImg");

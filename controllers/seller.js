@@ -2,6 +2,8 @@ const Seller = require('../models/seller');
 const Menu = require('../models/menu');
 const Item = require('../models/items');
 const Jimp = require('jimp');
+const bcrypt = require('bcrypt');
+const saltRounds = 10; 
 
 module.exports.login = (req,res)=>{
     const error = req.query;
@@ -21,10 +23,10 @@ module.exports.signUp = (req,res)=>{
         if(req.cookies[req.session.email] == req.session.password){
             res.redirect('/sellers/home');
         }else{
-            res.render('pages/signUp',{user : 'sellers',error: '',user:'sellers',login:false});
+            res.render('pages/signUp',{user : 'sellers',error: '',login:false});
         }
     }else{
-        res.render('pages/signUp',{user : 'sellers',error: ''});
+        res.render('pages/signUp',{user : 'sellers',error: '', login: false});
     }
 }
 
@@ -33,7 +35,13 @@ module.exports.newSeller = async(req,res)=>{
     if(seller){
         res.redirect('/sellers/?error=You already registered. Please login')
     }else{
-        const newSeller = new Seller(req.body);
+        bcrypt.hash(req.body.password, saltRounds,async (err, hash) => {
+            if (err) {
+                console.log(err);
+            } else {
+              req.body.password = hash;
+                console.log(req.body.password, hash);
+                const newSeller = new Seller(req.body);
         try {
          const savedSeller = await newSeller.save();
          const newMenu = new Menu();
@@ -46,31 +54,46 @@ module.exports.newSeller = async(req,res)=>{
         } catch (error) {
          res.status(500).send(error)
         };
+            }})
+        
     }
-   
 };
 
 module.exports.loginSeller = async(req,res)=>{
-   
-    let seller = await Seller.findOne({name : req.body.name, email : req.body.email, password : req.body.password}); 
+    let seller = await Seller.findOne({email : req.body.email,name: req.body.name});
+    
+    bcrypt.compare(req.body.password, seller.password,async (err, result) => {
+        if (err) {
+          console.log(err,'err');
+        } else if (result) {
+            if(seller.status == 'approve'){
+                res.cookie(req.body.email, req.body.password);
+                req.session.password = req.body.password;
+                req.session.email = req.body.email;
+                req.session.sellerId = `${seller._id}`;
+                req.session.login = true;
+                req.session.user = 'sellerHome';
+                req.session.menuId = `${seller.menu}`
+                req.session.save();
+                res.redirect('/sellers/home')
+            return;
+            }else if(seller.status == 'pending'){
+                res.redirect('/sellers/?error=Your request is in pending stage');
+                return;
+            }
+            
+        }else{
+            res.redirect('/sellers/?error=Password not matching')
+            return;
+        }
+    })
+    
     console.log(seller,'login');
     if(!seller){
         res.redirect('/sellers/?error=Your are not registered. Please register')
+        return;
     }
-    else if(seller !=null && seller.status == 'approve'){
-            
-            res.cookie(req.body.email, req.body.password);
-            req.session.password = req.body.password;
-            req.session.email = req.body.email;
-            req.session.sellerId = `${seller._id}`;
-            req.session.login = true;
-            req.session.user = 'sellerHome';
-            req.session.menuId = `${seller.menu}`
-            req.session.save();
-            res.redirect('/sellers/home')
-        }else if(seller.status == 'pending'){
-            res.redirect('/sellers/?error=Your request is in pending stage');
-        }
+    
 };
 
 module.exports.home = async(req,res)=>{
@@ -84,8 +107,8 @@ module.exports.home = async(req,res)=>{
                 model: 'Item'  // Make sure the model name matches the one you defined for items
               });
               
-            const foodType = menu[0].menu.map(foodType =>foodType.name);
-            res.render('pages/sellerHome',{error,foodType : foodType, menus : menus, search :search,user:'sellers', login:true});
+              const foodType = menu[0].menu.map(foodType =>foodType.name);
+              res.render('pages/sellerHome',{error,foodType : foodType, menus : menus, search :search,user:'sellers', login:true});
         }else{
             res.redirect('/sellers');
         }
@@ -148,9 +171,15 @@ module.exports.home = async(req,res)=>{
     module.exports.addItem = async (req, res) => {
         let { foodType, category, itemName, description, discount, price, qty, tasteOrcapacity, stock } = req.body;
        try {
-        await Jimp.read(req.files.map((file)=>file.buffer));
+        const imageBuffers = req.files.map(file => file.buffer);
+  
+            for (const buffer of imageBuffers) {
+                await Jimp.read(buffer);
+                // Process each image if reading is successful
+            }
        } catch (error) {
         res.redirect('/sellers/home?error=Image is not valid. Item not saved');
+        return;
        }
         const newItem = new Item({
             name: itemName,
@@ -233,3 +262,211 @@ module.exports.home = async(req,res)=>{
         }
         res.render('pages/sellerProduct',{products, user : 'sellers',login : true});
     }
+    module.exports.block = async(req,res)=>{
+        console.log(req.path);
+        const id = req.params.id;
+        const user = req.params.user;
+        if(user == 'item'){
+            const update = await Item.updateOne({_id : id},{$set :{blocked : true}})
+            res.redirect('/sellers/home');
+        }else {
+            const matchingDocument = await Menu.findOne({
+                _id: id
+              });
+              console.log(matchingDocument,'menu');
+              const menu = matchingDocument.menu;
+      
+      // Find the index of the menu element containing the matching category
+        const matchingCategory = menu.filter(category => {
+           category= category.category.filter(element => {
+            console.log(element.name,'xd');
+           return element.name == user; 
+        })
+        return category.length != 0;
+    });
+    console.log(matchingCategory,'menu');
+      const updateQuery = {
+        $set: { 'menu.$[menuElem].category.$[categoryElem].blocked': true }
+      };
+    
+      const arrayFilters = [
+        { 'menuElem.name': matchingCategory[0].name },
+        { 'categoryElem.name': user }
+      ];
+    
+      // Update the document in the database
+      const update = await Menu.updateOne(
+        { _id: id },
+        updateQuery,
+        {
+          arrayFilters,
+          upsert: false
+        }
+      );
+            res.redirect(`/sellers/home`);
+        }
+        
+    }
+    module.exports.unblock = async (req,res)=>{
+        const id = req.params.id;
+        const user = req.params.user;
+        if(user == 'item'){
+            const update = await Item.updateOne({_id : id},{$set :{blocked : false}})
+            res.redirect('/sellers/home');
+        }else {
+            
+            const matchingDocument = await Menu.findOne({
+                _id: id,
+                'menu.category.name': user
+              });
+              const menu = matchingDocument.menu;
+      
+      // Find the index of the menu element containing the matching category
+      let menuIndex ;
+        const matchingCategory = menu.filter(category => {
+           category= category.category.filter(element => {
+            console.log(element.name,'xd');
+           return element.name == user; 
+        })
+        return category.length != 0;
+    });
+        
+       
+      
+      console.log(matchingCategory,"hr");
+      const updateQuery = {
+        $set: { 'menu.$[menuElem].category.$[categoryElem].blocked': false }
+      };
+    
+      const arrayFilters = [
+        { 'menuElem.name': matchingCategory[0].name },
+        { 'categoryElem.name': user }
+      ];
+    
+      // Update the document in the database
+      const update = await Menu.updateOne(
+        { _id: id },
+        updateQuery,
+        {
+          arrayFilters,
+          upsert: false
+        }
+      );
+    
+              res.redirect(`/sellers/home`);
+    }
+    }
+    module.exports.editProduct = async(req,res)=>{
+        if(req.session.login){
+            const id = req.params.id;
+            const item = await Item.findById(id);
+            res.render('pages/sellerProductEdit',{login : true, user : 'sellers',products:item})
+        }
+    }
+    module.exports.itemEdit = async(req,res)=>{
+        if(req.session.login){
+            const id = req.params.id;
+            let updatedItem= await  Item.findOneAndUpdate(
+                { _id: id }, // Filter the user by ID
+                { $set: req.body }, // Set the new name and email
+                { new: true })
+                res.redirect(`/sellers/product/${id}`);
+                
+        }else{
+            res.redirect('/sellers/?error=Please login..')
+        }
+    }
+    module.exports.editImage = async(req,res)=>{
+        if(req.session.login){
+            const id = req.params.id;
+            const i = req.params.i;
+            const imageBuffer  = req.file.buffer;
+            try {
+                await Jimp.read(imageBuffer);
+
+            } catch (error) {
+               console.log(error);
+               
+            }
+            const update = await Item.findOneAndUpdate(
+                { _id: id },
+                { $set: { [`images.${i}`]: imageBuffer } },
+                { new: true }
+              );
+             res.redirect(`/sellers/product/${id}`);
+        }else{
+            res.redirect('/sellers/?error=Please login')
+        }
+    }
+    module.exports.editVideo = async(req,res)=>{
+        if(req.session.login){
+            const id = req.params.id;
+            const videoBuffer  = req.file.buffer;
+            const update = await Item.findOneAndUpdate(
+                { _id: id },
+                { $set: { video: videoBuffer } },
+                { new: true }
+              );
+             res.redirect(`/sellers/product/${id}`);
+        }else{
+            res.redirect('/sellers/?error=Please login')
+        }
+    }
+    module.exports.addImage = async(req,res)=>{
+        if(req.session.login){
+            const id = req.params.id;
+            const imageBuffer  = req.file.buffer;
+            try {
+                await Jimp.read(imageBuffer);
+
+            } catch (error) {
+               console.log(error);
+               
+            }
+            const update = await Item.findOneAndUpdate(
+                { _id: id },
+                { $push: { [`images`]: imageBuffer } },
+                { new: true }
+              );
+             res.redirect(`/sellers/product/${id}`);
+        }else{
+            res.redirect('/sellers/?error=Please login')
+        }
+    }
+    module.exports.profile = async(req,res)=>{
+        if(req.session.login){
+            const id = req.session.sellerId;
+            const userData = await Seller.findById(id);
+            res.render('pages/sellerProfile',{user : 'sellers',login: true,userData});
+        }else{
+            res.redirect('/sellers/?error=Please login');
+        }
+    }
+    module.exports.editProfile = async(req,res)=>{
+        const id = req.session.sellerId;
+        if(req.session.login ){
+            const name = req.body.name;
+            const email = req.body.email;
+            const location = req.body.location
+            if(!req.body.password){
+              let user= await  Seller.findOneAndUpdate(
+                    { _id: id }, // Filter the user by ID
+                    { $set: { name: name, email: email, location: location} }, // Set the new name and email
+                    { new: true })
+                    res.redirect('/sellers/profile')
+            }else{
+                let password = req.body.password
+                bcrypt.hash(password, 10,async (err, hash) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                      let user= await  Seller.findOneAndUpdate(
+                        { _id: id }, // Filter the user by ID
+                        { $set: { name: name, email: email, password : hash, location :location } }, // Set the new name and email
+                        { new: true }) 
+                        res.redirect('/sellers/profile')
+                                      }
+            })
+        }
+    }
+}

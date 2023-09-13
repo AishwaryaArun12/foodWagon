@@ -1,0 +1,115 @@
+<%- include('../partials/header') %>
+
+<header class="d-flex justify-content-between">
+    <div class="ms-5">
+        <h1>Edit Product Details</h1>
+    </div>
+</header>
+
+<div class="d-flex">
+    <div class="product-images">
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleImageModal">Add image</button>
+        <div class="modal fade" id="exampleImageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Add Image</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="/sellers/addImage/<%=products._id%>" enctype="multipart/form-data"  method="post">
+                      <input type="file" accept="image/*" name="image">
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button class="btn btn-primary" type="submit" >Add Image</button>
+                        </div>
+                  </form>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        <% if (products.images && products.images.length > 0) { %>
+            <% for (let i = 0; i < products.images.length; i++) { %>
+                <div class="ms-5 mt-2 mb-4"><img class="myImg"  src="/sellers/getImage/<%=products._id%>/<%=i%>" width="100px" height="100px" alt="image"></div>
+                <div id="myModal" class="modal">
+
+                    <!-- The Close Button -->
+                    <span class="close">&times;</span>
+                  
+                    <form action="/sellers/editImage/<%=products._id%>/<%=i%>" enctype="multipart/form-data"  method="post">
+                        <input type="file" accept="image/*" name="image">
+                        <button class="btn btn-secondary" type="submit" >Change image</button>
+                    </form>
+                </div>
+                <% } %>
+        <% } %>
+    </div>
+<main class="m-3">
+    <section class="product-details">
+        <div class="product-info">
+            <form action="/sellers/edit/<%=products._id%>" method="post">
+             <label><h2 class="m-3"><strong>Name:</strong></h2></label><input class="bg-transparent mt-4" type="text" value="<%=products.name%>" name="name">
+            
+          <br><label><h2 class="m-3 mt-0"><strong>Description:</strong></h2></label><textarea class="bg-transparent "  name="description"><%=products.description%></textarea><br>
+          <label><h2 class="m-3"><strong>Price:</strong>&#8377;</h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.price%>" name="price"><br>
+          <label><h2 class="m-3"><strong>Discount:</strong></h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.discount%>" name="discount"><br>
+          <label><h2 class="m-3"><strong>Quantity:</strong></h2></label><input class="bg-transparent mt-4" value="<%=products.qty%>" name="qty">
+          <br><label><h2 class="m-3"><strong>Stock:</strong></h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.stock%>" name="stock">
+          
+          <br>  <button class="btn btn-success m-2" type="submit"> Save changes</button>
+        </form>
+        </div>
+    </section>
+</main>
+<video id="product-video" controls autoplay muted data-bs-toggle="modal" data-bs-target="#exampleModal" height="400px" width="400px">
+    <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Change Video</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/sellers/editVideo/<%=products._id%>" enctype="multipart/form-data"  method="post">
+            <input type="file" accept="video/*" name="video">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" type="submit" >Change video</button>
+              </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+</div>
+<script>
+        var modal = document.getElementById("myModal");
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var imgs = document.getElementsByClassName("myImg");
+var modalImg = document.getElementById("img01");
+var captionText = document.getElementById("caption");
+
+for (let i=0;i<imgs.length;i++) {
+  imgs[i].onclick = function(){
+  modal.style.display = "block";
+  modalImg.src = this.src;
+  captionText.innerHTML = this.alt;
+}
+}
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+</script>
+<%- include('../partials/footer') %>

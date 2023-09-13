@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!--
+	Resto by GetTemplates.co
+	URL: https://gettemplates.co
+-->
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Resto - Restaurant Bootstrap 4 Template by GetTemplates.co</title>
+    <meta name="description" content="Resto">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../../vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../vendor/select2/select2.min.css">
+    <link rel="stylesheet" href="../../vendor/owlcarousel/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/noelboss/featherlight/1.7.13/release/featherlight.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/brands.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700|Josefin+Sans:300,400,700">
+    <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="../img/favicons/favicon-32x32.png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="../../css/style.min.css">
+    <link rel="stylesheet" href="../../css/style.min2.css">
+    <link rel="icon" type="image/x-icon" href="../../img/favicons/favicon-32x32.png">
+    <!-- Modernizr JS for IE8 support of HTML5 elements and media queries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+
+</head>
+<body data-spy="scroll" data-target="#navbar" class="static-layout">
+	<div id="canvas-overlay"></div>
+	<div class="boxed-page">
+		<nav id="navbar-header" class="navbar navbar-expand-lg bg-secondary">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-center d-flex align-items-center p-0 only-mobile" href="/">
+                    <img src="img/logo.png" alt="logo">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="lnr lnr-menu"></span>
+                </button>
+        
+                <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+                    <ul class="navbar-nav d-flex justify-content-between">
+                        <!-- <li class="nav-item only-desktop">
+                            <a class="nav-link" id="side-nav-open" href="#">
+                                <span class="lnr lnr-menu"></span>
+                            </a>
+                        </li> -->
+                        <div class="d-flex flex-lg-row flex-column">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/"><b class="fs-4 p-4">Home</b> <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="about.html"><b class="fs-4 p-4">About</b></a>
+                            </li>
+        
+                        </div>
+                    </ul>
+                    
+                    <a class="navbar-brand navbar-brand-center d-flex align-items-center only-desktop" href="#">
+                        <img src="/../../img/favicons/favicon-32x32.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+                       <h2><b>food<span class="text-danger">W</span>agon</b></h2>
+                    </a>
+                    <ul class="navbar-nav d-flex justify-content-between">
+                        <div class="d-flex flex-lg-row flex-column">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/menu"><b class="fs-4 p-4">Menu</b></a>
+                            </li>
+                            
+        
+                            <li class="nav-item">
+                                <a href="/users/cart"><i class="fa fa-shopping-cart mt-2 text-dark fs-2" aria-hidden="true"><b class="text-dark ps-1  p-4">Cart</b></i></a>
+                            </li>
+                        
+                        
+                        <%if(!login){%>
+                            <li class="nav-item">
+                                <a id="side-search-open" class="nav-link" href="/users">
+                                    Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="side-search-open" class="nav-link" href="/users/signUp">
+                                    SignUp
+                                </a>
+                            </li>
+                            <%}else{%>
+                                <li class="nav-item "> 
+                                    <a  href="/users/profile"><i class="fa fa-user-circle fs-1 ms-4 p-2 text-dark me-3" aria-hidden="true"></i></a>
+                                    </li>
+                                <li class="nav-item">
+                                   <button class="btn btn-danger"><a id="side-search-open" class="nav-link" href="/logout">
+                                        Logout
+                                    </a></button> 
+                                </li>
+                                <%}%>
+                    </ul>
+                </div>
+                </div>
+            
+        </nav>	
+	<!-- Menu Section -->
+
+  <!-- Page content -->
+  <div class="col-lg-12 pt-3">
+  <a href="/menu"><h4>More Products</h4></a>  
+</div>
+ <div class="d-flex">
+    <div class="container">
+        <div class="col-lg-8 border p-3 main-section bg-white">
+            <div class="row hedding m-0 pl-3 pt-0 pb-3">
+                <%=products.name%>
+            </div>
+            <div class="row m-0">
+                <div class="col-lg-4 left-side-product-box pb-3">
+                    <div class="img-zoom-container">
+                        
+                            <img id="main" src="/sellers/getImage/<%=products._id%>/0" class="border p-3" onmouseenter="imageZoom('main', 'myresult')"  alt="Girl">
+                        
+                        
+                      </div>
+                    
+                    <span class="sub-img">
+                        <img src="/sellers/getImage/<%=products._id%>/1" id="image1" onclick="image('image1')" class="border p-2">
+                        <img src="/sellers/getImage/<%=products._id%>/2" id="image2" onclick="image('image2')" class="border p-2">
+                        <img src="/sellers/getImage/<%=products._id%>/3" id="image3" onclick="image('image3')" class="border p-2">
+                    </span>
+                </div>
+                <div id="myresult" style="display: inline-block;" class="img-zoom-result"></div>
+                <div class="col-lg-8" id="content">
+                    <div class="right-side-pro-detail border p-3 m-0">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <span><%=products.foodType%></span>
+                                <p class="m-0 p-0"><%=products.name%></p>
+                            </div>
+                            <div class="col-lg-12">
+                                <p class="m-0 p-0 price-pro">&#8377;<%=products.price%></p>
+                                <hr class="p-0 m-0">
+                            </div>
+                            <div class="col-lg-12 pt-2">
+                                <h5>Product Detail</h5>
+                                <span><%= products.description %></span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+                            <div class="col-lg-12">
+                                <p class="tag-section"><strong>Tag : </strong><a href=""><%= products.category %></a></p>
+                            </div>
+                            <div class="col-lg-12">
+                                <h6>Quantity :</h6>
+                                <input type="number" id="q" class="form-control text-center w-100" value="1">
+                            </div>
+                            <div class="col-lg-12 mt-3">
+                                <div class="row">
+                                    <div class="col-lg-6 pb-2">
+                                        <a href="/users/addcart/<%=products._id%>/?q=1" id="cartBtn" class="btn btn-danger w-100">Add To Cart</a>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <a href="#" class="btn btn-success w-100">Shop Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div> 
+    <div>
+        <video id="product-video" controls autoplay muted width="350px" height="350px">
+            <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4" >
+            Your browser does not support the video tag.
+        </video>
+    </div></div> 
+        
+
+<script>
+    const qInput = document.getElementById('q');
+    const addToCartBtn = document.getElementById('cartBtn');
+
+    // Add an event listener to the input element to detect changes
+    qInput.addEventListener('input', function () {
+        // Get the updated value of the input
+        const updatedQ = qInput.value;
+
+        // Update the href attribute of the Add To Cart button
+        addToCartBtn.href = `/users/addcart/<%= products._id %>?q=${updatedQ}`;
+    });
+  const img = document.getElementById('main');
+  const result = document.getElementById('myresult');
+  function image(id) {
+    const div = document.getElementById(id);
+    let temp = div.src;
+    div.src = img.src;
+    img.src = temp;
+    imageZoom('main', 'myresult')
+  }
+  function showMyResult() {
+      result.style.display = "inline-block";
+      result.style.backgroundPosition ="center";
+      lens.style.display = 'block';
+    }
+    function hideMyResult() {
+      result.style.display = "none";
+      lens.style.display = "none"
+    }
+    var  lens, cx, cy;
+
+/* Create lens: */
+lens = document.createElement("DIV");
+lens.setAttribute("class", "img-zoom-lens");
+/* Insert lens: */
+img.parentElement.insertBefore(lens, img);
+/* Calculate the ratio between result DIV and lens: */
+cx = result.offsetWidth / lens.offsetWidth;
+cy = result.offsetHeight / lens.offsetHeight;
+lens.addEventListener("mousemove", moveLens);
+    img.addEventListener("mousemove", moveLens);
+    /* And also for touch screens: */
+    lens.addEventListener("touchmove", moveLens);
+    img.addEventListener("touchmove", moveLens);
+
+    function moveLens(e) {
+      var pos, x, y;
+      /* Prevent any other actions that may occur when moving over the image */
+      e.preventDefault();
+      /* Get the cursor's x and y positions: */
+      pos = getCursorPos(e);
+      /* Calculate the position of the lens: */
+      x = pos.x - (lens.offsetWidth / 1);
+      y = pos.y - (lens.offsetHeight / 1);
+      /* Prevent the lens from being positioned outside the image: */
+      if (x > img.width - lens.offsetWidth) {
+        x = img.width - lens.offsetWidth;
+      }
+      if (x < 0) {
+        x = 0;
+      }
+      if (y > img.height - lens.offsetHeight) {
+        y = img.height - lens.offsetHeight;
+      }
+      if (y < 0) {
+        y = 0;
+      }
+      /* Set the position of the lens: */
+      lens.style.left = x + "px";
+      lens.style.top = y + "px";
+      /* Display what the lens "sees": */
+      result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+    }
+  function imageZoom(imgID, resultID) {
+   
+    /* Set background properties for the result DIV */
+    result.style.backgroundImage = "url('" + img.src + "')";
+    result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+    /* Execute a function when someone moves the cursor over the image, or the lens: */
+    
+    }
+
+    function getCursorPos(e) {
+      var a, x = 0, y = 0;
+      e = e || window.event;
+      /* Get the x and y positions of the image: */
+      a = img.getBoundingClientRect();
+      /* Calculate the cursor's x and y coordinates, relative to the image: */
+      x = e.pageX - a.left;
+      y = e.pageY - a.top;
+      /* Consider any page scrolling: */
+      x = x - window.pageXOffset;
+      y = y - window.pageYOffset;
+      return { x: x, y: y };
+    }
+
+    lens.addEventListener("mousemove", moveLens);
+    img.addEventListener("mousemove", moveLens);
+
+    /* Add these event listeners to show and hide myresult */
+    img.addEventListener("mouseenter", showMyResult);
+    img.addEventListener("mouseleave", hideMyResult);
+    lens.addEventListener("mouseenter", showMyResult);
+    lens.addEventListener("mouseleave", hideMyResult);
+  
+hideMyResult();
+  
+</script>
+
+	<!-- External JS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+	<script src="../../vendor/bootstrap/popper.min.js"></script>
+	<script src="../../vendor/bootstrap/bootstrap.min.js"></script>
+	<script src="../../vendor/select2/select2.min.js "></script>
+	<script src="../../vendor/owlcarousel/owl.carousel.min.js"></script>
+	<script src="https://cdn.rawgit.com/noelboss/featherlight/1.7.13/release/featherlight.min.js"></script>
+	<script src="../../vendor/stellar/jquery.stellar.js" type="text/javascript" charset="utf-8"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+
+	<!-- Main JS -->
+ 
+	<script src="../../js/app.min.js "></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</body>
+</html>

@@ -1,5 +1,8 @@
 <%- include('../partials/header') %>
 <section class="h-100">
+  <div class="width-100">
+    <a href="/menu" class="btn btn-shadow"><i class="fa fa-cart-plus fs-1" aria-hidden="true"></i><span class="fs-2 p-2"><b>Continue Shopping</b></span></a>
+  </div>
     <div class="container h-100 py-5">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-10">
@@ -34,7 +37,7 @@
                   <i class="fa fa-minus" aria-hidden="true"></i>
                 </button>
   
-                <input id="form1" min="0" name="quantity" value="1" type="number"
+                <input id="form1" min="0" name="quantity" value="<%=cartData[i].quantity%>" type="number"
                   class="form-control form-control-sm" />
   
                   <button class="btn btn-link px-2"
@@ -81,7 +84,7 @@
           <div class="card mb-4">
             <div class="card-body p-4 d-flex flex-row">
               <div class="form-outline flex-fill">
-                <label class="form-label fs-1" for="form1">Tottal</label>
+                <label class="form-label fs-1" for="form1">Total</label>
               </div>
               <h2 id="tottal"><%=price%></h2>
               

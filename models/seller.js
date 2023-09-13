@@ -15,19 +15,18 @@ const sellers = new mongoose.model('sellers',{
    menu : {
       type : mongoose.Schema.Types.ObjectId,
       ref : 'menu',
-      
    },
    discount : {
     type : Number,
     
    },
+   blocked : {
+      type : Boolean,
+      default : false
+   },
    location :{
     type : String,
     required : true
-   },
-   current_status : {
-    type : String,
-    default : 'opening'
    },
    status : {
       type : String,

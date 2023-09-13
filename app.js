@@ -62,7 +62,7 @@ app.use('/admin', adminRoutes);
 app.use('/', mainRoute);
 
 app.get('/logout', (req,res)=>{
-  console.log('logout...');
+  console.log('logout..Ss.');
   const email = req.session.email;
   res.clearCookie(email);
   req.session.destroy(); 
@@ -81,7 +81,7 @@ app.get( '/auth/callback',
 
 // Success 
 app.get('/auth/callback/success' , (req , res) => {
-  console.log(req.session);
+  console.log(req.session,req.user.displayName);
   if(!req.user){
       res.redirect('/auth/callback/failure');
   }else if(req.user.displayName == 'Aishwarya Arun' && req.user.email == 'aishwarya4arun@gmail.com'){

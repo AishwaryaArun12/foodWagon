@@ -17,12 +17,12 @@ body {
   background-size: 100% 100%;
 }
 .login-box {
-  position: absolute;
-  top: 50%;
+  position:absolute;
+  top: 10%;
   left: 30%;
   width: 400px;
   padding: 40px;
-  transform: translate(-50%, -50%);
+  /* transform: translate(-50%, -50%); */
   background: rgb(250, 147, 2);
   box-sizing: border-box;
   box-shadow: 0 15px 25px rgb(238, 157, 45);
@@ -30,12 +30,14 @@ body {
 }
 
 .login-box h2 {
-  margin: 0 0 30px;
+  margin: 0 0 10px;
   padding: 0;
   color: #fff;
   text-align: center;
 }
-
+a {
+  text-decoration: none;
+}
 .login-box .user-box {
   position: relative;
 }
@@ -81,7 +83,7 @@ body {
   text-transform: uppercase;
   overflow: hidden;
   transition: .5s;
-  margin-top: 40px;
+  margin-top: 5px;
   letter-spacing: 4px;
   background: #000;
   border: none;
@@ -214,14 +216,24 @@ body, h1, h2, ul, li {
 /* Main layout styles */
 .sidebar {
   width: 250px;
-  background-color: #333;
-  color: #fff;
+  height: 100vh;
+  flex: 0 0 200px; /* Fixed width for the sidebar */
+  position: sticky;
+  top: 0;
+  background-color: #333; /* Example background color */
+  color: #fff; /* Example text color */
   padding: 20px;
-  position: fixed;
-  height: 100%;
 }
-
-
+.content {
+  flex: 1; /* Allow it to grow to fill available space */
+  padding: 10px;
+  border-left: 1px solid #ccc;
+  padding-left: 20px;
+}
+.table {
+  width: 100%;
+  margin-left: -15px;
+}
 
 .nav-links li {
   margin-bottom: 10px;
@@ -396,8 +408,8 @@ table a {
   padding-top: 100px; /* Location of the box */
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
+  width: 50%; /* Full width */
+  height: 50%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0,0,0); /* Fallback color */
   background-color: rgba(0,0,0,0.9); /* Black w/ opacity */

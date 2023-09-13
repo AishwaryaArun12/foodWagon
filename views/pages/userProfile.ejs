@@ -1,0 +1,183 @@
+<%- include('../partials/header') %>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h2>User Profile</h2>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> <%=userData.name%></p>
+                    <p><strong>Email:</strong> <%=userData.email%></p>
+                    <button class="btn btn-success" data-toggle="modal" data-target="#addAddressModal">Add Address</button>
+                       <div class="p-3 row">
+                        <%for(let i=0;i<userData.address.length;i++){%>
+                            <strong class="p-3">Address<%=i+1%>:</strong><% Object.entries(userData.address[i]).forEach(([key, value]) => { %>
+                                <p class="lh-1 "><%= key %>: <%= value %></p>
+                                <% }); %>
+                       
+        <div class="d-flex">
+            <button class="btn btn-primary m-2" data-toggle="modal" data-target="#editAddressModal">Edit Address</button>
+            <a class="btn btn-danger m-2" href="/users/removeAddress/<%=i%>">Remove</a>           
+        </div>
+        <div class="modal fade" id="editAddressModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Address</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit form fields go here -->
+                        
+                            <form id="editForm" method="post" action="/users/editAddress/<%=i%>">
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <label for="name">House Name</label>
+                                        <input type="text" class="form-control" value="<%=Object.values(userData.address[i])[0]%>" id="name" name="houseName" required>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="lMark">Land mark</label>
+                                        <input type="text" class="form-control" id="lMark" name="lMark" required value="<%=Object.values(userData.address[i])[1]%>">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="mobile">Mobile</label>
+                                        <input type="number" class="form-control" id="mobile" name="mobile" required value="<%=Object.values(userData.address[i])[2]%>">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="pin">Zip code</label>
+                                        <input type="number" class="form-control" id="pin" name="pin" required value="<%=Object.values(userData.address[i])[3]%>">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="dist">District</label>
+                                        <input type="text" class="form-control" id="dist" name="dist" required value="<%=Object.values(userData.address[i])[4]%>">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="state">State</label>
+                                        <input type="text" class="form-control" id="state" name="state" required value="<%=Object.values(userData.address[i])[5]%>">
+                                    </div>
+                                </div>
+                                <!-- Add more form fields for other details -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary"  >Save Changes</button>
+                                </div>
+                            <!-- Add more form fields for other details -->
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+       <%}%>      
+    </div>            
+                    <!-- Add more user details here -->
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                    <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel">Edit Profile</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Edit form fields go here -->
+                                    
+                                        <form id="editForm" method="post" action="/users/editProfile">
+                                            <div class="row">
+                                                <div class="form-group col-6">
+                                                    <label for="name">Name</label>
+                                                    <input type="text" class="form-control" value="<%=userData.name%>" id="name" name="name" required>
+                                                </div>
+                                                <div class="form-group col-6">
+                                                    <label for="lMark">Email</label>
+                                                    <input type="text" class="form-control" id="email" name="email" required value="<%=userData.email%>">
+                                                </div>
+                                                <div class="form-group col-6">
+                                                    <label for="mobile">Change Password</label>
+                                                    <input type="number" class="form-control" id="mobile" name="password" >
+                                                </div>
+                                                
+                                            </div>
+                                            <!-- Add more form fields for other details -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary"  >Save Changes</button>
+                                            </div>
+                                        <!-- Add more form fields for other details -->
+                                    </form>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <a class="btn btn-secondary" href="/users/cart">Cart</a>
+                    <a class="btn btn-secondary" href="/wishlist">Wishlist</a>
+                    <a class="btn btn-secondary" href="/orders">Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Add Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Edit form fields go here -->
+                <form id="addAddressForm" method="post" action="/users/addAddress">
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <label for="name">House name:</label>
+                            <input type="text" class="form-control" id="name" name="houseName" required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="lMark">Land mark</label>
+                            <input type="text" class="form-control" id="lMark" name="lMark" >
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="mobile">Mobile</label>
+                            <input type="tel" class="form-control" id="mobile" name="mobile"  required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="pin">Zip code</label>
+                            <input type="text" class="form-control" id="pin" name="pin" required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="dist">District</label>
+                            <input type="text" class="form-control" id="dist" name="dist" >
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control" id="state" name="state" >
+                        </div>
+                    </div>
+                    <!-- Add more form fields for other details -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary"  id="saveButton">Save</button>
+                    </div>
+                </form>
+            </div>
+           
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<%- include('../partials/footer') %>

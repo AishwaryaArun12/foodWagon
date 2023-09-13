@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
   
-    <div class="login-box">
+    <div class="login-box m-2">
       <% if(error){ %>
         <div class="container w-100 border border-dark mb-3" id="error">
           <div class="text-center">
@@ -25,7 +25,7 @@
           <div class="user-box">
             <input type="password" name="password" required="true">
             <label>Password</label>
-            <a href="" class="btn btn-shadow">Forgot password</a>
+            <a href="users/forgotPassWord" class="btn btn-shadow">Forgot password</a>
           </div><br>
           <% if(user =='users' || user == 'admin'){ %>
           <div class="d-flex border p-1 border-dark">

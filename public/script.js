@@ -1,5 +1,4 @@
 var modal = document.getElementById("myModal");
-console.log('hello there')
 // Get the image and insert it inside the modal - use its "alt" text as a caption
 var imgs = document.getElementsByClassName("myImg");
 var modalImg = document.getElementById("img01");
@@ -64,7 +63,7 @@ function addFoodType(){
 let toggleMenu = false;
 const menu = document.getElementById('menu');
 const search = document.getElementById('search');
-menu.style.display = "none";
+
 
 function toggle(){
     if(!toggleMenu){

@@ -8,6 +8,11 @@
     <link rel="icon" type="image/x-icon" href="../img/favicons/favicon-32x32.png">
     
       <link rel='stylesheet' href="/../style.css">
+      <style>
+        *{
+          text-decoration: none !important;
+        }
+      </style>
    
     <!-- <link rel='stylesheet' href="style.css"> -->
     <link rel='stylesheet' href="/../../style.css">
@@ -29,23 +34,29 @@
         <div class="container d-flex justify-content-end">
           <a href=""><i class="fa fa-search fs-1 me-4 mt-1" aria-hidden="true"></i></a>
           <a href="/users/cart"><i class="fa fa-shopping-cart fs-1 me-4 mt-1" aria-hidden="true"></i></a>
-          <a href=""><i class="fa fa-user-circle-o fs-1 me-4 mt-1" aria-hidden="true"></i></a>
+          <a href="/users/profile"><i class="fa fa-user-circle-o fs-1 me-4 mt-1" aria-hidden="true"></i></a>
           <a href="/logout"><button class="btn btn-secondary" >Log out</button>
           </a>  
         </div>
         <%}else if(user == 'sellers' && login){%>
-          <a href=""><i class="fa fa-user-circle-o fs-1 me-4 mt-1" aria-hidden="true"></i></a>
+          <a href="/sellers/profile"><i class="fa fa-user-circle-o fs-1 me-4 mt-1" aria-hidden="true"></i></a>
           <a href="/logout"><button class="btn btn-secondary " ><i class="fa fa-sign-out fs-2 me-4 mt-1" aria-hidden="true"></i></button>
           </a> 
           <%}else if(user == 'sellers' && !login){%>
-            <a href="/users/signUp" class="btn btn-secondary m-2">SignUp></a>
-            <a href="/users" class="btn btn-secondary m-2">Login
-            </a> 
+            <a href="/users/signUp" class="btn btn-secondary m-2">SignUp
+
+            </a>
+            <a href="/users" class="btn btn-secondary m-2">Login</a> 
             <%}else if(user == 'users' && !login){%>
+              <a href="/sellers" class="btn btn-secondary m-2 w-25" >Seller Login</a>
               <a href="/users/signUp" class="btn btn-secondary m-2">SignUp</a>
-              <a href="/users" lass="btn btn-secondary m-2">Login
-              </a> 
-              <%}%>
+              <a href="/users" class="btn btn-secondary m-2">Login</a> 
+              <%}else if(user == 'admin' && login){%>
+                <div>
+                  <a href="/logout"><button class="btn btn-secondary " ><i class="fa fa-sign-out fs-2 me-4 mt-1" aria-hidden="true"></i></button> 
+                </a>
+                  </div>
+                    <%}%>
      </div>
       </nav>
     

@@ -25,13 +25,14 @@ const users = new mongoose.model('users',{
     password : {
         type : String,
     },
-    location : {
-        type : String,
-    },
-    orders : {
+    address : [{
+        type : Object
+    }],
+    
+    orders : [{
         type : mongoose.Schema.Types.ObjectId, 
         ref : 'Orders'
-    },
+    }],
     otp : {
         type : String
     },

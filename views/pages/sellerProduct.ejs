@@ -2,12 +2,14 @@
 <header class="d-flex justify-content-between">
     <div class="ms-5"><h1>Product Details</h1></div>
     <div class="d-flex justify-content-end">
-        <a class="me-4" href="../edit/Item/<%=products._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a>
+        <a class="btn btn-danger me-3 pb-0" id="menuBtn" href="/sellers/home">Menu</a>
+        <a class="me-4" href="/sellers/editItem/<%=products._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a>
         <% if(products.blocked == false){ %>
-            <a href="" class="me-4"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+            <a href="/sellers/block/item/<%=products._id%>" class="me-4"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
             <% }else{ %>
-                <a href="" class="me-4"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                <a href="/sellers/unblock/item/<%=products._id%>" class="me-4"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                 <% } %>
+                
     </div>
 </header>
 <div id="myModal" class="modal">
@@ -33,18 +35,18 @@
     <section class="product-details">
         <div class="product-info">
             <h1 id="product-name"><%=products.name%></h1>
-            <h2 class="m-3"><strong>Description:</strong><span id="product-price"><%=products.description%></span></h2>
-            <h2 class="m-3"><strong>Price:</strong>&#8377;<span id="product-price"><%=products.price%></span></h2>
-            <h2 class="m-3"><strong>Discount:</strong> <span id="product-discount"><%=products.discount%></span>%</h2>
-            <h2 class="m-3"><strong>Quantity:</strong> <span id="product-quantity"><%=products.qty%></span></h2>
-            <h2 class="m-3"><strong>Taste or Capacity:</strong> <span id="product-taste"><%=products.tasteOrcapacity%></span></h2>
-            <h2 class="m-3"><strong>Stock:</strong> <span id="product-stock"><%=products.stock%></span></h2>
-            <h2 class="m-3"><strong>Food Type:</strong> <span id="product-food-type"><%=products.foodType%></span></h2>
-            <h2 class="m-3"><strong>Category:</strong> <span id="product-category"><%=products.category%></span></h2>
+            <h2 class="m-3"><strong>Description:</strong><span id="product-price" class="m-3 p-2 text-secondary"><%=products.description%></span></h2>
+            <h2 class="m-3"><strong>Price:</strong>&#8377;<span id="product-price" class="m-3 p-2 text-secondary"><%=products.price%></span></h2>
+            <h2 class="m-3"><strong>Discount:</strong> <span id="product-discount" class="m-3 p-2 text-secondary"><%=products.discount%>%</span></h2>
+            <h2 class="m-3"><strong>Quantity:</strong> <span id="product-quantity" class="m-3 p-2 text-secondary"><%=products.qty%></span></h2>
+            
+            <h2 class="m-3"><strong>Stock:</strong> <span id="product-stock" class="m-3 p-2 text-secondary"><%=products.stock%></span></h2>
+            <h2 class="m-3"><strong>Food Type:</strong> <span id="product-food-type" class="m-3 p-2 text-secondary"><%=products.foodType%></span></h2>
+            <h2 class="m-3"><strong>Category:</strong> <span id="product-category" class="m-3 p-2 text-secondary"><%=products.category%></span></h2>
         </div>
     </section>
 </main>
-<video id="product-video" controls autoplay muted>
+<video id="product-video" controls autoplay muted width="400px" height="400px">
     <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4">
     Your browser does not support the video tag.
 </video>

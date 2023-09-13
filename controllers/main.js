@@ -65,23 +65,23 @@ module.exports.menu =async (req,res)=>{
         res.render('pages/menu',{item:item,login:false,sellers:sellers,foodtype:foodtype,category:category});
     }
 }
-module.exports.edit = async (req,res)=>{
-    if(req.session.login || req.session.user == 'sellerHome'){
-        let user = req.params.user;
-        let userData = ''
-        const id = req.params.id;
-        if(user == 'Item'){
-            userData = await Item.findById(id);
-        }else if(user == 'Seller'){
-            userData = await Seller.findById(id);
-        }else if(user == 'User'){
-            userData = await User.findById(id);
-        }
-        res.render('pages/edit',{user,userData})
-    }else{
-        res.redirect("/users/?error=You can't edit before login")
-    }
-}
+// module.exports.edit = async (req,res)=>{
+//     if(req.session.login || req.session.user == 'sellerHome'){
+//         let user = req.params.user;
+//         let userData = ''
+//         const id = req.params.id;
+//         if(user == 'Item'){
+//             userData = await Item.findById(id);
+//         }else if(user == 'Seller'){
+//             userData = await Seller.findById(id);
+//         }else if(user == 'User'){
+//             userData = await User.findById(id);
+//         }
+//         res.render('pages/edit',{user,userData})
+//     }else{
+//         res.redirect("/users/?error=You can't edit before login")
+//     }
+// }
 module.exports.filter = async (req,res)=>{
     let filterHead = req.params.filterHead;
     let filter = req.params.filter;
