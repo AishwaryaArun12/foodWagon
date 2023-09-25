@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
-<div class="container w-50 border-dark p-5 m-5 border boxed-page" id="loginForm">
-    <form action="../users/resetPassword" method="post">
+<div class="container w-50 border-dark p-5 m-5 border boxed-page"  id="loginForm">
+    <form action="../users/resetPassword" method="post" onsubmit="match()">
         <h1>Reset your password</h1>
         <% if(error){ %>
             <div class="container w-100 border border-dark mb-3" id="error">
@@ -14,19 +14,31 @@
             <%}%>
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label">Reset Password</label>
-          <input type="text" class="form-control" id="exampleInputEmail1" name="password" aria-describedby="emailHelp">
+          <input type="text" class="form-control" id="reset" name="password" aria-describedby="emailHelp">
           
         </div>
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label">Confirm Password</label>
-          <input type="text" class="form-control" id="exampleInputEmail1" name="confirmPassword">
-          <div id="emailHelp" class="form-text">Please confirm your password here.</div>
+          <input type="text" class="form-control" id="confirm" name="confirmPassword">
+          <div id="text" class="form-text">Please confirm your password here.</div>
+          <div id="error" class="form-text text-danger">Reset and confirm password not matching</div>
         </div>
         
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
 </div>
 <script>
-
+   const reset = document.getElementById('reset');
+   const confirm = document.getElementById('confirm');
+   const error = document.getElementById('error');
+   error.style.display = 'none'
+   function match(){
+      if(reset.value != confirm.value){
+        document.getElementById('text').style.display = 'none';
+        error.style.display = 'block';
+        return false;
+      }
+      return true;
+   }
 </script>
 <%- include('../partials/footer') %>

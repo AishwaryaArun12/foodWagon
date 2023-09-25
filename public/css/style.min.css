@@ -362,10 +362,11 @@ a:hover {
 =            SideNav            =
 ===============================*/
 .sidenav {
+  
   height: 100%;
   width: 0;
   position: fixed;
-  z-index: 1002;
+  margin-right: 55px;
   top: 0;
   left: 0;
   background-color: #111;
@@ -375,7 +376,7 @@ a:hover {
   color: #fff; }
 
 .sidenav-content {
-  padding: 8px 32px;
+  padding: 8px 25px;
   transform: translateY(20px);
   opacity: 0;
   transition: transform 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86), opacity 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86); }
@@ -387,7 +388,7 @@ a:hover {
 
 .sidenav a {
   text-decoration: none;
-  font-size: 25px;
+  font-size: 18px;
   color: #818181;
   display: block;
   transition: 0.3s; }
@@ -400,8 +401,8 @@ a:hover {
   position: absolute;
   top: 0;
   right: 25px;
-  font-size: 36px;
-  margin-left: 50px; }
+  font-size: 25px;
+  margin-left: 25px; }
 
 @media screen and (max-height: 450px) {
   .sidenav {
@@ -541,8 +542,8 @@ a:hover {
 
 /* Style page content */
 .main {
-  margin-left: 160px; /* Same as the width of the sidebar */
-  padding: 0px 10px;
+  margin-left: 170px; /* Same as the width of the sidebar */
+  padding: 0px 40px;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
@@ -551,17 +552,16 @@ a:hover {
   .sidenav a {font-size: 18px;}
 }
 .card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  width: 300px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  width: 250px;
   height: 400px;
-  margin: auto;
   text-align: center;
   font-family: arial;
 }
 
 .price {
   color: grey;
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .card button {
@@ -586,9 +586,9 @@ a:hover {
 }
 .accordion {
  background-color: #000;
-  color: #444;
+  color: #888787;
   cursor: pointer;
-  padding: 18px;
+  padding-bottom: 10px;
   width: 100%;
   text-align: left;
   border: none;
@@ -607,6 +607,25 @@ a:hover {
   color: #000;
   display: none;
   overflow: hidden;
-  font-size: medium;
+  font-size: small;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
 }
 
+/* Style the active/current link */
+.pagination a.active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+/* Add a grey background color on mouse-over */
+.pagination a:hover:not(.active) {background-color: #ddd;}

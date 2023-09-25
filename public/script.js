@@ -53,7 +53,7 @@ function crtMenu(){
     
 }
 function addFoodType(){
-    const inputFoodType = document.getElementById('inputFoodType');
+    const category = document.getElementById('category');
     const newFoodType = document.getElementById('newFoodType');
     const value = newFoodType.value;
             const categoryInput = document.createElement('option');

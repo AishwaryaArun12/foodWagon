@@ -1,12 +1,12 @@
 <%- include('../partials/header') %>
 <section class="h-100">
-  <div class="width-100">
+  <div class="width-100 mt-4 pt-4">
     <a href="/menu" class="btn btn-shadow"><i class="fa fa-cart-plus fs-1" aria-hidden="true"></i><span class="fs-2 p-2"><b>Continue Shopping</b></span></a>
   </div>
     <div class="container h-100 py-5">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-10">
-  
+          <%if(cartData.length){%>
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-normal mb-0 text-black">Shopping Cart</h3>
             <div>
@@ -15,7 +15,7 @@
             </div>
           </div>
           <%let price = 0 %>
-  <%if(cartData.length){%>
+  
     
     <%for(let i=0;i< cartData.length;i++){%>
       <%price =price+cartData[i].itemId.price%>
@@ -33,15 +33,15 @@
                 <p><span class="text-muted">Quantity: </span><%=cartData[i].itemId.qty%> <span class="text-muted">Seller: </span><%=cartData[i].itemId.seller.name%></p>           </div>
               <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                 <button class="btn btn-link px-2"
-                onclick="updateQuantity(this, -1, '<%=cartData[i].itemId.price%>','<%=i%>')">
+                onclick="updateQuantity(this, -1, '<%=cartData[i].itemId.price%>','<%=i%>','<%=cartData[i].itemId._id%>')">
                   <i class="fa fa-minus" aria-hidden="true"></i>
                 </button>
   
-                <input id="form1" min="0" name="quantity" value="<%=cartData[i].quantity%>" type="number"
-                  class="form-control form-control-sm" />
+                <input id="form1" min="2" name="quantity" value="<%=cartData[i].quantity%>" type="number"
+                  class="form-control form-control-sm" readonly/>
   
                   <button class="btn btn-link px-2"
-                  onclick="updateQuantity(this, 1, '<%=cartData[i].itemId.price%>','<%=i%>')">
+                  onclick="updateQuantity(this, 1, '<%=cartData[i].itemId.price%>','<%=i%>','<%=cartData[i].itemId._id%>')">
                   <i class="fa fa-plus"></i>
                 </button>
               </div>
@@ -55,22 +55,6 @@
           </div>
         </div>
       <%}%>
-  <%}else{%>
-    <div class="container w-100 border border-dark mb-3" id="error">
-        <div class="text-center">
-          <h3>You are not selected items to add cart.</h3>
-        </div>
-      <div class="text-center">
-        <button class="btn btn-primary mb-2" onclick="errorBtn('<%=user %>')">Ok</button>
-      </div>
-    </div>
-    <%}%>
-          
-  
-          
-          
-  
-          
   
           <div class="card mb-4">
             <div class="card-body p-4 d-flex flex-row">
@@ -93,27 +77,33 @@
   
           <div class="card">
             <div class="card-body">
-              <button type="button" class="btn btn-warning btn-block btn-lg">Proceed to Pay</button>
+              <a href="/users/checkout" class="btn btn-warning btn-block btn-lg">Proceed to Buy</a>
             </div>
           </div>
+          <%}else{%>
+            <div class="container w-100 mb-3" id="error">
+                <div class="text-center">
+                  <h3>Sorry! Cart is Empty,</h3>
+                  <img src="https://static.thenounproject.com/png/6018981-200.png" alt="">
+                </div>
+              
+            </div>
+            <%}%>
   
         </div>
       </div>
     </div>
   </section>
   <script>
-    function errorBtn(user){
-          const div = document.getElementById('error');
-          div.style.display = 'none';
-          window.location.href = '/menu';
-        }
+    
     const tottal = document.getElementById('tottal');
-   function updateQuantity(button, change,p, i) {
+  async function updateQuantity(button, change,p, i,id) {
     let inputField = button.parentNode.querySelector('input[type=number]');
     let newValue = parseInt(inputField.value) + change;
-    if (newValue >= 0) {
+    if (newValue >= 1) {
         inputField.value = newValue;
-        updatePrice(inputField,p, i); // Pass cartData to the function
+        updatePrice(inputField,p, i);
+        await fetch( `/users/changeQty/${id}/${newValue}`) // Pass cartData to the function
     }
 }
 

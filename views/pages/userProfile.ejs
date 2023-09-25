@@ -1,24 +1,26 @@
 <%- include('../partials/header') %>
-<div class="container mt-5">
+<div class="container ">
+    <a href="/users/home" class="btn btn-danger mt-4 "> Back to Home</a>
     <div class="row">
         <div class="col-md-6 mx-auto">
-            <div class="card">
+            <div class="card shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
                 <div class="card-header">
                     <h2>User Profile</h2>
                 </div>
                 <div class="card-body">
                     <p><strong>Name:</strong> <%=userData.name%></p>
                     <p><strong>Email:</strong> <%=userData.email%></p>
-                    <button class="btn btn-success" data-toggle="modal" data-target="#addAddressModal">Add Address</button>
+                    <button class="btn btn-warning mb-2" data-toggle="modal" data-target="#addAddressModal"><i class="fa fa-plus  fs-3 " aria-hidden="true"></i> Address</button>
                        <div class="p-3 row">
                         <%for(let i=0;i<userData.address.length;i++){%>
-                            <strong class="p-3">Address<%=i+1%>:</strong><% Object.entries(userData.address[i]).forEach(([key, value]) => { %>
+                           <div class="col-6">
+                           <h6> <strong class="p-3">Address<%=i+1%>:</strong></h6><% Object.entries(userData.address[i]).forEach(([key, value]) => { %>
                                 <p class="lh-1 "><%= key %>: <%= value %></p>
                                 <% }); %>
                        
         <div class="d-flex">
-            <button class="btn btn-primary m-2" data-toggle="modal" data-target="#editAddressModal">Edit Address</button>
-            <a class="btn btn-danger m-2" href="/users/removeAddress/<%=i%>">Remove</a>           
+            <button class="btn btn-transparent shadow-lg p-3  m-3 rounded m-2 text-nowrap" data-toggle="modal" data-target="#editAddressModal"><i class="fa fa-pencil-square-o fs-4" aria-hidden="true"></i></button>
+            <btn class="mt-3 fs-2"  onclick="addressDelete('<%=i%>')" id="delete"><i class="fa fa-trash" aria-hidden="true"></i></btn>           
         </div>
         <div class="modal fade" id="editAddressModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -71,12 +73,13 @@
                 </div>
             </div>
         </div>
+                           </div>
        <%}%>      
     </div>            
                     <!-- Add more user details here -->
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                    <button class="btn btn-warning" data-toggle="modal" data-target="#editProfileModal"><i class="fa fa-pencil-square-o fs-3" aria-hidden="true"></i> Profile</button>
                     <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -117,9 +120,10 @@
                             </div>
                         </div>
                     </div>
-                    <a class="btn btn-secondary" href="/users/cart">Cart</a>
-                    <a class="btn btn-secondary" href="/wishlist">Wishlist</a>
-                    <a class="btn btn-secondary" href="/orders">Orders</a>
+                    <a class="btn btn-warning" href="/users/cart">
+                        <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="btn btn-warning" href="/users/wishlist"><i class="fa fa-heart text-danger" aria-hidden="true"></i></a>
+                    <a class="btn btn-warning" href="/users/orders"><b>Orders</b></a>
                 </div>
             </div>
         </div>
@@ -177,6 +181,26 @@
         </div>
     </div>
 </div>
+<script>
+    function addressDelete(i){
+        Swal.fire({
+  title: 'Do you want delete the address?',
+  
+  showCancelButton: true,
+  confirmButtonText: 'Delete',
+ 
+}).then((result) => {
+  /* Read more about isConfirmed, isDenied below */
+  if (result.isConfirmed) {
+    Swal.fire('Deleted!', '', 'success')
+    setTimeout(()=>{window.location.href = `/users/removeAddress/${i}`},2000)
+    
+  } else if (result.isDenied) {
+    Swal.fire('Changes are not saved', '', 'info')
+  }
+})
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

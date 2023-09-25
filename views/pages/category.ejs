@@ -1,0 +1,198 @@
+<%- include('../partials/header') %>
+<div class="d-flex">
+    <div class="sidebar">
+        <ul class="nav-links">
+            <li><a href="/admin/home">Dashboard</a></li>
+            <li><a href="/admin/allSeller">Sellers</a></li>
+            <li><a href="/admin/allUser">Users</a></li>
+            <li><a href="/admin/category"><b>Category</b></a></li>
+            <li><a href="/admin/allProducts">Products</a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <!-- Add more menu items as needed -->
+        </ul>
+      </div>
+    <div class="content">
+        <div class="m-2 p-2">
+            <h1>Category management</h1>
+        </div>
+           <div class="m-4" >
+            <form  id="foodTypeForm" class="m-4" method="post" action="/admin/newFoodType" >
+            <div class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="foodType" class="col-form-label"><strong>New food type : </strong></label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="foodType" class="form-control" name="foodType" required aria-describedby="passwordHelpInline">
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-danger w-100 ms-4" type="submit" >Add new food type</button></div>
+                </div>
+            </form>
+            <form action="/admin/newCategory" method="post" class="m-4">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="foodType" class="col-form-label"><strong>Select food type : </strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <select id="foodType" class="form-select" name="foodType" required>
+                            <option disabled selected>Select one food type</option>
+                            <% defaultData.menu.forEach(menuItem => { %>
+                            <option ><%= menuItem.name %></option>
+                            <%})%>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label for="category" class="col-form-label"><strong>New Category : </strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" id="category" class="form-control" name="category" required aria-describedby="passwordHelpInline">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-danger w-100 ms-4" type="submit">Add new category</button></div>
+                    </div>
+                </form>
+              </div>
+            
+           
+           <% defaultData.menu.forEach(menuItem => { %> 
+            <table class="table table-dark table-hover align-middle table-striped overflow-y: hidden">
+                <thead>
+                  <tr>
+                    <th scope="col">Category Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Block</th>
+                  </tr>
+                </thead>
+                <tbody>               
+              <div class="d-flex">
+                <pre><h2>Food type     <%= menuItem.name %></h2></pre>
+                
+                  <div class="me-4 pb-3"><button class="ms-4 bg-transparent btn" data-bs-toggle="modal" data-bs-target="#editFoodTypeModal" href=""><ion-icon class="fs-2 text-dark" name="create-outline"></ion-icon></button></div>
+                  <div class="modal fade" id="editFoodTypeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Edit food type <%=menuItem.name%> </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="/admin/editFoodType/<%=menuItem.name%>">
+                                <div class="mb-3">
+                                  <label for="foodType" class="form-label">Food Type</label>
+                                  <input type="text" class="form-control" id="foodType" name="foodType" value="<%=menuItem.name%>" >   
+                                </div>
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                  </div>                           
+                              </form>
+                        </div>                           
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ms-4 "><% if(menuItem.blocked == false){ %>
+                      <a  onclick="customConfirm('Are you sure you want to block food type <%=menuItem.name%>','/admin/blockFoodType/<%=menuItem.name%>')" class="ms-4"><ion-icon class="fs-2 text-dark" name="trash-outline"></ion-icon></a></div>
+                      <% }else{ %>
+                          <a href="/admin/unblockFoodType/<%=menuItem.name%>"  class="m-4"><ion-icon class="fs-2 mt-1 text-dark" name="add-outline"></ion-icon></a></div>
+                          <% } %>
+
+             <%if(menuItem.category){%>
+                <% menuItem.category.forEach(category => { %>
+                
+                    <tr>
+                      <td><%= category.name %></td>
+                      <td><% if(category.blocked == false){ %>
+                        Active
+                        <% }else{ %>
+                            Blocked
+                            <% } %></td>
+                      <td><button data-bs-toggle="modal" data-bs-target="#editCategoryModal" class="bg-transparent"><ion-icon class="fs-2 text-light"  name="create-outline"></ion-icon></button></td>
+                      <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Edit category <%=category.name%> </h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="/admin/editCategory/<%=menuItem.name%>/<%=category.name%>">
+                                    <div class="mb-3">
+                                      <label for="foodType" class="form-label">Food Type</label>
+                                      <input type="text" class="form-control" id="foodType" value="<%=menuItem.name%>" disabled>   
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="category" class="form-label">Category</label>
+                                      <input type="text" class="form-control" id="category" name="category" value="<%=category.name%>">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                      </div>                           
+                                  </form>
+                            </div>                           
+                          </div>
+                        </div>
+                      </div>
+                      <td><% if(category.blocked == false){ %>
+                          <a    onclick="customConfirm('Are you sure you want to block category <%=category.name%>','/admin/blockCategory/<%=menuItem.name%>/<%=category.name%>')"><ion-icon class="fs-2 text-light" name="trash-outline"></a></td>
+                          <% }else{ %>
+                              <a href="/admin/unblockCategory/<%=menuItem.name%>/<%=category.name%>"><ion-icon class="fs-2 mt-1 text-light" name="add-outline"></a></td>
+                              <% } %>
+                        </tr>
+                        
+                     
+                  <% }); %>
+                <%}%> 
+             
+              
+          <% }); %>
+        </tbody>
+    </table>
+            
+              <h1><%=data%></h1>
+            </div> 
+</div> 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script>
+
+        if('<%=data%>'){
+            Swal.fire({    
+            icon: 'success',
+            title: '<%=data%>',    
+            timer: 2000,
+            })
+            setTimeout(()=>{
+                window.location.href = '/admin/category'
+            },2000)
+
+        }else if('<%=error%>'){
+            Swal.fire({    
+            icon: 'warning',
+            title: '<%=error%>',    
+            timer: 2500,
+            })
+            setTimeout(()=>{
+                window.location.href = '/admin/category'
+            },2500)
+        }
+        function customConfirm(message,url) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: message,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                window.location.href = url
+                } 
+            });
+        }
+      </script>
+     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+     
+<%- include('../partials/footer') %>

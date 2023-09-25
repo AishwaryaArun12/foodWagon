@@ -2,10 +2,10 @@
 <div class="d-flex">
   <div class="sidebar">
     <ul class="nav-links">
-        <li><a href="/admin/home"><b>Dashboard</b></a></li>
-        <li><a href="/admin/allSeller">Sellers</a></li>
+        <li><a href="/admin/home">Dashboard</a></li>
+        <li><a href="/admin/allSeller"><b>Sellers</b></a></li>
         <li><a href="/admin/allUser">Users</a></li>
-        <li><a href="admin/products">Products</a></li>
+        <li><a href="/admin/allProducts">Products</a></li>
         <li><a href="admin/orders">Orders</a></li>
         <!-- Add more menu items as needed -->
     </ul>
@@ -17,9 +17,9 @@
      </div>
      <div class="container">
       <form class="d-flex" action="/admin/search/seller" method="post">
-        <input class="form-control m-3  border border-danger" type="search" placeholder="Search user here.." aria-label="Search" name="q">
+        <input class="form-control m-3 w-50  border border-danger" type="search" placeholder="Search user here.." aria-label="Search" name="q">
 
-        <button class="btn btn-danger m-3" type="submit">Search</button>
+        <button class="btn btn-warning m-3" type="submit">Search</button>
       </form>
     </div>
     </div>
@@ -58,7 +58,7 @@
                                   <%}%></td>
                   <td><%= sellers[i].location %></td>
                   
-                  <td><% if(sellers[i].blocked == false){ %>
+                  <td><% if(!sellers[i].blocked){ %>
                       <a href="/admin/block/seller/<%=sellers[i]._id%>" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
                       <% }else{ %>
                           <a href="/admin/unblock/seller/<%=sellers[i]._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>

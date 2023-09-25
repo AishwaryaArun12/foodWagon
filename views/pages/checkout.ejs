@@ -1,0 +1,160 @@
+<%- include('../partials/header') %>
+<div>
+    <form  onsubmit="submitForm(event)" method="post" action="/users/order" id="form">
+    <div class="row">
+        
+    <div class="container mt-4 col-lg-7">
+        <h1 class="m-4 ">Checkout</h1>
+        
+        <!-- User Information -->
+        <div class="shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
+            <div >
+                <h2 class="text-danger">User Information</h2>
+                <p><strong>Name:</strong> <%= user.name %></p>
+                <p><strong>Email:</strong> <%= user.email %></p>
+                <!-- Add more user information fields as needed -->
+            </div>
+        </div>
+
+        <!-- Select Address -->
+        
+        <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
+            <div >
+                <h2 >Select Address</h2>
+                    <div class="row">
+                        <% user.address.forEach((address, index) => { %>
+                            <div class="form-check col-5  shadow-lg mt-2  me-3 ms-3 rounded">
+                                <input class="form-check-input" type="radio" name="address" id="address<%=index %>" value="<%=index%>" <% if (index === 0) { %>checked<% } %> >
+                                <label class="form-check-label m-4 pt-2" for="address<%= index %>">
+                                    <% Object.entries(address).forEach(([key, value]) => { %>
+                                        <p class="lh-1 "><%= key %>: <%= value %></p>
+                                        <% }); %>
+                                </label>
+                            </div>
+                        <% }); %>
+                    </div>
+                
+            </div>
+        </div>
+    </div>
+    <div class="col-5">
+        <!-- Payment Mode -->
+        <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
+            <div class="card-body">
+                <h3 class="card-title">Payment Mode</h3>
+                    <div class="form-check m-1">
+                        <input class="form-check-input" type="radio" name="paymentMode" id="cashOnDelivery" value="cash on delivery" checked>
+                        <label class="form-check-label" for="cashOnDelivery">Cash on Delivery</label>
+                    </div>
+                    <div class="form-check m-1">
+                        <input class="form-check-input" type="radio" name="paymentMode" id="onlinePayment" value="Online payment">
+                        <label class="form-check-label" for="onlinePayment">Online Payment</label>
+                    </div>
+                    <div class="form-check m-1">
+                        <input class="form-check-input" type="radio" name="paymentMode" id="wallet" value="Wallet">
+                        <label class="form-check-label" for="wallet">Wallet</label>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Apply Coupon -->
+        <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
+            <div class="card-body">
+                <h3 class="card-title">Apply Coupon</h3>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="coupon" value="noCoupon" placeholder="Enter coupon code">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Apply</button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
+            <div class="card-body">
+                <h3 class="card-title">Cart Items</h3>
+                <table class="table ">
+                    <thead>
+                        <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Tottal</th>
+                    </thead>
+                    <tbody>
+                        <%let sum = 0%>
+                    <% cartData.forEach((item) => { %>
+                        
+                        <tr>
+                            <td><%= item.itemId.name %></td>
+                            <td> <%= item.quantity %> </td>
+                            <td><%= item.itemId.price %></td>
+                            <td><%= item.itemId.price*item.quantity %></td>
+                            <% sum +=item.itemId.price*item.quantity%>
+                        </tr>
+                    <% }); %>
+                    <tr class="bg-warning">
+                        <td colspan="3">Total</td>
+                        <td ><%=sum%></td>
+                    </tr>
+                    <tr class="bg-warning">
+                        <td colspan="3">Add GST</td>
+                        <td>
+                            <%if(sum<=3000){%>
+                                <%=sum*5/100 %>
+                                <% sum +=sum*5/100%>
+                                <%}else{%>
+                                    <%=sum*10/100 %>
+                                    <% sum +=sum*10/100%>
+                                    <%}%>
+                        </td>
+                    </tr>
+                    <tr class="bg-warning">
+                        <td colspan="3">Grand Total</td>
+                        <td><input type="number" value="<%=sum%>" name="total" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- Proceed to Checkout Button -->
+        
+            <div class="mb-3"><button type="submit"  class="btn btn-success btn-lg btn-block mb-3" >Proceed to Checkout</button></div>
+
+    </div>
+</div>
+</form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+     if('<%=data%>'){
+            Swal.fire({
+                title: '<strong><%=data%></strong>',
+                icon: 'success',
+                html:
+                    '<a href="/users/orders">Go to Orders</a> ' +
+                    '<a href="/users/menu">Continue shopping</a> ' 
+                })
+
+        }
+    console.log('hai');
+    function submitForm(e){
+        e.preventDefault();
+        const form = document.getElementById('form');
+        const formData = new FormData(form);
+        const mode = formData.get("total");
+        const data = {total : formData.get("total"),mode : formData.get("paymentMode"),address : formData.get("address")}
+        
+        if(!formData.get("address")){
+            return false;
+        }else if(mode == 'onlinePayment'){
+
+        }
+        else{
+            console.log('hhsj');
+            form.submit();
+        }
+    }
+</script>
+<%- include('../partials/footer') %>

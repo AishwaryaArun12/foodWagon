@@ -4,6 +4,11 @@ const Item = require('../models/items');
 const Jimp = require('jimp');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; 
+const Orders = require('../models/orders');
+const Coupon = require('../models/coupon');
+const User = require('../models/users');
+const { defaultData, updateDefaultData } = require('../models/defaultMenu');
+const { orderDetails } = require('./user');
 
 module.exports.login = (req,res)=>{
     const error = req.query;
@@ -44,7 +49,7 @@ module.exports.newSeller = async(req,res)=>{
                 const newSeller = new Seller(req.body);
         try {
          const savedSeller = await newSeller.save();
-         const newMenu = new Menu();
+         const newMenu = new Menu(defaultData);
          const savedMenu = await newMenu.save();
          savedSeller.menu = savedMenu._id;
          await savedSeller.save();
@@ -60,36 +65,37 @@ module.exports.newSeller = async(req,res)=>{
 };
 
 module.exports.loginSeller = async(req,res)=>{
-    let seller = await Seller.findOne({email : req.body.email,name: req.body.name});
-    
-    bcrypt.compare(req.body.password, seller.password,async (err, result) => {
-        if (err) {
-          console.log(err,'err');
-        } else if (result) {
-            if(seller.status == 'approve'){
-                res.cookie(req.body.email, req.body.password);
-                req.session.password = req.body.password;
-                req.session.email = req.body.email;
-                req.session.sellerId = `${seller._id}`;
-                req.session.login = true;
-                req.session.user = 'sellerHome';
-                req.session.menuId = `${seller.menu}`
-                req.session.save();
-                res.redirect('/sellers/home')
-            return;
-            }else if(seller.status == 'pending'){
-                res.redirect('/sellers/?error=Your request is in pending stage');
+    let seller = await Seller.findOne({email : req.body.email});
+    if(seller){
+        bcrypt.compare(req.body.password, seller.password,async (err, result) => {
+            if (err) {
+              console.log(err,'err');
+            } else if (result) {
+                if(seller.status == 'approve'){
+                    res.cookie(req.body.email, req.body.password);
+                    req.session.password = req.body.password;
+                    req.session.email = req.body.email;
+                    req.session.sellerId = `${seller._id}`;
+                    req.session.login = true;
+                    req.session.user = 'sellerHome';
+                    req.session.menuId = `${seller.menu}`
+                    req.session.save();
+                    res.redirect('/sellers/home')
+                return;
+                }else if(seller.status == 'pending'){
+                    res.redirect('/sellers/?error=Your request is in pending stage');
+                    return;
+                }
+                
+            }else{
+                res.redirect('/sellers/?error=Password not matching')
                 return;
             }
-            
-        }else{
-            res.redirect('/sellers/?error=Password not matching')
-            return;
-        }
-    })
-    
-    console.log(seller,'login');
-    if(!seller){
+        })
+        
+        console.log(seller,'login');
+        
+    }else if(!seller){
         res.redirect('/sellers/?error=Your are not registered. Please register')
         return;
     }
@@ -106,9 +112,11 @@ module.exports.home = async(req,res)=>{
                 path: 'menu.category.items.item',
                 model: 'Item'  // Make sure the model name matches the one you defined for items
               });
-              
+            const category = menu[0].menu.map(i => {
+                return i.category.map(i=>i.name);
+              });
               const foodType = menu[0].menu.map(foodType =>foodType.name);
-              res.render('pages/sellerHome',{error,foodType : foodType, menus : menus, search :search,user:'sellers', login:true});
+              res.render('pages/sellerHome',{error,foodType : foodType,category, menus : menus, search :search,user:'sellers', login:true});
         }else{
             res.redirect('/sellers');
         }
@@ -122,10 +130,10 @@ module.exports.home = async(req,res)=>{
         const menu = await Menu.findOne({ _id: req.session.menuId });
         try {
             if (!menu.menu.find(foodType => foodType.name === newFoodType)) {
-                console.log('menu',menu);
+                
                 menu.menu.push({ name: newFoodType, category: [] });
                 await menu.save();
-                console.log('new foodType saved..');
+                
             }
         } catch (error) {
             console.log(error);
@@ -279,7 +287,6 @@ module.exports.home = async(req,res)=>{
       // Find the index of the menu element containing the matching category
         const matchingCategory = menu.filter(category => {
            category= category.category.filter(element => {
-            console.log(element.name,'xd');
            return element.name == user; 
         })
         return category.length != 0;
@@ -370,7 +377,11 @@ module.exports.home = async(req,res)=>{
                 { _id: id }, // Filter the user by ID
                 { $set: req.body }, // Set the new name and email
                 { new: true })
-                res.redirect(`/sellers/product/${id}`);
+                if(req.session.user == 'sellerHome'){
+                    res.redirect(`/sellers/product/${id}`);   
+                }else{
+                    res.redirect(`/admin/allProducts`)
+                }
                 
         }else{
             res.redirect('/sellers/?error=Please login..')
@@ -393,9 +404,34 @@ module.exports.home = async(req,res)=>{
                 { $set: { [`images.${i}`]: imageBuffer } },
                 { new: true }
               );
-             res.redirect(`/sellers/product/${id}`);
+              console.log(req.session.user);
+              if(req.session.user == 'sellerHome'){
+                res.redirect(`/sellers/product/${id}`);   
+            }else{
+                res.redirect(`/admin/allProducts`)
+            }
         }else{
             res.redirect('/sellers/?error=Please login')
+        }
+    }
+    module.exports.deleteImage = async(req,res)=>{
+        const id = req.params.id;
+        const i = req.params.i;
+        try {
+            let updatedItem = await Item.updateOne({ _id: id }, { $unset: { [`images.${i}`]: 1 } });
+             updatedItem = await Item.updateOne({ _id: id }, { $pull: { images: null } });
+            if (updatedItem) {
+              console.log('Image deleted successfully:');
+            } else {
+              console.error('Failed to delete image: Image not found');
+            }
+          } catch (error) {
+            console.error('Error deleting image:', error);
+          }
+          if(req.session.user == 'sellerHome'){
+            res.json({data:`/sellers/product/${id}`});   
+        }else{
+            res.json({data : `/admin/allProducts`});
         }
     }
     module.exports.editVideo = async(req,res)=>{
@@ -407,7 +443,11 @@ module.exports.home = async(req,res)=>{
                 { $set: { video: videoBuffer } },
                 { new: true }
               );
-             res.redirect(`/sellers/product/${id}`);
+              if(req.session.user == 'sellerHome'){
+                res.redirect(`/sellers/product/${id}`);   
+            }else{
+                res.redirect(`/admin/allProducts`)
+            }
         }else{
             res.redirect('/sellers/?error=Please login')
         }
@@ -428,7 +468,11 @@ module.exports.home = async(req,res)=>{
                 { $push: { [`images`]: imageBuffer } },
                 { new: true }
               );
-             res.redirect(`/sellers/product/${id}`);
+              if(req.session.user == 'sellerHome'){
+                res.redirect(`/sellers/product/${id}`);   
+            }else{
+                res.redirect(`/admin/allProducts`)
+            }
         }else{
             res.redirect('/sellers/?error=Please login')
         }
@@ -469,4 +513,287 @@ module.exports.home = async(req,res)=>{
             })
         }
     }
+}
+module.exports.order = async(req,res)=>{
+    if(req.session.login){
+        const id = req.session.sellerId;
+        const orders = await Orders.find({seller : id}).populate({
+            path: 'items',
+            populate: {
+              path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+              model: 'Item'
+            },
+          }).populate('customer').sort({ordered_on : -1});
+        
+        res.render('pages/sellerOrder',{orders,login : true, user : 'sellers'})
+    }else{
+        res.redirect('/sellers/?error=Please login first')
+    }
+}
+module.exports.orderAction = async (req,res)=>{
+    if(req.session.login){
+        const action = req.body.action;
+        const id = req.params.id;
+        console.log(req.body,'body')
+        if(req.body.itemId){
+            const itemId = req.body.itemId;
+            const update = await Orders.findOneAndUpdate(
+                { _id: id, "items.itemId": itemId },
+                { $set: { "items.$.status": action } },{new : true}
+              );
+              const order = await Orders.findById(id);
+              if(order.couponId){
+                let coupon = await Coupon.findById(order.couponId)
+                order.items.forEach(async (i) => {
+                    if(i.itemId == itemId){
+                        if(action == 'Cancelled' || action == 'Returned'){
+                          if(i.status == 'Return requested' || i.status == 'Cancel requested'){
+                            if(coupon.min<=(order.amount - i.amount)){
+                              try {
+                                  // 1. Find the user by their user ID
+                                  const user = await User.findById(order.customer);
+                                  const seller = await Seller.findById(req.session.sellerId);
+                                  if (!user) {
+                                    console.error('User not found');
+
+                                    return; // Handle the case where the user is not found
+                                  }
+                                  const item = await Item.findById(i.itemId);
+                                  let amount = order.amount >3000 ? i.amount * 100/110 : i.amount * 100/105
+                                  // 2. Calculate the refund amount and create a wallet transaction record
+                                  const refundTransaction = {
+                                    amount: Math.round(amount),
+                                    description : 'Credited for Order return',
+                                    sellerName: seller.name, // Replace with the actual seller name
+                                    orderDetails: [
+                                      {
+                                        name: item.name, // Replace with the actual order name
+                                        amount: i.amount,
+                                      },
+                                    ],
+                                    date: new Date(),
+                                  };
+                                  let walletBalance = user.walletBalance+i.amount;
+                                  await User.findOneAndUpdate({_id : order.customer},{$set : {walletBalance : walletBalance}},{new : true});
+                                  // 3. Update the user's wallet balance and transaction history
+                                  user.wallet.push(refundTransaction);
+                                  await user.save();
+                              
+                                  console.log('User wallet updated:', user);
+                                  // Wallet updated successfully
+                                } catch (error) {
+                                  console.error('Error updating user wallet:', error);
+                                  // Handle the error appropriately
+                                }
+                              }else{
+                                  try {
+                                      // 1. Find the user by their user ID
+                                      const user = await User.findById(order.customer);
+                                      const seller = await Seller.findById(req.session.sellerId);
+                                      if (!user) {
+                                        console.error('User not found');
+                                        return; // Handle the case where the user is not found
+                                      }
+                                      const item = await Item.findById(i.itemId);
+                                      let amount = order.amount >3000 ? i.amount * 100/110 : i.amount * 100/105
+                                      // 2. Calculate the refund amount and create a wallet transaction record
+                                      const refundTransaction = {
+                                        amount: i.amount-(order.amount*((100+order.couponDiscount)/100))-order.amount,
+                                        description : 'Credited for Order return',
+                                        sellerName: seller.name, // Replace with the actual seller name
+                                        orderDetails: [
+                                          {
+                                            name: item.name, // Replace with the actual order name
+                                            amount: Math.round(amount)+1,
+                                          },
+                                        ],
+                                        date: new Date(),
+                                      };
+                                      let walletBalance = user.walletBalance+i.amount;
+                                  await User.findOneAndUpdate({_id : order.customer},{$set : {walletBalance : walletBalance}},{new : true});
+                                  
+                                      // 3. Update the user's wallet balance and transaction history
+                                      user.wallet.push(refundTransaction);
+                                      await user.save();
+                                  
+                                      console.log('User wallet updated:', user);
+                                      // Wallet updated successfully
+                                    } catch (error) {
+                                      console.error('Error updating user wallet:', error);
+                                      // Handle the error appropriately
+                                    }
+                              }
+                          }
+                        }
+                        }
+                    })
+                }else{
+                
+                    order.items.forEach(async (i) => {
+                        if(i.itemId == itemId){
+                                try {
+                                    // 1. Find the user by their user ID
+                                    const user = await User.findById(order.customer);
+                                    const seller = await Seller.findById(req.session.sellerId);
+                                    if (!user) {
+                                      console.error('User not found');
+                                      return; // Handle the case where the user is not found
+                                    }
+                                    const item = await Item.findById(i.itemId);
+                                    let amount = order.amount >3000 ? i.amount * 100/110 : i.amount * 100/105
+                                    // 2. Calculate the refund amount and create a wallet transaction record
+                                    const refundTransaction = {
+                                      amount: i.amount,
+                                      sellerName: seller.name, // Replace with the actual seller name
+                                      description : 'Credited for Order return',
+                                      orderDetails: [
+                                        {
+                                          name: item.name, // Replace with the actual order name
+                                          amount: Math.round(amount),
+                                        },
+                                      ],
+                                      date: new Date(),
+                                    };
+                                
+                                    // 3. Update the user's wallet balance and transaction history
+                                    user.wallet.push(refundTransaction);
+                                    await user.save();
+                                    let walletBalance = user.walletBalance+i.amount;
+                                    await User.findOneAndUpdate({_id : order.customer},{$set : {walletBalance : walletBalance}},{new : true});
+                                    console.log('User wallet updated:', user);
+                                    // Wallet updated successfully
+                                  } catch (error) {
+                                    console.error('Error updating user wallet:', error);
+                                    // Handle the error appropriately
+                                  }
+                                
+                }
+            })
+            }
+        }else{
+            
+              const order = await Orders.findById(id);
+                            try {
+                                // 1. Find the user by their user ID
+                                const user = await User.findById(order.customer);
+                                const seller = await Seller.findById(req.session.sellerId);
+                                if (!user) {
+                                  console.error('User not found');
+                                  return; // Handle the case where the user is not found
+                                }
+                                if(action == 'Cancelled' || action == 'Returned'){
+                                  const orderItemDetails = await Promise.all(
+                                    order.items.map(async (i) => {
+                                      if (
+                                        i.status != 'Cancelled' &&
+                                        i.status != 'Returned' 
+                                      ) {
+                                        const item = await Item.findById(i.itemId);
+                                        return { name: item.name, amount: i.amount };
+                                      }
+                                      return null; // If the condition is not met, return null
+                                    })
+                                  );
+                                  console.log(orderItemDetails,'hguhji');
+                                let amount = order.amount >3000 ? order.amount*100/110 : order.amount*100/105
+                                // 2. Calculate the refund amount and create a wallet transaction record
+                                const refundTransaction = {
+                                    amount: Math.round(amount),
+                                    description : 'Credited for Order return',
+                                    sellerName: seller.name,
+                                    orderDetails: orderItemDetails.filter((item) => item !== null), // Remove null values
+                                    date: new Date(),
+                                  };
+                            
+                                // 3. Update the user's wallet balance and transaction history
+                                user.wallet.push(refundTransaction);
+                                await user.save();
+                            
+                                console.log('User wallet updated:', user);
+                                let walletBalance = user.walletBalance+amount;
+                                  await User.findOneAndUpdate({_id : order.customer},{$set : {walletBalance : walletBalance}},{new : true});
+
+                                }                                
+                                const updatedOrder = await Orders.findOneAndUpdate(
+                                    { _id: id },
+                                    {
+                                      $set: {
+                                        'items.$[elem].status': action, status : action,
+                                      }
+                                     
+                                    },
+                                    {
+                                      arrayFilters: [{ 'elem.status': { $nin: ['Cancelled', 'Returned'] } }],
+                                      new: true, // Return the updated document
+                                    }
+                                  );
+                                // Wallet updated successfully
+                              } catch (error) {
+                                console.error('Error updating user wallet:', error);
+                                // Handle the error appropriately
+                              }
+                              
+        }
+        const order = await Orders.findById(id);
+        if(order.status == 'Delivered'){
+            if(order.mode == 'Cash on delevery'){
+                const updated = await Orders.findOneAndUpdate(
+                    { _id: id },
+                    {
+                      $set: {
+                        paymentStatus : 'Paid',
+                      }
+                     
+                    },
+                    {
+                      new: true, // Return the updated document
+                    }
+                  );
+            }
+        }
+        
+            res.redirect('/sellers/orders');
+          
+    }else{
+        res.redirect('/sellers/?error=Please login first')
+    }
+}
+module.exports.cancelOrder = async (req,res)=>{
+    const id = req.params.id;
+    const orderDetail = await Orders.findById(id);
+    const customer = await User.findById(orderDetail.customer);
+    if(req.session.user == 'sellerHome'){
+         let update = await Orders.findOneAndUpdate({ _id: id },
+            {
+              $set: {
+                'items.$[elem].status': 'Cancelled by seller', status : 'Cancelled by seller',
+              }
+             
+            },
+            {
+              arrayFilters: [{ 'elem.status': { $nin: ['Cancelled', 'Returned'] } }],
+              new: true, // Return the updated document
+            })
+            if(update){
+                res.json({'data' : '/sellers/orders'})
+            }
+    }else{
+         let update = await Orders.findOneAndUpdate({ _id: id },
+            {
+              $set: {
+                'items.$[elem].status': 'Cancelled by admin', status : 'Cancelled by admin',
+              }
+             
+            },
+            {
+              arrayFilters: [{ 'elem.status': { $nin: ['Cancelled', 'Returned'] } }],
+              new: true, // Return the updated document
+            })
+            if(update){
+              let newBalance = orderDetail.amount + customer.walletBalance;
+              await User.findOneAndUpdate({_id : orderDetails.customer},{$set : {walletBalance : newBalance}},{new : true})
+                res.json({'data' : '/admin/orders'})
+            }
+    }
+    
 }

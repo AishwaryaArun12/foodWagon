@@ -10,6 +10,8 @@ const passport = require('./passport');
 //const cookieSession = require('cookie-session');
 const nodemailer = require('nodemailer');
 //require('./passport');
+const User = require('./models/users');
+const Seller = require('./models/seller');
 
 
 const mainRoute = require('./routes/main');
@@ -17,6 +19,7 @@ const userRoutes = require('./routes/user')
 const sellerRoutes = require('./routes/seller');
 const deliveryRoutes = require('./routes/delivery_staff');
 const adminRoutes = require('./routes/admin');
+const {isLogin, isBlocked} = require('./controllers/authMiddleware');
 app.use(express.static('public'));
 mongoose.connect(process.env.foodwagon).then(()=>{console.log('database connected..');})
 app.set('view engine','ejs');
@@ -61,16 +64,38 @@ app.use('/delivery_staffs', deliveryRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', mainRoute);
 
-app.get('/logout', (req,res)=>{
+app.get('/logout',async (req,res)=>{
+  let user;
+  let seller;
+  if(req.session.userId || req.user){
+    if(req.session.userId){
+      user = await User.findById(req.session.userId)
+    }else {
+      user = await User.find({email : req.user.email});
+      user = user[0];
+    }
+  }else if(req.session.sellerId){
+    seller = await Seller.findById(req.session.sellerId);
+  }
   console.log('logout..Ss.');
   const email = req.session.email;
   res.clearCookie(email);
-  req.session.destroy(); 
+  req.session.destroy();
+  if(user && user.blocked){
+    res.redirect('/users/?error=Sorry, your access denied by admin')
+    return;
+  }else if(seller && seller.blocked){
+    res.redirect('/users/?error=Sorry, your access denied by admin')
+    return;
+  }
   res.redirect('/users')
 })
+
 app.get('/auth' , passport.authenticate('google', { scope:
   [ 'email', 'profile' ]
 }));
+
+
 
 // Auth Callback
 app.get( '/auth/callback',
@@ -80,7 +105,7 @@ app.get( '/auth/callback',
 }));
 
 // Success 
-app.get('/auth/callback/success' , (req , res) => {
+app.get('/auth/callback/success' ,isBlocked, (req , res) => {
   console.log(req.session,req.user.displayName);
   if(!req.user){
       res.redirect('/auth/callback/failure');
@@ -93,7 +118,7 @@ app.get('/auth/callback/success' , (req , res) => {
 
 // failure
 app.get('/auth/callback/failure' , (req , res) => {
-  res.redirect(`${req.session.user}/login?error=Google authentication failed`);
+  res.redirect(`/${req.session.user}/?error=Google authentication failed`);
 })
 
 app.listen(3000,()=>{console.log('your app is running on port 3000....')})

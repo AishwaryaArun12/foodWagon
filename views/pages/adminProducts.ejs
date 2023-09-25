@@ -1,168 +1,74 @@
 <%- include('../partials/header') %>
 <div class="d-flex">
-    <div class="container">
-        <form class="d-flex" action="/admin/search/<%=menus._id%>" >
-          <input class="form-control m-3  border border-danger" id="searchInput" type="search" placeholder="Search Items.."  aria-label="Search" name="q">
-    
-          <button class="btn btn-danger m-3" type="submit">Search</button>
-        </form>
+    <div class="sidebar">
+        <ul class="nav-links">
+            <li><a href="/admin/home">Dashboard</a></li>
+            <li><a href="/admin/allSeller">Sellers</a></li>
+            <li><a href="/admin/allUser">Users</a></li>
+            <li><a href="/admin/category">Category</a></li>
+            <li><a href="/admin/allProducts"><b>Products</b></a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <!-- Add more menu items as needed -->
+        </ul>
       </div>
-</div>
-<% if(error){ %>
-    <div class="container w-100 border border-dark mb-3" id="error">
-      <div class="text-center">
-        <h3>
-          <%=error%>
-        </h3>
-      </div>
-      <div class="text-center">
-        <button class="btn btn-primary mb-2" onclick="errorBtn('<%=user %>')">Ok</button>
-      </div>
-    </div>
-    <%}%>
-    
-     <%if(search == ''){%>
-        <div class="container-fluid" id="menu">
-            <% menus.menu.forEach(menuItem => { %>
-              <%if(menuItem.category.length != 0){%>
-                <% menuItem.category.forEach(category => { %>
-                  <h2><%= menuItem.name %></h2>
-                  <div class="d-flex">
-                    <h3><%= category.name %></h3>
-                    <h3 class="ms-auto "><% if(category.blocked == false){ %>
-                      Active
-                      <% }else{ %>
-                          Blocked
-                          <% } %></h3>
-                    <% if(category.blocked == false){ %>
-                      <a href="/admin/block/<%=category.name%>/<%=menus.id%>" class="ms-auto p-2"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
-                      <% }else{ %>
-                          <a href="/admin/unblock/<%=category.name%>/<%=menus.id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
-                          <% } %>
-                  </div>
+    <div class="content">
+        <div class="d-flex">
+          
+            <div class="container">
+                <form class="d-flex" action="/admin/search/item" method="post" >
+                   <input class="form-control m-3  border border-warning w-50 " id="searchInput" type="search" placeholder="Search Items.."  aria-label="Search" name="q">           
+                  <button class="btn btn-warning m-3" type="submit">Search</button>
+                </form>
+              </div>
+              
+        </div>
+        
+            
+            
+              <div id="search" class="m-4">
+                
+                <% for(let i=0;i< items.length;i++){ %>
                   <table class="table table-dark table-hover align-middle table-striped">
                     <thead>
                       <tr>
-                        <th scope="col">Item Name</th>
+                        <th scope="col" style="width: 230px;">Item Name</th>
                         <th scope="col">Images</th>
-                        <th scope="col">Video</th>
-                        <th scope="col">Discount</th>
-                        <th scope="col">Quantity</th>
-                        <%if(menuItem.name == 'Ready to eat'|| menuItem.name == 'Hot and eat'){%>
-                          <th scope="col">Taste</th>
-                          <%}else if(menuItem.name == 'Instant cook'){%>
-                            <th scope="col">Capacity</th>
-                            <%}%>
+                        <th scope="col">Discount</th>                
                         <th scope="col">Price</th>
                         <th scope="col">Stock</th>
                         <th scope="col">Status</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
-                      <% category.items.forEach(item => { %>
-                        <%if(item.item){%>
-                          <tr>  
-                              <td>
-                                <a href="/admin/product/<%=item.item._id%>">
-                                <%= item.item.name %>
-                                </a>
-                            </td>   
-        
-                            <td>
-                              <%for(let i=0;i<item.item.images.length;i++){%>
-                              <img class="myImg" src="/sellers/getImage/<%=item.item._id%>/<%=i%>" width="100px" height="100px" alt="<%=item.item.name%>">
-                              <%}%>
-                            </td>
-                              <div id="myModal" class="modal">
-        
-                                <!-- The Close Button -->
-                                <span class="close">&times;</span>
-                              
-                                <!-- Modal Content (The Image) -->
-                                <img class="modal-content" id="img01">
-                              
-                                <!-- Modal Caption (Image Text) -->
-                                <div id="caption"></div>
-                              </div>
-                              <td><video controls width="200" height="200">
-                                <source src="/sellers/getVideo/<%=item.item._id%>" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video></td>
-                            <td><%= item.item.discount %></td>
-                            <td><%= item.item.qty %></td>
-                            <%if(item.item.foodType == 'Instant cook'){%>
-                              <td><%= item.item.tasteOrcapacity %></td>
-                              <%}else{%>
-                                <td><%= item.item.tasteOrcapacity %></td>
-                                <%}%>
-                            <td>&#8377;<%= item.item.price %></td>
-                            <td><%= item.item.stock %></td>
-                            <td><% if(item.item.blocked == false){ %>
-                              Active
-                              <% }else{ %>
-                                  Blocked
-                                  <% } %></td>
-                            <td><a href="../edit/Item/<%=item.item._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
-                            <td><% if(item.item.blocked == false){ %>
-                                <a href="/admin/block/item/<%=item.item._id%>" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
-                                <% }else{ %>
-                                    <a href="/admin/unblock/item/<%=item.item._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
-                                    <% } %>
-                          </tr>
-                          <%}%>
-                      <% }); %>
-                    </tbody>
-                  </table>
-                <% }); %>
-                <%}%>
-            <% }); %>
-          </div>
-        <%}%>
-      <div id="search">
-        <% if(search != ''){ %>
-          <table class="table table-dark table-hover align-middle table-striped">
-            <thead>
-              <tr>
-                <th scope="col">Item Name</th>
-                <th scope="col">Images</th>
-                <th scope="col">Discount</th>                
-                <th scope="col">Price</th>
-                <th scope="col">Stock</th>
-                <th scope="col">Status</th>
-                <th scope="col">Edit</th>
-                <th scope="col">Delete</th>
-                <th><a href="/admin/search/close/<%=menus._id%>" ><img src="/img/icons/close.png" width="40px" height="40px" alt="close"></a></th>
-              </tr>
-            </thead>
-            <tbody><% search.forEach(item => { %>
-              <tr>
-                
-                <td><%= item.name %></td>
-                <td><img src="/sellers/getImage/<%=item._id%>/0" width="100px" height="100px" alt="image"></td>
-                <td><%= item.discount %></td>
-                <td><%= item.price %></td>
-                <td><%= item.stock %></td>
-                <td><% if(item.blocked == false){ %>
-                  Active
-                  <% }else{ %>
-                      Blocked
-                      <% } %></td>
-                <td><a href=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
-                <td><% if(item.blocked == false){ %>
-                    <a href="" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
-                    <% }else{ %>
-                        <a href=""><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
-                        <% } %>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-          <% } %>
-      </div>
-      
-      
+                      <tr>
+                        
+                        <td><%= items[i].name %></td>
+                        <td><img src="/sellers/getImage/<%=items[i]._id%>/0" width="100px" height="100px" alt="image"></td>
+                        <td><%= items[i].discount %>%</td>
+                        <td><%= items[i].price %></td>
+                        <td><%= items[i].stock %></td>
+                        <td><% if(items[i].blocked == false){ %>
+                          Active
+                          <% }else{ %>
+                              Blocked
+                              <% } %></td>
+                        <td><a href="/sellers/editItem/<%=items[i]._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
+                        <td><% if(items[i].blocked == false){ %>
+                            <a href="/admin/block/item/<%=items[i]._id%>" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+                            <% }else{ %>
+                                <a href="/admin/unblock/item/<%=items[i]._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
+                                <% } %>
+                      </tr>
+                   
+                  </tbody>
+                </table>
+                  <% } %>
+              </div>
+            </div> 
+</div> 
       <script>
         console.log('hai..')
         var modal = document.getElementById("myModal");

@@ -3,6 +3,9 @@ const User = require('../models/users');
 const Menu = require('../models/menu');
 const Item = require('../models/items');
 const nodemailer = require('nodemailer');
+const Orders = require('../models/orders')
+
+const { defaultData, updateDefaultData } = require('../models/defaultMenu');
 
 const transporter = nodemailer.createTransport({
     service : 'Gmail',
@@ -41,7 +44,7 @@ module.exports.loginAdmin = async (req,res)=>{
             req.session.password = req.body.password;
             req.session.email = req.body.email;
             req.session.login = true;
-            req.session.user = admin;
+            req.session.user = 'admin';
             req.session.save();
             res.redirect('/admin/home')
         }else{
@@ -202,6 +205,7 @@ module.exports.searchClose = async (req,res)=>{
     res.redirect(`/admin/menu/${id}`);
 }
 module.exports.block = async (req,res)=>{
+    console.log('hai...........');
     const id = req.params.id;
     const user = req.params.user;
     if(user == 'user'){
@@ -209,10 +213,10 @@ module.exports.block = async (req,res)=>{
         res.redirect('/admin/allUser');
     }else if(user == 'seller'){
         const update = await Seller.updateOne({_id : id},{$set :{blocked : true}})
-        res.redirect('/admin/sellers');
+        res.redirect('/admin/allSeller');
     }else if(user == 'item'){
         const update = await Item.updateOne({_id : id},{$set :{blocked : true}})
-        res.redirect('/admin/sellers');
+        res.redirect('/admin/allProducts');
     }else {
         const matchingDocument = await Menu.findOne({
             _id: id,
@@ -260,10 +264,10 @@ module.exports.unblock = async (req,res)=>{
         res.redirect('/admin/allUser');
     }else if(user == 'seller'){
         const update = await Seller.updateOne({_id : id},{$set :{blocked : false}})
-        res.redirect('/admin/sellers');
+        res.redirect('/admin/allSeller');
     }else if(user == 'item'){
         const update = await Item.updateOne({_id : id},{$set :{blocked : false}})
-        res.redirect('/admin/sellers');
+        res.redirect('/admin/allProducts');
     }else {
         
         const matchingDocument = await Menu.findOne({
@@ -318,6 +322,10 @@ module.exports.searchUser = async (req,res)=>{
         const searchResults = await Seller.find({ name: { $regex: searchTerm, $options: 'i' } }); // Perform a case-insensitive search
         sellers = searchResults;
         res.redirect('../sellers');
+    }else if(user == 'item'){
+        const searchResults = await Item.find({ name: { $regex: searchTerm, $options: 'i' } }); // Perform a case-insensitive search
+        items = searchResults;
+        res.redirect('/admin/products');
     }
     
     } catch (error) {
@@ -325,9 +333,369 @@ module.exports.searchUser = async (req,res)=>{
     res.status(500).json({ error: 'An error occurred while searching for items.' });
     }
 }
-module.exports.adminProduct = async (req,res)=>{
+let items = null;
+module.exports.allProducts = async (req,res)=>{
+    items = await Item.find();
+    res.redirect('/admin/products')
+}
+module.exports.products = async (req,res)=>{
     if(req.session.login || req.user){
-        const items = await Item.find();
-        res.render('pages/adminProducts',{login:true,user:'admin',})
+        res.render('pages/adminProducts',{login:true,user:'admin', items})
+    }else{
+        res.redirect('/users')
     }
+}
+module.exports.category = async (req,res)=>{
+    
+    let data = req.query.data;
+    let error = req.query.error;
+    if(req.session.login || req.user){
+        res.render('pages/category',{user : 'admin',login :true, defaultData,data,error})
+    }else{
+        res.redirect('/users');
+    }
+}
+module.exports.newFoodType = async (req,res)=>{
+    if(req.session.login || req.user){
+        const { foodType } = req.body;
+        console.log(req.body)
+        const existingFoodType = defaultData.menu.find((menu) => menu.name.toLowerCase() === foodType.toLowerCase());
+      
+        if (!existingFoodType) {
+          // Create a new food type
+          const newFoodType = {
+            name: req.body.foodType,
+            blocked: false,
+            category: [],
+          };
+
+
+          // Add the new food type to the menu
+          defaultData.menu.push(newFoodType);
+      
+          // Update the default data
+          updateDefaultData(defaultData);
+          const menuId = await Menu.find();
+          menuId.forEach(async menuId => {
+            await Menu.findByIdAndUpdate(
+                menuId,
+                {
+                  $push: { 'menu': newFoodType},
+                },
+                { new: true, useFindAndModify: false }
+              );
+          });
+      
+          res.redirect('/admin/category/?data=New food type added successfully')
+        } else {
+          // Food type already exists, send a response indicating that
+          res.redirect('/admin/category/?error=You entered food type already added.')
+        }
+    }else{
+        res.redirect('/admin')
+    }
+}
+module.exports.newCategory = async (req,res)=>{
+    if(req.session.login || req.user){
+        const { foodType,category } = req.body;
+        
+        const existingCategory = ()=>{
+          for (const menu of defaultData.menu) {
+            for (const cat of menu.category) {
+              if (cat.name.toLowerCase() === category.toLowerCase()) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+      
+        if (!existingCategory) {
+          // Create a new food type
+          const newCategory = {
+            name: category,
+            status : 'Active',
+            blocked: false,
+            items: [],
+          };
+
+
+          // Add the new food type to the menu
+          for(let i=0;i<defaultData.menu.length;i++){
+            if(foodType.name==foodType){
+                defaultData.menu[i].category.push(newCategory);
+                break;
+            }
+          }
+          // Update the default data
+          updateDefaultData(defaultData);
+          const menuId = await Menu.find();
+            await Menu.updateMany(
+                {
+                  menu: {
+                    $elemMatch: { name: foodType }
+                  }
+                },
+                {
+                  $push: {
+                    'menu.$.category': newCategory
+                  }
+                })
+      
+          res.redirect(`/admin/category/?data=New category ${category} added successfully`)
+        } else {
+          // Food type already exists, send a response indicating that
+          res.redirect(`/admin/category/?error=You entered category ${category} already added.`)
+        }
+    }else{
+        res.redirect('/admin')
+    }
+}
+module.exports.blockFoodType = async (req,res)=>{
+    if(req.session.login || req.user ){
+        const foodType = req.params.foodType;
+        defaultData.menu.forEach(element=>{
+           if( element.name == foodType){
+            element.blocked = true;
+           }
+        });
+        updateDefaultData(defaultData);
+        await Item.updateMany(
+            {
+              foodType : foodType
+            },
+            {
+              $set: {
+                'blocked': true
+              }
+            })
+            res.redirect(`/admin/category/?data=${foodType} food type blocked`)
+    }else{
+        req.redirect('/admin/?error = Please login...')
+    }
+}
+module.exports.unblockFoodType = async (req,res)=>{
+    if(req.session.login || req.user ){
+        const foodType = req.params.foodType;
+        defaultData.menu.forEach(element=>{
+           if( element.name == foodType){
+            element.blocked = false;
+           }
+        });
+        updateDefaultData(defaultData);
+        await Item.updateMany(
+            {
+              foodType : foodType
+            },
+            {
+              $set: {
+                'blocked': false
+              }
+            })
+            res.redirect(`/admin/category/?data=${foodType} type foods are active now`)
+    }else{
+        req.redirect('/admin/?error = Please login...')
+    } 
+}
+module.exports.blockCategory = async (req,res)=>{
+    if(req.session.login || req.user){
+        const foodType = req.params.foodType;
+        const category = req.params.category;
+        
+          // Add the new food type to the menu
+          for(let i=0;i<defaultData.menu.length;i++){
+            if(defaultData.menu[i].name==foodType){
+                defaultData.menu[i].category.forEach(element => {
+                    if(element.name == category){
+                        element.blocked = true;
+                    }
+                });
+                break;
+            }
+          }
+          console.log(defaultData.menu[0].category);
+          // Update the default data
+          updateDefaultData(defaultData);
+          const menuId = await Menu.find();
+            await Item.updateMany(
+                {
+                  category : category
+                },
+                {
+                  $set: {
+                    'blocked': true
+                  }
+                })
+      
+          res.redirect(`/admin/category/?data=Category ${category} blocked successfully`)
+       
+    }else{
+        res.redirect('/admin/?error= Please login')
+    }
+}
+module.exports.unblockCategory = async (req,res)=>{
+    if(req.session.login || req.user){
+        const foodType = req.params.foodType;
+        const category = req.params.category;
+        
+          // Add the new food type to the menu
+          for(let i=0;i<defaultData.menu.length;i++){
+            if(defaultData.menu[i].name==foodType){
+                defaultData.menu[i].category.forEach(element => {
+                    if(element.name == category){
+                        element.blocked = false;
+                    }
+                });
+                break;
+            }
+          }
+          // Update the default data
+          updateDefaultData(defaultData);
+          const menuId = await Menu.find();
+            await Item.updateMany(
+                {
+                  category : category
+                },
+                {
+                  $set: {
+                    'blocked': false
+                  }
+                })
+      
+          res.redirect(`/admin/category/?data=Category ${category} is active now`)
+       
+    }else{
+        res.redirect('/admin/?error= Please login...')
+    }
+}
+module.exports.editCategory = async (req,res)=>{
+    if(req.session.login || req.user){
+        const foodType = req.params.foodType;
+        const oldCategory = req.params.category;
+        const newCategory = req.body.category
+        
+          // Add the new food type to the menu
+          for(let i=0;i<defaultData.menu.length;i++){
+            if(defaultData.menu[i].name==foodType){
+                defaultData.menu[i].category.forEach(element => {
+                    if(element.name == oldCategory){
+                        element.name = newCategory;
+                    }
+                });
+                break;
+            }
+          }
+          // Update the default data
+          updateDefaultData(defaultData);
+            await Item.updateMany(
+                {
+                  category : oldCategory
+                },
+                {
+                  $set: {
+                    'category': newCategory
+                  }
+                })
+                try {
+                    // Find the seller's menu document by sellerId and foodType
+                    const menu = await Menu.find({'menu.name': foodType });
+            
+                    // Find the index of the category in the menu's categories array
+                    
+                     menu.forEach(async (menu)=>{
+                        
+                        let categoryIndex;
+                         menu.menu.forEach(menu=>{
+                            
+                            if(menu.name == foodType){
+                                
+                                categoryIndex=menu.category.findIndex(category => 
+                        category.name == oldCategory)
+                            }
+                         })
+                        console.log(categoryIndex);
+                        if(categoryIndex != -1){
+                            menu.menu[0].category[categoryIndex].name = newCategory;
+                            await menu.save();
+                        }
+                    })
+ 
+                } catch (error) {
+                    console.error('Error updating category name:', error);
+                }
+            
+          res.redirect(`/admin/category/?data=Category ${oldCategory} changed to ${newCategory} successfully.`)
+       
+    }else{
+        res.redirect('/admin/?error= Please login...')
+    }
+}
+module.exports.editFoodType = async (req,res)=>{
+    if(req.session.login || req.user){
+        const foodType = req.params.foodType;
+        const newFoodType = req.body.foodType
+        
+          // Add the new food type to the menu
+          for(let i=0;i<defaultData.menu.length;i++){
+            if(defaultData.menu[i].name==foodType){
+                defaultData.menu[i].name = newFoodType;
+                break;
+            }
+          }
+          // Update the default data
+          updateDefaultData(defaultData);
+            await Item.updateMany(
+                {
+                  foodType : foodType
+                },
+                {
+                  $set: {
+                    'foodType': newFoodType
+                  }
+                })
+                try {
+                    // Find the seller's menu document by sellerId and foodType
+                    const menu = await Menu.find({'menu.name': foodType });
+            
+                    // Find the index of the category in the menu's categories array
+                    
+                     menu.forEach(async (menu)=>{
+                        
+                         menu.menu.forEach(menu=>{
+                            
+                            if(menu.name == foodType){
+                                
+                            menu.name = newFoodType;
+                            }
+                         })                       
+                            await menu.save();                
+                    })
+ 
+                } catch (error) {
+                    console.error('Error updating category name:', error);
+                }
+            
+          res.redirect(`/admin/category/?data=Food type ${foodType} changed to ${newFoodType} successfully`)
+       
+    }else{
+        res.redirect('/admin/?error= Please login...')
+    }
+}
+module.exports.order = async(req,res)=>{
+  if(req.session.user == 'admin'|| req.user){
+    
+      const orders = await Orders.find().populate({
+          path: 'items',
+          populate: {
+            path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+            model: 'Item'
+          },
+        }).populate('customer')
+        .populate('seller').sort({ordered_on : -1});
+       
+      res.render('pages/adminOrder',{orders ,login : true, user : 'admin'})
+  }else{
+   
+      res.redirect('/admin/?error=Please login first')
+  }
 }

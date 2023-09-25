@@ -12,20 +12,28 @@
         <%}%>
         <h2>Login with OTP</h2>
         <p id="demo" class="text-dark fs-5 p-3"></p>
-        <form id="signUpForm" method="post" action='../<%=user%>/otpVerification'>
+        <form id="signUpForm" method="post" action='/<%=user%>/otpVerification'>
           <div class="user-box">
             <input type="text" name="otp" required="true">
             <label >OTP</label>
           </div>
           
-          
-          <button type="submit">
+          <div class="d-flex">
+          <button type="submit" >
             <span></span>
             <span></span>
             <span></span>
             <span></span>
             Submit
           </button>
+          <button class="ms-2 w-75" id="resend">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            Resend OTP
+          </button>
+        </div>
         </form>
       </div>
       <script>
@@ -36,14 +44,15 @@
         }
         
            // Get the current date and time
-              var currentDate = new Date();
-
+              var currentDate = new Date('<%=users.otpExpiration%>');
+              let date ="<%=users.otpExpiration%>"
+              
               // Add 1 minute to the current date and time
               currentDate.setMinutes(currentDate.getMinutes() + 1);
-
+              
               // Set the countDownDate to the updated current date and time
               var countDownDate = currentDate.getTime();
-
+              
             // Update the count down every 1 second
             var x = setInterval(function() {
 
@@ -52,20 +61,26 @@
 
               // Find the distance between now and the count down date
               var distance = countDownDate - now;
-
+              console.log(date,distance);
               // Time calculations for days, hours, minutes and seconds
               
-              
-              var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
               var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
               // Display the result in the element with id="demo"
-              document.getElementById("demo").innerHTML =  minutes + "m " + seconds + "s ";
+              document.getElementById("demo").innerHTML =   "Resend OTP in " + seconds + "s ";
+              var resend = document.getElementById('resend');
+              resend.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // Use JavaScript to change the window location (navigate to a new page)
+                window.location.href = 'http://localhost:3000/users/resend';
+              });
+              resend.style.display = 'none';
 
               // If the count down is finished, write some text
               if (distance < 0) {
                 clearInterval(x);
-                document.getElementById("demo").innerHTML = "<a class='btn btn-shadow' href='../users/resend'>Resend OTP </a>";
+                document.getElementById("demo").innerHTML = "";
+                resend.style.display = 'block'
               }
             }, 1000);
 

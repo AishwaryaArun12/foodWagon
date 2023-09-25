@@ -31,6 +31,10 @@ const sellers = new mongoose.model('sellers',{
    status : {
       type : String,
       default : 'pending'
-   }
+   },
+   orders : [{
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'orders',
+   }]
 })
 module.exports = sellers;

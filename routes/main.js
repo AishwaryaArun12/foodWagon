@@ -1,11 +1,12 @@
 const express = require('express');
 
 const {main,menu,edit, filter} = require('../controllers/main');
+const {isBlocked} = require('../controllers/authMiddleware')
 
 const router = express.Router();
 
-router.get('/',main);
-router.get('/menu',menu);
-router.get('/menu/:filterHead/:filter', filter);
+router.get('/', isBlocked, main);
+router.get('/menu',isBlocked,menu);
+router.get('/menu/:filterHead/:filter', isBlocked, filter);
 
 module.exports = router;

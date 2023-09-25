@@ -10,10 +10,14 @@ module.exports.main = (req,res)=>{
     }
 }
 let item ='';
-fn();
+
+ 
+ let set = 1;
+ let page = 1;
  async function fn(){
-  item =await  Item.find()
+  item =await  Item.find({blocked : false},).skip((page-1)*4).limit(4)
  }
+ fn();
 module.exports.menu =async (req,res)=>{
     let sellers = [];
     let foodtype = [];
@@ -21,9 +25,8 @@ module.exports.menu =async (req,res)=>{
   await  Item.distinct('seller')
   .then(async (sellerIds) => {
     try {
-      sellers = await Item.find({ seller: { $in: sellerIds } }, 'seller -_id').populate('seller');
+      sellers = await Item.find({blocked : false, seller: { $in: sellerIds } }, 'seller -_id').populate('seller');
       const sellerNames = sellers.map((item) => item.seller.name);
-      console.log('Distinct Seller Names:', sellerNames);
       sellers = [...new Set(sellerNames)];
     } catch (err) {
       console.error(err);
@@ -36,7 +39,6 @@ module.exports.menu =async (req,res)=>{
   .then(async (foodTypes) => {
     try {
         foodtype = foodTypes;
-      console.log('Distinct Food Types:', foodTypes);
       // Use the 'foodTypes' array as needed
     } catch (err) {
       console.error(err);
@@ -60,9 +62,9 @@ module.exports.menu =async (req,res)=>{
   });
   
     if(req.session.login || req.user){
-         res.render('pages/menu',{item:item,login:true,sellers:sellers,foodtype:foodtype,category:category});
+         res.render('pages/menu',{item:item,login:true,sellers:sellers,foodtype:foodtype,category:category,set,page});
     }else{
-        res.render('pages/menu',{item:item,login:false,sellers:sellers,foodtype:foodtype,category:category});
+        res.render('pages/menu',{item:item,login:false,sellers:sellers,foodtype:foodtype,category:category,set,page});
     }
 }
 // module.exports.edit = async (req,res)=>{
@@ -82,27 +84,71 @@ module.exports.menu =async (req,res)=>{
 //         res.redirect("/users/?error=You can't edit before login")
 //     }
 // }
+let prevFilterHead;
+let prevFilter;
 module.exports.filter = async (req,res)=>{
     let filterHead = req.params.filterHead;
     let filter = req.params.filter;
-    console.log(filterHead,filter,'filter')
+    if(filterHead!= 'pagination'){
+        prevFilterHead = filterHead;
+        prevFilter = filter;
+       console.log(filterHead,filter,prevFilter,prevFilterHead,'filter')
+    }
+    
     if(filterHead == 'sellers'){
-        let seller = await Seller.findOne({ name: filter })
-        item = await Item.find({ seller: seller._id })
-    }else if( filterHead == 'price'){
+        let seller = await Seller.findOne({blocked : false, name: filter })
+        item = await Item.find({blocked : false, seller: seller._id }).skip((page-1)*4).limit(4);
+    }else if( filterHead == 'search'){
+        const searchResults = await Item.find({blocked : false, name: { $regex: filter, $options: 'i' } }).skip((page-1)*4).limit(4); // Perform a case-insensitive search
+        item = searchResults;
+  }else if( filterHead == 'price'){
         if(filter == '1'){
-            item = await Item.find({ price: { $gt: 0, $lt: 500 } })
+            item = await Item.find({blocked : false, price: { $gt: 0, $lt: 500 } }).skip((page-1)*4).limit(4)
         }else if(filter == '2'){
-            item = await Item.find({ price: { $gte: 500, $lt: 1000 } })
+            item = await Item.find({blocked : false, price: { $gte: 500, $lt: 1000 } }).skip((page-1)*4).limit(4)
         }else {
-            item = await Item.find({ price: { $gte: 1000, $lt: 5000 } })
+            item = await Item.find({blocked : false, price: { $gte: 1000, $lt: 5000 } }).skip((page-1)*4).limit(4)
         }
-    }else if(filterHead == 'foodType' || filterHead == 'category'){
-        let filterObj = {};
+    }else if( filterHead == 'pagination'){
+      if(filter == 'front'){
+          set = set+1;
+          page = ((set-1)*5)+1
+          if(!filterHead){
+            res.redirect('/menu/all/1');
+          }else{
+            res.redirect(`/menu/${prevFilterHead}/${prevFilter}`)
+          }
+          return;
+      }else if(filter == 'back'){
+          set = set-1;
+          page = ((set-1)*5)+1
+          if(!filterHead){
+            res.redirect('/menu/all/1');
+          }else{
+            res.redirect(`/menu/${prevFilterHead}/${prevFilter}`)
+          }
+          return;
+      }else {
+          page = filter;
+          if(!filterHead){
+            res.redirect('/menu/all/1');
+          }else{
+            res.redirect(`/menu/${prevFilterHead}/${prevFilter}`)
+          }
+          return;
+      }
+  }else if(filterHead == 'foodType' || filterHead == 'category'){
+        let filterObj = {blocked : false};
         filterObj[filterHead] = filter;
-        item = await Item.find(filterObj)
-    }else{
-        item = await Item.find();
+        item = await Item.find(filterObj).skip((page-1)*4).limit(4)
+    }else if(filterHead == 'sort'){
+      if(filter == '1'){
+        item = await Item.find({blocked : false}).sort({ price: 1 }).skip((page-1)*4).limit(4)
+      }else{
+        item = await Item.find({blocked : false}).sort({ price: -1 }).skip((page-1)*4).limit(4)
+      }
+  }else{
+    item = await Item.find({blocked : false}).skip((page-1)*4).limit(4);
     }
     res.redirect('/menu');
 }

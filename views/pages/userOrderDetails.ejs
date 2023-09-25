@@ -1,0 +1,200 @@
+<%- include('../partials/header') %>
+<div>
+  <a href="/users/home" class="btn btn-warning mt-4"><b>Back to home</b></a>
+</div>
+<section class="h-100 h-custom" >
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100" >
+        <div class="col-lg-8 col-xl-9" >
+          <div class="card border-top border-bottom border-3" style="border-color: #f37a27">
+            <div class="card-body p-5">
+  
+              <p class="lead fw-bold mb-5" style="color: #f37a27;">Thanks for your order, <%=order.customer.name%></p>
+  
+              <div class="row">
+                <div class="col mb-3">
+                  <p class="small text-muted mb-1">Date</p>
+                  <p><%=order.ordered_on.toLocaleDateString()%></p>
+                </div>
+                <div class="col mb-3">
+                  <p class="small text-muted mb-1">Order id.</p>
+                  <p><%=order._id%></p>
+                </div>
+                <div class="col mb-3">
+                  <p class="small text-muted mb-1">Ordered address</p>
+                  <p><% Object.entries(order.address).forEach(([key, value]) => { %>
+                    <p class="lh-1"><%= key %>: <%= value %></p>
+                  <% }); %></p>
+                </div>
+              </div>
+              <%sum = 0%>
+              <div class="mx-n5 px-5 py-4" style="background-color: #f2f2f2;">
+                <%order.items.forEach((i,index)=>{%>
+                  <div class="row">
+                    <div class="col-md-8 col-lg-5">
+                      <p><%=i.itemId.name%></p>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                      <p><%=i.itemId.price%></p>
+                      <%if(i.status != 'Cancelled' || i.status != 'Returned'){ sum+=i.itemId.price }%>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                      <%if(i.status == 'Returned' || i.status == 'Cancelled' || i.status == 'Cancel requested' || i.status == 'Cancelled' || i.status == 'Request denied'){%><p class="text-danger"><%=i.status%></p><%}else{%>
+                      <a href="#" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleModal<%=index%>"><%if(order.status == 'Delivered'){%>Return <%}else if(order.status != 'Delivered' && order.status != 'Cancelled'){%>Cancel<%}%>
+                      </a>
+                      <div class="modal fade" id="exampleModal<%=index%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Reason for <%if(order.status!= 'Delivered'){%>Cancel <%}else {%> Return <%}%> your order </h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <form method="post" <%if(i.status == 'Delivered'){%> action="/users/order/Return Requested/<%=order._id%>/<%=i.itemId._id%>" <%}else if(order.status != 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/<%=i.itemId._id%>"<%}%>>
+                                
+                                <div class="mb-3">
+                                  <label for="reason" class="form-label">Reason</label>
+                                  <textarea type="text" class="form-control" id="reason" name="reason"></textarea>
+                                </div>
+                                <input type="hidden" value="<%=i.itemId._id%>" name="itemId">
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                              </form>
+                            </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                      <%}%>
+                    </div>
+                  </div>
+                  <%})%>
+                <div class="row">
+                  <div class="col-md-8 col-lg-9">
+                    <p class="mb-0">GST</p>
+                  </div>
+                  <div class="col-md-4 col-lg-3">
+                    <p class="mb-0"><%=order.amount-sum%></p>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="row my-4">
+                <div class="col-md-4 offset-md-8 col-lg-3 offset-lg-9">
+                  <p class="lead fw-bold mb-0" style="color: #f37a27;">&#8377;<%=order.amount%></p>
+                </div>
+              </div>
+  
+            <%if(order.status == 'Returned' || order.status == 'Cancelled'){%>
+              <p class="lead fw-bold mb-4 pb-2" style="color: #f37a27;">Order <%if(order.status == 'Returned'){%>returned <%}else{%>cancelled<%}%></p>
+              <p class="lead mb-4 pb-2" style="color: #f37a27;">Reason : <%=order.reason%></p>
+              <%}else{%>
+                <p class="lead fw-bold mb-4 pb-2" style="color: #f37a27;">Tracking Order</p>
+  
+                <div class="row">
+                  <div class="col-lg-12">
+    
+                    <div class="horizontal-timeline">
+                      <%if(order.status == 'Pending'){%>
+                        <div class="slidecontainer">
+                          <input type="range" min="1" max="100" value="10" class="custom-range" id="myRange">
+                        </div>
+                        <%}else if(order.status == 'Confirmed'){%>
+                          <div class="slidecontainer">
+                            <input type="range" min="1" max="100" value="35" class="custom-range" id="myRange">
+                          </div>
+                          <%}else if(order.status == 'Packed'){%>
+                          <div class="slidecontainer">
+                            <input type="range" min="1" max="100" value="53" class="custom-range" id="myRange">
+                          </div>
+                          <%}else if(order.status == 'Shipped'){%>
+                            <div class="slidecontainer">
+                              <input type="range" min="1" max="100" value="73" class="custom-range" id="myRange">
+                            </div>
+                            <%}else if(order.status == 'Delivered'){%>
+                              <div class="slidecontainer">
+                                <input type="range" min="1" max="100" value="100" class="custom-range" id="myRange">
+                              </div>
+                              <%}%>
+    
+                      <ul class="list-inline items d-flex justify-content-between">
+                        <li class="list-inline-item items-list">
+                          <p class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">Order requesting</p
+                            class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">
+                        </li>
+                        <li class="list-inline-item items-list">
+                          <p class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">Confirmed</p
+                            class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">
+                        </li>
+                        <li class="list-inline-item items-list">
+                          <p class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">Packed</p
+                            class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">
+                        </li>
+                        <li class="list-inline-item items-list">
+                          <p class="py-1 px-2 rounded text-white" style="background-color: #f37a27;">On the way
+                          </p>
+                        </li>
+                        <li class="list-inline-item items-list text-end" style="margin-right: 8px;">
+                          <p style="margin-right: -8px;background-color: #f37a27;" class="py-1 px-2 rounded text-white">Delivered</p>
+                        </li>
+                      </ul>
+    
+                    </div>
+    
+                  </div>
+                </div>
+                
+  
+              <p class="mt-4 pt-2 mb-0">Do you want  <%if(order.status!= 'Delivered'){%>Cancel <%}else{%> Return <%}%> the order?
+                 <a href="#!" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleModal">Please click here
+                  </a></p>
+                  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Reason for <%if(order.status!= 'Delivered'){%>Cancel <%}else{%> Return <%}%> your order </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form method="post" <%if(order.status == 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/all" <%}else if(order.status != 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/all"<%}%> >
+                            
+                            <div class="mb-3">
+                              <label for="reason" class="form-label">Reason</label>
+                              <textarea type="text" class="form-control" id="reason" name="reason"></textarea>
+                            </div>
+                            
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                          </form>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                  <%}%>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+  const rangeInput = document.getElementById('myRange');
+
+// Function to update the background color of the track based on the value
+function updateRangeColor() {
+  const value = (rangeInput.value - rangeInput.min) / (rangeInput.max - rangeInput.min) * 100;
+  rangeInput.style.background = `linear-gradient(to right, #f37a27 0%, #f37a27 ${value}%, transparent ${value}%, transparent 100%)`;
+}
+
+// Add an event listener to update the range color when the value changes
+rangeInput.addEventListener('input', updateRangeColor);
+
+// Initial update
+updateRangeColor();
+  </script>
+<%- include('../partials/footer') %>

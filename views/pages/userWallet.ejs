@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4 pt-4">
+    <!-- Current Balance Section -->
+    <div class="row shadow-lg p-3 mb-3 m-3 rounded w-50">
+        <div class="col-md-6">
+            
+            <h3 class="text-nowrap">Hai <%=userData.name%>,</h3> <h4 >Your Current Balance</h4>
+            <p><strong>Amount:</strong><h3> &#8377;<%=userData.walletBalance.toFixed(2)%></h3></p>
+        </div>
+    </div>
+
+    <!-- Transaction History Section -->
+    <div class="row mt-5 shadow-lg p-3 mb-3 m-3 rounded">
+        <div class="col-md-12">
+            <h2>Transaction History</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Source</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop through wallet transactions and generate rows -->
+                   <%for(let i=wallet.length-1;i>=0;i--){%>
+                    <tr>
+                        
+                        <td><%=wallet[i].date.toLocaleDateString()%></td>
+                        <td><%=wallet[i].sellerName%></td>
+                        <td><%=wallet[i].description%></td>
+                        <td><%=wallet[i].amount%></td>
+                        <td><%wallet[i].orderDetails.forEach(i=>{%>
+                            <p><%=i.name%> - &#8377;<%=i.amount%></p>
+                            <%})%></td>
+                    </tr>
+                  <% }%>
+                    <!-- Add more rows for transactions -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<%- include('../partials/footer') %>

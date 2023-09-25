@@ -52,6 +52,35 @@ const users = new mongoose.model('users',{
     blocked : {
         type : Boolean,
         default : false
+    },
+    wallet : [{
+        amount : {
+            type : Number,
+            required : true
+        },
+        sellerName :{
+            type : String,
+            required : true,
+        },
+        description : {
+            type : String
+        },
+        orderDetails :[{
+            name : {
+                type : String,
+            },
+            amount : {
+                type : Number
+            }
+        }],
+        date : {
+            type : Date,
+        }
+    }],
+    walletBalance : {
+        type : Number,
+        default : 0
     }
+    
 })
 module.exports = users;

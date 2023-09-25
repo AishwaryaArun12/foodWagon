@@ -1,7 +1,9 @@
 const express = require('express');
 
 const {login,loginAdmin,home,acceptSendMail,rejectSendMail,adminUser,block,unblock,adminSeller,adminMenu,search,
-    searchUser,searchClose,adminAllUser, adminAllSeller} = require('../controllers/admin');
+    searchUser,searchClose,adminAllUser, adminAllSeller,products, allProducts,category,newFoodType,newCategory,
+    blockFoodType,blockCategory,unblockFoodType,unblockCategory,editCategory, editFoodType, order} = require('../controllers/admin');
+// const { order } = require('../controllers/user');
 
 const router = express.Router();
 
@@ -20,4 +22,18 @@ router.get('/menu/:id', adminMenu);
 router.get('/search/:id', search);
 router.get('/search/close/:id' , searchClose);
 router.post('/search/:user', searchUser)
+router.get('/products', products);
+router.get('/allProducts', allProducts);
+router.get('/category', category);
+router.post('/newFoodType', newFoodType); 
+router.post('/newCategory', newCategory);
+router.get('/blockFoodType/:foodType', blockFoodType);
+router.get('/unblockFoodType/:foodType', unblockFoodType);
+router.get('/blockCategory/:foodType/:category', blockCategory);
+router.get('/unblockCategory/:foodType/:category', unblockCategory);
+router.post('/editCategory/:foodType/:category', editCategory);
+router.post('/editFoodType/:foodType', editFoodType);
+router.get('/orders', order)
+
+
 module.exports = router;

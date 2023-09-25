@@ -1,8 +1,8 @@
 <%- include('../partials/header') %>
-<header class="d-flex justify-content-between">
-    <div class="ms-5"><h1>Product Details</h1></div>
+<div class="d-flex justify-content-between mt-4 pt-4">
+    <div class="ms-5"><h3>Product Details</h3></div>
     <div class="d-flex justify-content-end">
-        <a class="btn btn-danger me-3 pb-0" id="menuBtn" href="/sellers/home">Menu</a>
+        <a class=" me-3 pt-2 pb-0" id="menuBtn" href="/sellers/home">Menu</a>
         <a class="me-4" href="/sellers/editItem/<%=products._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a>
         <% if(products.blocked == false){ %>
             <a href="/sellers/block/item/<%=products._id%>" class="me-4"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
@@ -11,7 +11,7 @@
                 <% } %>
                 
     </div>
-</header>
+</div>
 <div id="myModal" class="modal">
 
     <!-- The Close Button -->
@@ -27,11 +27,11 @@
     <div class="product-images">
         <% if (products.images && products.images.length > 0) { %>
             <% for (let i = 0; i < products.images.length; i++) { %>
-                <div class="ms-5 mt-2 mb-4"><img class="myImg" src="/sellers/getImage/<%=products._id%>/<%=i%>" width="100px" height="100px" alt="image"></div>
+                <div class="ms-5 mt-2 mb-4"><img class="myImg" src="/sellers/getImage/<%=products._id%>/<%=i%>" width="200px" height="100px" alt="image"></div>
             <% } %>
         <% } %>
     </div>
-<main class="m-3">
+<main class="m-1">
     <section class="product-details">
         <div class="product-info">
             <h1 id="product-name"><%=products.name%></h1>

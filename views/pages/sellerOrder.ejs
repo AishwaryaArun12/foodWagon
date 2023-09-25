@@ -1,0 +1,151 @@
+<%- include('../partials/header') %>
+<div >
+    <div class="mt-4 pt-4 ms-3">
+        <h3>Orders</h3>
+    </div>
+    <div class="ms-4">
+        <table class="table table-dark table-hover align-middle table-striped overflow-y: hidden">
+            <thead>
+              <tr>
+
+                <th scope="col">No.</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Products</th>
+                <th scope="col">Status</th>
+                <th scope="col">Payment mode</th>
+                <th scope="col">Payment status</th>
+                <th scope="col">Date</th>
+                <th scope="col">Total Amount</th>
+                <th scope="col">Address</th>
+                <th scope="col">Action</th>
+                <th scope="col">Cancel</th>
+              </tr>
+            </thead>
+            <tbody>
+                <%orders.forEach((order,i)=>{%>
+                    <tr>
+                        <td><%=i+1%></td>
+                        <td><%=order.customer.name%></td>
+                        <td><ul><%order.items.forEach((i)=>{%>
+                            <li><%=i.itemId.name%></li>
+                        <%})%></ul></td>
+                        <td><%=order.status%></td>
+                        <td><%=order.payment_mode%></td>
+                        <td><%=order.paymentStatus%></td>
+                        <td><%=order.ordered_on.toLocaleDateString()%></td>
+                        <td><%=Math.floor(order.amount)%></td>
+                        <td>
+                            <% Object.entries(order.address).forEach(([key, value]) => { %>
+                              <p class="lh-1"><%= key %>: <%= value %></p>
+                            <% }); %>
+                          </td>
+                          <td>
+                            <%if(order.status == 'Returned' || order.status == 'Cancelled' || i.status == 'Cancelled by admin' || i.status == 'Cancelled by seller'){%>
+                                Order <%=order.status%>
+                                <%}else if(order.status == 'Cancel requested' || order.status == 'Return requested'){%>
+                                    <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                        <select name="action" id="" onchange="submit()" class="m-1">
+                                            <option value="" disabled selected>...</option>
+                                            <option <%if(i.status == 'Cancel requested'){%>value="Cancelled" <%}else{%>value="Returned" <%}%> >Confirm</option>
+                                            <option value="Request denied">Deny</option>
+                                        </select>
+                                    </form>
+                                    <%}else{%>
+                                    <%order.items.forEach(i=>{%>
+                                        <%if(i.status == 'Pending'){%>
+                                            <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                                <select name="action" id="" onchange="submit()" class="m-1">
+                                                    <option value="0" disabled selected>Pending</option>
+                                                    <option value="Confirmed" >Confirmed</option>
+                                                    <option value="Packed">Packed</option>
+                                                    <option value="Shipped">Shipped</option>
+                                                    <option value="Delivered">Delivered</option>
+                                                </select>
+                                            </form>
+                                            <%}else if(i.status == 'Confirmed'){%>
+                                                <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                                    <select name="action" id="" onchange="submit()" class="m-1">
+                                                        <option value="0" disabled >Pending</option>
+                                                        <option value="confirmed" selected disabled >Confirmed</option>
+                                                        <option value="Packed">Packed</option>
+                                                        <option value="Shipped">Shipped</option>
+                                                        <option value="Delivered">Delivered</option>
+                                                    </select>
+                                                </form>
+                                                <%}else if(i.status == 'Packed'){%>
+                                                    <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                                        <select name="action" id="" onchange="submit()" class="m-1">
+                                                            <option value="0" disabled >Pending</option>
+                                                            <option value="confirmed"  disabled >Confirmed</option>
+                                                            <option value="packed" selected disabled>Packed</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                        </select>
+                                                        </form>
+                                                        <%}else if(i.status == 'Shipped'){%>
+                                                            <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                                                <select name="action" id="" onchange="submit()" class="m-1">
+                                                                    <option value="0" disabled >Pending</option>
+                                                                    <option value="confirmed" disabled >Confirmed</option>
+                                                                    <option value="packed" disabled>Packed</option>
+                                                                    <option value="shipped" selected disabled>Shipped</option>
+                                                                    <option value="Delivered">Delivered</option>
+                                                                </select>
+                                                            </form>
+                                                                <%}else if(i.status == 'Delivered'){%>
+                                                                    <p>Action completed</p>
+                                                                    <%}else if(i.status == 'Cancelled'){%>
+                                                                        <p>Order cancelled</p>
+                                                                        <%}else if(i.status == 'Returned'){%>
+                                                                            <p>Order Returned</p>
+                                                                            <%}else if(i.status == 'Request denied' ){%>
+                                                                                <p>Order <%=i.status%></p>
+                                                                                <%}else{%>
+                                                                                <form action="/sellers/orderAction/<%=order._id%>" method="post" id="form">
+                                                                                    <input type="hidden" name="itemId" value="<%=i.itemId._id%>">
+                                                                                    <select name="action" id="" onchange="submit()" class="m-1">
+                                                                                        <option value="" disabled selected>...</option>
+                                                                                        <option <%if(i.status == 'Cancel requested'){%>value="Cancelled" <%}else{%>value="Returned" <%}%> >Confirm</option>
+                                                                                        <option value="Request denied">Deny</option>
+                                                                                    </select>
+                                                                                </form>
+                                                                                <%}%>
+                                        <%})%>
+                                        
+                                    <%}%>
+                                
+                          </td>
+                          <%if(order.status != 'Cancelled' && order.status != 'Returned' && order.status != 'Delivered' && order.status != 'Return requested' && order.status != 'Cancel requested' && order.status != 'Cancelled by seller' && order.status != 'Cancelled by admin'){%>
+                            <td><btn onclick="delImage('/sellers/cancelOrder/<%=order._id%>')"><i class="fa fa-ban fs-2" aria-hidden="true"></i></a></btn>
+                           <%}else{%><td></td><%}%>
+                    </tr>
+                    <%})%>
+            </tbody>
+            </table>
+    </div>
+</div> 
+<script>
+    function submit(){
+        const form = document.getElementById('form');
+        form.submit();
+    }
+    function delImage(url) {
+  Swal.fire({
+    title: '',
+    text: 'Are you sure you want to cancel this order?',
+    icon: 'warning',
+    buttons: ['Cancel', 'OK'],
+    dangerMode: true,
+  })
+  .then((confirmed) => {
+    if (confirmed) {
+      fetch(url).then(res=>res.json()).then(res=>{window.location.href = res.data})
+    } else {
+      // User clicked "Cancel" or closed the dialog
+      // You can handle this case as needed
+    }
+  });
+};
+      
+</script>           
+<%- include('../partials/footer') %>

@@ -1,8 +1,10 @@
 const User = require('../models/users');
 const Item = require('../models/items');
-const Seller = require('../models/seller')
+const Seller = require('../models/seller');
+const Order = require('../models/orders');
 const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
+const Coupon = require('../models/coupon');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; 
 const transporter = nodemailer.createTransport({
@@ -14,6 +16,7 @@ const transporter = nodemailer.createTransport({
   })
 let login = false;
 module.exports.login = (req,res)=>{
+    console.log('ulogin');
     req.session.user = 'users';
     const error =  req.query; 
     if(req.cookies[req.session.email] || req.user){
@@ -24,10 +27,9 @@ module.exports.login = (req,res)=>{
             res.render('pages/login',{user : 'users',error:error.error,login:false});
         }
     }else{
-        console.log(req.session);
+        console.log(req.session,'user');
         res.render('pages/login',{user : 'users',error : error.error,login : false});
-    } 
-    
+    }    
 }
 module.exports.signUp = async (req,res)=>{
     const user = await User.findOne({email: req.session.email});
@@ -56,7 +58,7 @@ module.exports.newUser =async (req,res)=>{
         const mailOptions = {
             from : 'foodmailerwagon@gmail.com',
             to : toEmail,
-            subject : 'OTP for registeration in foodWagon',
+            subject : 'OTP for registration in foodWagon',
             html : `<p>Hai, </p><p> this OTP only valid for 5 minutes </p><p>${otp}</p><p>with regards,</p><p> foodWagon</p>`
         }
 
@@ -120,8 +122,9 @@ module.exports.newUser =async (req,res)=>{
 }
 module.exports.loginUser = async (req,res)=>{    
         let user = await User.find({email : req.body.email});
-        if(!user){
+        if(user.length == 0){
             res.redirect('/users/?error=You are not registered. Please login')
+            return;
         }
         const password = req.body.password;
         const hashedPassword = user[0].password
@@ -135,6 +138,7 @@ module.exports.loginUser = async (req,res)=>{
                     res.cookie(req.body.email, req.body.password);
                     req.session.password = req.body.password;
                     req.session.userId = user[0]._id;
+                    req.session.user = 'user'
                     req.session.email = req.body.email;
                     req.session.verified = 'true';
                     req.session.login = true;
@@ -176,8 +180,9 @@ module.exports.loginUser = async (req,res)=>{
 
 
 module.exports.otp = async (req,res)=>{
+    const users = await User.findOne({email :req.session.email})
     const error = req.query;
-    res.render('pages/otp',{user : 'users',error : error.error,login : false});
+    res.render('pages/otp',{user : 'users',error : error.error,login : false,users:users});
 }
 
 module.exports.otpVerification = async (req,res)=>{
@@ -243,17 +248,10 @@ module.exports.resend = async (req,res) =>{
     });
 }
 module.exports.postforgot = async (req,res)=>{
-    let name = req.body.name;
     let email = req.body.email;
-    let user ;
-    if(email){
         req.session.email = email;
-        user = await User.findOne({email : email})
-    }else if(name){
-        req.session.name = name;
-        user = await User.findOne({name : name});
-        req.session.email = user.email;
-    }
+      let  user = await User.findOne({email : email})
+    
        
     if(user){
         req.session.forgot = true;
@@ -318,8 +316,9 @@ module.exports.home = async (req,res)=>{
    if(req.cookies[req.session.email] || req.user ){
         if(req.cookies[req.session.email] == req.session.password || req.user){
             if(req.user){
+                console.log(req.user,req.user.email,'hjj')
                 const user = await User.findOne({email : req.user.email});
-                req.session.userId = user._id;
+                if(req.user.email == 'aishwarya4arun@gmail.com'){res.redirect('/admin/home'); return;}
                 if(!user){
                     const newUser = new User({name: req.user.displayName, email : req.user.email});
                     req.session.email = req.user.email;
@@ -330,6 +329,9 @@ module.exports.home = async (req,res)=>{
                     } catch (error) {
                         res.status(500).send(error)
                     };
+                }else{
+                    req.session.userId = user._id;
+                    req.session.email = req.user.email;
                 }
             }
             const items = await Item.find();
@@ -355,7 +357,6 @@ module.exports.cart = async(req,res)=>{
     if(req.session.login || req.user){
         let cartData='';
         try {
-            console.log(req.session);
             const user = await User.findById(req.session.userId).populate({
                 path: 'cart.itemId', // Populate the itemId field in the cart array
     populate: {
@@ -367,6 +368,16 @@ module.exports.cart = async(req,res)=>{
             //console.log(user.cart[0].itemId.seller,'cart'); // This will log the user's cart data.
             // You can access each cart item's associated 'Item' document like user.cart[0].itemId.
             cartData = user.cart;
+            for(let i=0;i<cartData.length-1;i++){
+                for(let j=i+1;j<cartData.length;j++){
+                    if(cartData[i].itemId.price>cartData[j].itemId.price){
+                        let temp = cartData[i];
+                        cartData[i] = cartData[j];
+                        cartData[j] = temp;
+                    }
+                }
+            }
+
           } catch (err) {
             console.error(err);
             // Handle any errors, e.g., send an error response.
@@ -384,19 +395,20 @@ module.exports.addCart = async(req,res)=>{
     if(req.query.q){
          q=req.query.q;
     }
+    
     const id = req.params.id;
     let userId = req.session.userId;
     const user = await User.findOne({ _id: userId, 'cart.itemId': id });
     if(user){
-        res.send('<script>alert("Already added this product to cart."); window.location.href="/users/cart";</script>');  
+        res.json({'data' : 'Already added this product to cart.'});  
     }else{
         let user = await User.findByIdAndUpdate(
             userId,
             { $push: { cart: {itemId : id,quantity : q} } }, // Add the itemId to the cart array
             { new: true } // Return the updated user document
         );
-        console.log(user);
-        res.send('<script> window.location.href="/users/cart";alert("Product added to cart successfully,");</script>');
+        
+        res.json({'data' : 'Product added to cart successfully'})
     }
 
 }
@@ -538,4 +550,241 @@ module.exports.editProfile = async(req,res)=>{
         })
     }
 }
+}
+module.exports.changeQty = async(req,res)=>{
+    let id = req.params.id;
+    let newQuantity = req.params.newValue
+   let update =  await await User.findOneAndUpdate(
+    {
+        _id: req.session.userId,
+        'cart.itemId': id, // Find the user and the cart item by product ID
+    },
+    {
+        $set: {
+            'cart.$.quantity': newQuantity, // Update the quantity of the matched cart item
+        },
+    },
+    {
+        new: true, // Return the updated user document
+    }
+);
+console.log(update);
+if(update){
+    res.json({'data' : 'updated success'});
+}
+}
+module.exports.checkout = async (req,res)=>{
+    let data = req.query.data;
+    let cartData='';
+    const user = await User.findById(req.session.userId);
+        try {
+            const user = await User.findById(req.session.userId).populate({
+                path: 'cart.itemId', // Populate the itemId field in the cart array
+    populate: {
+      path: 'seller', // Populate the seller field in the item details
+      model: 'sellers', // Replace 'Seller' with the actual model name for sellers
+    },
+            });           
+            // The 'user' object now contains the populated 'cart' field with 'Item' documents.
+            //console.log(user.cart[0].itemId.seller,'cart'); // This will log the user's cart data.
+            // You can access each cart item's associated 'Item' document like user.cart[0].itemId.
+            cartData = user.cart;
+          } catch (err) {
+            console.error(err);
+            // Handle any errors, e.g., send an error response.
+            res.status(500).send('Internal Server Error');
+          }
+    res.render('pages/checkout',{user : 'users', login : true, cartData,user,data});
+}
+module.exports.order = async(req,res)=>{
+    console.log(req.body,'sdfbody')
+    const mode = req.body.paymentMode;
+    const addressIndex = req.body.address;
+    const coupon = req.body.coupon;
+    const total = req.body.total;
+    const userId = req.session.userId;
+    let status = 'Pending';
+    
+let user =await User.findById(userId);
+let userCartData = user.cart;
+let address = user.address[addressIndex];
+
+// Create an empty object to group cart items by seller
+let cartItemsBySeller = {};
+
+// Group cart items by seller
+await Promise.all(userCartData.map(async (cartItem) => {
+    let sellerId = await Item.findById(cartItem.itemId);
+    sellerId = sellerId.seller;
+    if (!cartItemsBySeller[sellerId]) {
+      cartItemsBySeller[sellerId] = [];
+    }
+    cartItemsBySeller[sellerId].push(cartItem);
+  }));
+
+
+// Create orders for each seller
+let orderDetailsArray = await Promise.all(Object.entries(cartItemsBySeller).map(async ([sellerId, cartItems]) => {
+   
+    const seller = sellerId/* Fetch seller information based on sellerId */;
+    let totalAmount = 0;
+    
+    for (const cartItem of cartItems) {   
+        let item = await Item.findById(cartItem.itemId);     
+        itemPrice = item.price;
+        totalAmount += itemPrice * cartItem.quantity;
+      }
+    
+    totalAmount= parseInt(totalAmount)
+    
+    let orderDetails;
+    if(coupon != 'noCoupon'){
+        const couponDetails = await Coupon.findById(coupon);
+        totalAmount = totalAmount - (totalAmount*couponDetails.discount/100);
+        if(totalAmount<=3000){
+            totalAmount +=totalAmount*5/100;
+          }else{
+            totalAmount +=totalAmount*10/100;
+          }
+     
+      orderDetails= {
+      items: Promise.all(cartItems.map(async (cartItem) => {
+        let item = await Item.findById(cartItem.itemId);
+        let amount = (item.price*cartItem.quantity)-((item.price*cartItem.quantity) *couponDetails.discount/100);
+        return {itemId : cartItem.itemId, status : 'Pending', reason : '', amount : amount,qty : cartItem.quantity}
+    }
+    
+    )),
+      couponId : coupon,
+      couponDiscount : couponDetails.discount,
+      ordered_on: new Date(),
+      amount: Math.round(totalAmount),
+      status : 'Pending',
+      paymentStatus : mode == 'cashOnDelivery' ? 'Pending' : 'Paid',
+      payment_mode: mode ,
+      address: address,
+      customer: req.session.userId,
+      seller: sellerId,
+    };
+}else{
+    let paymentStatus = mode == 'cashOnDelivery' ? 'Pending' : 'Paid'
+    if(totalAmount<=3000){
+        totalAmount +=totalAmount*5/100;
+      }else{
+        totalAmount +=totalAmount*10/100;
+      }
+      
+    orderDetails= {
+        items: await Promise.all(cartItems.map(async(cartItem) => {
+            let item = await Item.findById(cartItem.itemId);
+            let amount = item.price*cartItem.quantity;
+            return {itemId : cartItem.itemId, status : 'Pending', reason : '', amount : amount,qty : cartItem.quantity}
+        })),
+      
+        ordered_on: new Date(),
+        paymentStatus : paymentStatus,
+        amount: Math.round(totalAmount),
+        status : 'Pending',
+        payment_mode: mode ,
+        address: address,
+        customer: req.session.userId,
+        seller: sellerId,
+      };
+}
+    return orderDetails;
+  }))
+  
+let createdOrders = [];
+
+for (const orderDetails of orderDetailsArray) {
+  const order = new Order(orderDetails);
+  try {
+    let createdOrder = await order.save();
+    createdOrders.push(createdOrder);
+
+    // Update Seller collection to add the order ID to the seller's orders array
+    await Seller.findByIdAndUpdate(
+      orderDetails.seller,
+      { $push: { orders: createdOrder._id } },
+      { new: true, useFindAndModify: false }
+    );
+
+    // Update User collection to add the order ID to the user's orders array
+    await User.findByIdAndUpdate(
+      orderDetails.customer,
+      { $push: { orders: createdOrder._id }, $set : {cart : []} },
+      { new: true, useFindAndModify: false }
+    );
+  } catch (error) {
+    console.error('Error creating order or updating collections:', error);
+    // Handle errors appropriately
+  }
+}
+
+console.log('Orders created and collections updated:', createdOrders);
+res.redirect('/users/checkout/?data=Your order confirmed');
+}
+module.exports.orderDetails = async (req,res)=>{
+    if(req.session.login || req.user){
+        const id = req.session.userId;
+        const orders = await Order.find({customer : id}).populate({
+            path: 'items',
+            populate: {
+              path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+              model: 'Item'
+            },
+          }).populate('seller').sort({ordered_on : -1});
+        
+        res.render('pages/userOrder',{orders,login : true, user : 'users'})
+    }else{
+        res.redirect('/users/?error=Please login first');
+    }
+}
+module.exports.eachOrder = async(req,res)=>{
+    if(req.session.login || req.user){
+        const userId = req.session.userId;
+        const orderId = req.params.id;
+        const order = await Order.findOne({_id : orderId}).populate({
+            path: 'items',
+            populate: {
+              path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+              model: 'Item'
+            },
+          }).populate('seller').populate('customer');
+        res.render('pages/userOrderDetails',{order, login : true, user : 'users'});
+    }else{
+        res.redirect('/users/?error=Please login first')
+    }
+}
+module.exports.orderReturn = async(req,res)=>{
+    if(req.session.login || req.user){
+        const id = req.params.id;
+        const reason = req.body.reason;
+        const status = req.params.status;
+       console.log(req.params,'para');
+        if(req.params.all != 'all'){     
+            console.log('!all');                  
+            const itemId = req.params.all;
+            const update = await Order.findOneAndUpdate(
+                { _id: id, "items.itemId": itemId },
+                { $set: { "items.$.status": status, "items.$.reason": reason} },{new : true}
+              );
+              console.log(update,'updated');
+        }else{
+            const update = await Order.findOneAndUpdate(
+                { _id: id},
+                { $set: { status: status, reason: reason ,'items.$[].status': status,'items.$[].reason': reason,} },{new : true}
+              );
+              console.log(update,'update');
+        }
+        res.redirect(`/users/orderDetails/${id}`)
+    }else{
+        res.redirect('/users/?error=Please login first')
+    }
+}
+module.exports.wallet = async(req,res)=>{
+    const userData = await User.findById(req.session.userId);
+    console.log(req.session);
+    let wallet = userData.wallet;
+    res.render('pages/userWallet', { user: 'users',login : true,userData,wallet});
 }

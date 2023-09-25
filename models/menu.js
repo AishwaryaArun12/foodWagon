@@ -26,14 +26,18 @@ const menuSchema = new mongoose.Schema({
             type : String,
             
         },
+        blocked : {
+            type : Boolean,
+            default : false,
+        },
         category : [category]
     }]
     
 });
 
 menuSchema.path('menu').default([
-    { name: 'Ready to eat', category: [] },
-    { name: 'Instant cook', category: [] },
+    { name: 'Ready to eat', blocked : false, category: [] },
+    { name: 'Instant cook', blocked : false, category: [] },
 ]);
 const Menu = new mongoose.model('Menu', menuSchema);
 module.exports = Menu;

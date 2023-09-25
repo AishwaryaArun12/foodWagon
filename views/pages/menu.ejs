@@ -31,79 +31,64 @@
     <link rel="icon" type="image/x-icon" href="../img/favicons/favicon-32x32.png">
     <!-- Modernizr JS for IE8 support of HTML5 elements and media queries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    
 
 </head>
 <body data-spy="scroll" data-target="#navbar" class="static-layout">
 	<div id="canvas-overlay"></div>
 	<div class="boxed-page">
-        <nav id="navbar-header" class="navbar navbar-expand-lg bg-secondary">
+        <nav class="navbar navbar-expand-lg navbar-light bg-warning">
             <div class="container">
-                <a class="navbar-brand navbar-brand-center d-flex align-items-center p-0 only-mobile" href="/">
-                    <img src="img/logo.png" alt="logo">
+                <a class="navbar-brand d-flex" href="#">
+                    <img src="https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png" alt="" width="80" height="44" class="d-inline-block align-text-top mb-4">
+                    <h2><b>food<span class="text-danger">W</span>agon</b></h2>
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="lnr lnr-menu"></span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
-        
-                <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
-                    <ul class="navbar-nav d-flex justify-content-between">
-                        <!-- <li class="nav-item only-desktop">
-                            <a class="nav-link" id="side-nav-open" href="#">
-                                <span class="lnr lnr-menu"></span>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/menu">Menu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users/wallet">Wallet</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users/orders">Orders</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users/cart">
+                                <i class="fa fa-shopping-cart" aria-hidden="true"></i> Cart
                             </a>
-                        </li> -->
-                        <div class="d-flex flex-lg-row flex-column">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/"><b class="fs-4 p-4">Home</b> <span class="sr-only">(current)</span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="about.html"><b class="fs-4 p-4">About</b></a>
-                            </li>
-        
-                        </div>
-                    </ul>
-                    
-                    <a class="navbar-brand navbar-brand-center d-flex align-items-center only-desktop" href="#">
-                        <img src="../img/favicons/favicon-32x32.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
-                       <h2><b>food<span class="text-danger">W</span>agon</b></h2>
-                    </a>
-                    <ul class="navbar-nav d-flex justify-content-between">
-                        <div class="d-flex flex-lg-row flex-column">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/menu"><b class="fs-4 p-4">Menu</b></a>
-                            </li>
-                            
-        
-                            <li class="nav-item">
-                                <a href="/users/cart"><i class="fa fa-shopping-cart mt-2 text-dark fs-2" aria-hidden="true"><b class="text-dark ps-1  p-4">Cart</b></i></a>
-                            </li>
-                        
-                        
-                        <%if(!login){%>
-                            <li class="nav-item">
-                                <a id="side-search-open" class="nav-link" href="/users">
-                                    Login
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a id="side-search-open" class="nav-link" href="/users/signUp">
-                                    SignUp
-                                </a>
-                            </li>
-                            <%}else{%>
-                                <li class="nav-item "> 
-                                    <a  href="/users/profile"><i class="fa fa-user-circle fs-1 ms-4 p-2 text-dark me-3" aria-hidden="true"></i></a>
-                                    </li>
-                                <li class="nav-item">
-                                   <button class="btn btn-danger"><a id="side-search-open" class="nav-link" href="/logout">
-                                        Logout
-                                    </a></button> 
-                                </li>
-                                <%}%>
+                        </li>
+                        <% if (!login) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users/signUp">Sign Up</a>
+                        </li>
+                        <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users/profile">
+                                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-danger" href="/logout">Logout</a>
+                        </li>
+                        <% } %>
                     </ul>
                 </div>
-                </div>
-            
+            </div>
         </nav>			
 <!-- Menu Section -->
 <div class="sidenav">
@@ -112,16 +97,16 @@
     <h3 class="accordion">Price</h3>
 <div class="panel">
   <ul>
-    <a class="panel" href="/menu/price/1">100-500</a>
-    <a class="panel" href="/menu/price/2">500-1000</a>
-    <a class="panel" href="/menu/price/3">1000-5000</a>
+    <a  href="/menu/price/1">100-500</a>
+    <a  href="/menu/price/2">500-1000</a>
+    <a  href="/menu/price/3">1000-5000</a>
   </ul>
 </div>
     <h3 class="accordion">Food Type</h3>
     <div class="panel">
         <ul>
             <%for(let i = 0;i< foodtype.length;i++){%>
-                <a class="panel" href="/menu/foodType/<%=foodtype[i]%>"><%=foodtype[i]%></a>
+                <a  href="/menu/foodType/<%=foodtype[i]%>"><%=foodtype[i]%></a>
                 <%}%>
         </ul>
     </div>
@@ -129,7 +114,7 @@
 <div class="panel">
     <ul>
         <%for(let i = 0;i< category.length;i++){%>
-            <a href="/menu/category/<%=category[i]%>" class="panel"><%=category[i]%></a>
+            <a href="/menu/category/<%=category[i]%>" ><%=category[i]%></a>
             <%}%>
     </ul>
 </div>
@@ -137,9 +122,17 @@
 <div class="panel">
     <ul>
         <%for(let i = 0;i< sellers.length;i++){%>
-            <a href="/menu/sellers/<%=sellers[i]%>" class="panel"><%=sellers[i]%></a>
+            <a href="/menu/sellers/<%=sellers[i]%>" ><%=sellers[i]%></a>
             <%}%>
     </ul>
+</div>
+<h2 class="text-primary">Sort by</h2>
+<h3 class="accordion">Price</h3>
+<div class="panel">
+<ul>
+<a  href="/menu/sort/1">Low-High</a>
+<a  href="/menu/sort/-1">High-Low</a>
+</ul>
 </div>
   </div>
   <!-- Page content -->
@@ -149,30 +142,59 @@
         <div class="section-content">
             <div class="row mb-2">
                 <div class="col-md-12">
-                    <div class="heading-section text-center m-4">
-                        <h2>
-                            Our Products
-                        </h2>
+                    <div class="heading-section text-center m-4 d-flex justify-content-between">
+                        <%if(item.length!=0){%>
+                            <h2>
+                                Our Products
+                            </h2>
+                            <%}%>
+                        <div class="d-flex">
+          
+                            <div class="container">
+                                <form class="d-flex "  >
+                                   <input class="form-control  border border-secondary w-50 " id="searchInput" type="search" placeholder="Search Items.."  aria-label="Search" name="q">           
+                                  <button class="btn btn-secondary " type="button" onclick="search()">Search</button>
+                                </form>
+                              </div>
+                              
+                        </div>
                     </div>  
                 </div>
             </div>
             <div class="d-flex flex-wrap">
-                <%for(let i = 0;i<item.length;i++){%>
-                    <a href="/users/product/<%=item[i]._id%> " class="m-2">
-                        <div class="card">
-                                <img src="/sellers/getImage/<%=item[i]._id%>/<%=0%>" alt="Denim Jeans" style="width:100%;height: 250px;">
-                            <h2 class="text-dark"><%=item[i].name%></h2>
-                            <h4 ><%=item[i].tasteOrcapacity%></h4>
-                            <pre><h3 class="price">&#8377;<span style="font-size: xx-large;"><%= item[i].price %></span>    <span class="text-dark">(<%=item[i].discount%></span><img class="pb-3" src="/img/icons/discounts.png" alt="" width="50px" height="50px">off)</h3></pre>
-                            <p><a href="/users/addcart/<%=item[i]._id%>"><button>Add to Cart</button></a></p>
-                          </div>
-                    </a>
+                <%if(item.length==0){%>
+                    <h2 class="m-3 text-danger" >Sorry! Your querry does not match any products.</h2>
                     <%}%>
+                <%for(let i = 0;i<item.length;i++){%>
+                    <div class="card ms-3 mb-2">
+                    <a href="/users/product/<%=item[i]._id%>">                       
+                                <img src="/sellers/getImage/<%=item[i]._id%>/<%=0%>" style="width:100%;height: 250px;">
+                            <h3 class="text-dark text-truncate"><%=item[i].name%></h3>
+                            <h6 ><%=item[i].tasteOrcapacity%></h6>
+                            <pre><h3 class="price">&#8377;<span style="font-size: xx-large;"><%= item[i].price %></span>    <span class="text-dark">(<%=item[i].discount%></span><img class="pb-3" src="/img/icons/discounts.png" alt="" width="50px" height="50px">off)</h3></pre>
+                        </a><p><button onclick="addCart('<%=item[i]._id%>')" >Add to Cart</button></p>
+                          </div>
+                    <%}%>
+                </div>
     </div>
 
 </section>
+<div class="pagination" id="pagination">
+    <a href="/menu/pagination/back" id="back">&laquo;</a>
+    <%for(let i=1;i<6;i++){%>
+        <%if(i-1>Math.ceil(item.length/5)){ break;}%>
+        <%if(page == ((set-1)*5)+i){%>
+            <a href="/menu/pagination/<%=((set-1)*5)+i%>" class="active"><%=((set-1)*5)+i%></a>
+            <%}else{%>
+                <a href="/menu/pagination/<%=((set-1)*5)+i%>"><%=((set-1)*5)+i%></a>
+                <%}%>
+        
+        <%}%>
+    <a href="/menu/pagination/front" id="front">&raquo;</a>
+  </div>
 </div>
-<!-- End of menu Section -->		<footer class="mastfoot pb-5 bg-white section-padding pb-0">
+
+<!-- End of menu Section		<footer class="mastfoot pb-5 bg-white section-padding pb-0">
     <div class="inner container">
          <div class="row">
          	<div class="col-lg-4">
@@ -228,7 +250,8 @@
             
         </div>
     </div>
-</footer>	</div>
+</footer>-->	
+</div> 
 	
 </div>
 	<!-- External JS -->
@@ -244,6 +267,12 @@
 
 	<!-- Main JS -->
     <script>
+        function search(){
+            const search = document.getElementById('searchInput').value;
+            console.log(search,'df');
+            fetch(`/menu/search/${search}`)
+            window.location.href = '/menu'
+        }
         var acc = document.getElementsByClassName("accordion");
 var i;
 
@@ -262,7 +291,25 @@ for (i = 0; i < acc.length; i++) {
     }
   });
 }
+  async function addCart(id){
+    await fetch(`/users/addcart/${id}`).then(res=>res.json()).then(data=>{ 
+        if(data.data=='Product added to cart successfully'){
+            Swal.fire({    
+            icon: 'success',
+            title: 'Product added to cart successfully',    
+            timer: 1000,
+            })
+        }else if(data.data == 'Already added this product to cart.'){
+            Swal.fire({    
+            icon: 'warning',
+            title: 'Already added this product to cart.',    
+            timer: 1000,
+            })
+        }
+    })
+  }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="js/app.min.js "></script>
 </body>
 </html>
