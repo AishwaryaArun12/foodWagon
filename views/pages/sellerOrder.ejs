@@ -116,7 +116,7 @@
                                 
                           </td>
                           <%if(order.status != 'Cancelled' && order.status != 'Returned' && order.status != 'Delivered' && order.status != 'Return requested' && order.status != 'Cancel requested' && order.status != 'Cancelled by seller' && order.status != 'Cancelled by admin'){%>
-                            <td><btn onclick="delImage('/sellers/cancelOrder/<%=order._id%>')"><i class="fa fa-ban fs-2" aria-hidden="true"></i></a></btn>
+                            <td><btn onclick="delOrder('/sellers/cancelOrder/<%=order._id%>')"><i class="fa fa-ban fs-2" aria-hidden="true"></i></a></btn>
                            <%}else{%><td></td><%}%>
                     </tr>
                     <%})%>
@@ -124,12 +124,14 @@
             </table>
     </div>
 </div> 
+
+
 <script>
     function submit(){
         const form = document.getElementById('form');
         form.submit();
     }
-    function delImage(url) {
+    function delOrder(url) {
   Swal.fire({
     title: '',
     text: 'Are you sure you want to cancel this order?',

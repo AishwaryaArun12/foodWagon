@@ -1,0 +1,183 @@
+<%- include('../partials/header') %>
+<%- include('../partials/header') %>
+<div class="d-flex">
+    <div class="sidebar">
+        <ul class="nav-links">
+            <li><a href="/admin/home">Dashboard</a></li>
+            <li><a href="/admin/allSeller">Sellers</a></li>
+            <li><a href="/admin/allUser">Users</a></li>
+            <li><a href="/admin/allProducts">Products</a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <li><a href="/admin/category">Category</a></li>
+            <li><a href="/admin/coupon"><b>Coupon</b></a></li>
+            <!-- Add more menu items as needed -->
+        </ul>
+    </div>
+    <div class="content">
+        <div class="container mt-5">
+            <h1 class="text-center mb-4">Coupon Management</h1>
+            
+            <!-- Add Coupon Form -->
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                <i class="fa fa-plus fs-3" aria-hidden="true"></i>Add coupon
+              </button>
+              
+              <!-- Modal -->
+              <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Add New Coupon</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                                <form method="post" action="/admin/addCoupon">
+                                    <div class="form-group m-2 ">
+                                        <label for="couponName">Name</label>
+                                        <input type="text" class="form-control" id="couponName" name="name" placeholder="Enter coupon name">
+                                    </div>
+                                    <div class="form-group m-2 ">
+                                        <label for="couponCode">Coupon Code</label>
+                                        <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="Enter coupon code">
+                                    </div>
+                                    <div class="form-group m-2 ">
+                                        <label for="discount">Discount (%)</label>
+                                        <input type="number" class="form-control" id="discount" name="discount" placeholder="Enter discount percentage">
+                                    </div>
+                                    <div class="form-group m-2 ">
+                                        <label for="date">Valid till</label>
+                                        <input type="date" class="form-control" name="validTill" id="date" placeholder="Enter valid upto">
+                                    </div>
+                                    <div class="form-group m-2 ">
+                                        <label for="min">Minimum</label>
+                                        <input type="number" class="form-control" id="min" name="min" placeholder="Enter minimum order">
+                                    </div>
+                                    <div class="form-group m-2 ">
+                                        <label for="max">Maximum</label>
+                                        <input type="number" class="form-control" id="max" name="max" placeholder="Enter maximum order">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Add</button>
+                                      </div>                               
+                                     </form>
+                            
+                        
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+              
+           
+            
+            <!-- Coupon List -->
+            <div class="card shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
+                <div class="card-header">
+                    Coupon List
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Coupon Code</th>
+                                <th>Discount</th>
+                                
+                                <th>Valid upto</th>
+                                <th>Minimum Order</th>
+                                <th>Maximum Order</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%for(let i=0;i< coupons.length;i++){%>
+                                <tr>
+                                    <td><%=coupons[i].name%></td>
+                                    <td><%=coupons[i].couponCode%></td>
+                                    <td><%=coupons[i].discount%></td>
+                                     <td><%=coupons[i].validTill.toLocaleDateString()%></td>
+                                    <td><%=coupons[i].min%></td>
+                                    <td><%=coupons[i].max%></td>
+                                    <td>
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop<%=i%>"><i class="fa fa-pencil-square-o fs-4" aria-hidden="true"></i></button>
+                                        <div class="modal fade" id="staticBackdrop<%=i%>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title" id="staticBackdropLabel">Add New Coupon</h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                            <form method="post" action="/admin/editCoupon/<%=coupons[i]._id%>">
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="couponName">Name</label>
+                                                                    <input type="text" class="form-control" id="couponName" value="<%=coupons[i].name%>" name="name" placeholder="Enter coupon name">
+                                                                </div>
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="couponCode">Coupon Code</label>
+                                                                    <input type="text" class="form-control" id="couponCode" value="<%=coupons[i].couponCode%>" name="couponCode" placeholder="Enter coupon code">
+                                                                </div>
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="discount">Discount (%)</label>
+                                                                    <input type="number" class="form-control" id="discount" value="<%=coupons[i].discount%>" name="discount" placeholder="Enter discount percentage">
+                                                                </div>
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="date">Valid till</label>
+                                                                    <input type="date" class="form-control" value="<%=coupons[i].validTill.toISOString().split('T')[0]%>" name="validTill" id="date" placeholder="Enter valid upto">
+                                                                </div>
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="min">Minimum</label>
+                                                                    <input type="number" class="form-control" value="<%=coupons[i].min%>" id="min" name="min" placeholder="Enter minimum order">
+                                                                </div>
+                                                                <div class="form-group m-2 ">
+                                                                    <label for="max">Maximum</label>
+                                                                    <input type="number" class="form-control" value="<%=coupons[i].max%>" id="max" name="max" placeholder="Enter maximum order">
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                                  </div>                               
+                                                                 </form>
+                                                        
+                                                    
+                                                </div>
+                                                
+                                              </div>
+                                            </div>
+                                          </div>
+                                        <button class="btn btn-warning" onclick="delCoupon('/admin/delCoupon/<%=coupons[i]._id%>')"><i class="fa fa-trash fs-4" aria-hidden="true"></i></button>
+                                    </td>
+                                </tr>
+                                <%}%>
+                            <!-- Repeat this row for each coupon -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+    <script>
+        function delCoupon(url){
+            Swal.fire({
+                title: '',
+                text: 'Are you sure you want to delete this coupon?',
+                icon: 'warning',
+                buttons: ['Cancel', 'OK'],
+                dangerMode: true,
+            })
+            .then((confirmed) => {
+                if (confirmed) {
+                fetch(url).then(res=>res.json()).then(res=>{window.location.href = res.data})
+                } else {
+                // User clicked "Cancel" or closed the dialog
+                // You can handle this case as needed
+                }
+            })
+        }      
+    </script>
+<%- include('../partials/footer') %>
+<%- include('../partials/footer') %>

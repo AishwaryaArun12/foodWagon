@@ -1,28 +1,85 @@
 <%- include('../partials/header') %>
 <div>
-    <form  onsubmit="submitForm(event)" method="post" action="/users/order" id="form">
+    
+   
     <div class="row">
         
-    <div class="container mt-4 col-lg-7">
+    <div class="container col-lg-7">
         <h1 class="m-4 ">Checkout</h1>
+        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="fa fa-plus  fs-3 " aria-hidden="true"></i> Address
+          </button>
+          
+          <!-- Modal -->
+          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAddressForm" method="post" action="/users/addAddressCheckout">
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label for="name">House name:</label>
+                                <input type="text"  id="name" name="houseName" required>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="lMark">Land mark</label>
+                                <input type="text" class="form-control" id="lMark" name="lMark" >
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="mobile">Mobile</label>
+                                <input type="tel" class="form-control" id="mobile" name="mobile"  required>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="pin">Zip code</label>
+                                <input type="text" class="form-control" id="pin" name="pin" required>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="dist">District</label>
+                                <input type="text" class="form-control" id="dist" name="dist" >
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="state">State</label>
+                                <input type="text" class="form-control" id="state" name="state" >
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                          </form>
+                </div>
+                
+              </div>
+            </div>
+          </div>
         
         <!-- User Information -->
         <div class="shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
             <div >
                 <h2 class="text-danger">User Information</h2>
-                <p><strong>Name:</strong> <%= user.name %></p>
-                <p><strong>Email:</strong> <%= user.email %></p>
+                <p><strong>Name:</strong> <%= users.name %></p>
+                <p><strong>Email:</strong> <%= users.email %></p>
                 <!-- Add more user information fields as needed -->
             </div>
         </div>
 
         <!-- Select Address -->
+        <form  onsubmit="submitForm(event)" method="post" action="/users/order" id="form">
         
         <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
             <div >
-                <h2 >Select Address</h2>
+                <div class="d-flex justify-content-between">
+                    <h2 >Select Address</h2>
+                    
+                    
+                </div>
+                
                     <div class="row">
-                        <% user.address.forEach((address, index) => { %>
+                        <% users.address.forEach((address, index) => { %>
                             <div class="form-check col-5  shadow-lg mt-2  me-3 ms-3 rounded">
                                 <input class="form-check-input" type="radio" name="address" id="address<%=index %>" value="<%=index%>" <% if (index === 0) { %>checked<% } %> >
                                 <label class="form-check-label m-4 pt-2" for="address<%= index %>">
@@ -62,9 +119,14 @@
             <div class="card-body">
                 <h3 class="card-title">Apply Coupon</h3>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="coupon" value="noCoupon" placeholder="Enter coupon code">
+                        <select type="text" class="form-control" id="coupon" name="coupon"  placeholder="Enter coupon code">
+                            <%coupons.forEach(i=>{%>
+                                <option value="Select available coupons" >Select available coupons</option>
+                                <option value="<%=i.couponCode%>"><%=i.name%>-discount for the order of minimum <%=i.min%> and maximum <%=i.max%>, valid till <%=i.validTill.toLocaleDateString()%></option>
+                                <%})%>
+                        </select>
                         <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">Apply</button>
+                            <button class="btn btn-primary" onclick="couponApply()" type="button">Apply</button>
                         </div>
                     </div>
             </div>
@@ -111,7 +173,7 @@
                     </tr>
                     <tr class="bg-warning">
                         <td colspan="3">Grand Total</td>
-                        <td><input type="number" value="<%=sum%>" name="total" readonly></td>
+                        <td><input type="number" id="total" value="<%=sum%>" name="total" readonly></td>
                     </tr>
                 </tbody>
             </table>
@@ -126,16 +188,45 @@
 </div>
 </form>
 </div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    let total = document.getElementById('total')
+    const code = document.getElementById('coupon');
+    console.log(code.value)
+    async function couponApply(){
+        
+        await fetch(`/users/applyCoupon/${code.value}`).then(res=>res.json()).then(res=>{
+           if(res.min<=total.value && res.max>=total.value){
+            console.log(res)
+            let data = res.data;
+            total.value = total.value * (100-data)/100;
+            code.innerHTML = `<option selected value=${res.id} ></option>`
+            const att = document.createAttribute("readonly");
+            code.setAttributeNode(att);
+           }else{
+            Swal.fire({    
+            icon: 'warning',
+            title: 'You selected coupon is not applicable for this order.',    
+            
+            })
+            code.value = 'Select available coupons'
+           }
+        })
+    }
+    
+
      if('<%=data%>'){
             Swal.fire({
                 title: '<strong><%=data%></strong>',
                 icon: 'success',
                 html:
-                    '<a href="/users/orders">Go to Orders</a> ' +
-                    '<a href="/users/menu">Continue shopping</a> ' 
+                    '<a  href="/users/orders" class="text-dark btn">Go to Orders</a> ' +
+                    '<a href="/menu" class= "text-dark btn ">Continue shopping</a> ' ,
+                showConfirmButton: false,
                 })
+               
 
         }
     console.log('hai');
@@ -143,16 +234,57 @@
         e.preventDefault();
         const form = document.getElementById('form');
         const formData = new FormData(form);
-        const mode = formData.get("total");
-        const data = {total : formData.get("total"),mode : formData.get("paymentMode"),address : formData.get("address")}
-        
+        const mode = document.querySelector('input[name="paymentMode"]:checked');
+        //const data = {total : formData.get("total"),mode : formData.get("paymentMode"),address : formData.get("address")}
+    
         if(!formData.get("address")){
             return false;
-        }else if(mode == 'onlinePayment'){
+        }else if(mode.value == 'Online payment'){
+            total = total.value;
+            const url = `/users/razorPost/${total}`;
+console.log(url,'hjkkl',total);
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse the response as JSON if needed
+            })
+            .then(data => {
+                const orderId = data.orderId;
+                var options = {
+                    "key": "rzp_test_WbvbNdBxWlKefq", // Your Razorpay Key ID
+                    "amount": total, // Amount in paise (100 paise = 1 INR)
+                    "currency": "INR", // Currency code (INR for Indian Rupees)
+                    "name": "FoodWagon",
+                    "description": "Purchase Description",
+                    "image": "https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png", // URL of your company logo
+                    "order_id": orderId, // Replace with a unique order ID generated by your server
+                    "handler": function (response) {
+                        // This function will be called after a successful payment
+                        console.log(response.razorpay_payment_id);
+                        // You can perform additional actions here, e.g., updating your database
+                        form.submit();
+                    },
+                    "prefill": {
+                        "name": "<%=users.name%>", // User's name
+                        "email": "<%=users.email%>", // User's email
+                        "contact": "9746521181"
+                    },
+                    "theme": {
+                        "color": "#F37254" // Customize the color of the Razorpay button
+                    }
+                    };
 
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+            })
+            .catch(error => {
+                // Handle errors here
+                console.error('Fetch error:', error);
+            });
         }
         else{
-            console.log('hhsj');
             form.submit();
         }
     }

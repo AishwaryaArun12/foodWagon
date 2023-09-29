@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const cartItemSchema = new mongoose.Schema({
     itemId: {
@@ -56,15 +57,14 @@ const users = new mongoose.model('users',{
     wallet : [{
         amount : {
             type : Number,
-            required : true
         },
         sellerName :{
-            type : String,
-            required : true,
+            type : String,           
         },
         description : {
             type : String
         },
+        
         orderDetails :[{
             name : {
                 type : String,
@@ -80,7 +80,16 @@ const users = new mongoose.model('users',{
     walletBalance : {
         type : Number,
         default : 0
-    }
+    },
+    referralCode: {
+        type: String,
+        default: uuidv4(),
+        unique: true, 
+      },
+    usedCoupons : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Coupons' 
+    }],
     
 })
 module.exports = users;

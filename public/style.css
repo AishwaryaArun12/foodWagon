@@ -12,9 +12,9 @@ body {
   font-family: sans-serif;
   width: 100%;
   height: 400px;
-  background-image: url('https://img.freepik.com/free-photo/top-view-arrangement-with-salad-boxes-sauce_23-2148247882.jpg?w=2000');
+   /* background-image: url('https://img.freepik.com/free-photo/top-view-arrangement-with-salad-boxes-sauce_23-2148247882.jpg?w=2000'); 
   background-repeat: repeat;
-  background-size: 100% 100%;
+  background-size: 100% 100%; */
 }
 .login-box {
   position:absolute;
@@ -23,7 +23,7 @@ body {
   width: 400px;
   padding: 40px;
   /* transform: translate(-50%, -50%); */
-  background: rgb(250, 147, 2);
+  /* background: rgb(250, 147, 2); */
   box-sizing: border-box;
   box-shadow: 0 15px 25px rgb(238, 157, 45);
   border-radius: 10px;
@@ -32,7 +32,7 @@ body {
 .login-box h2 {
   margin: 0 0 10px;
   padding: 0;
-  color: #fff;
+  /* color: #fff; */
   text-align: center;
 }
 a {
@@ -46,10 +46,10 @@ a {
   width: 100%;
   padding: 10px 0;
   font-size: 16px;
-  color: #fff;
+  /* color: #fff; */
   margin-bottom: 30px;
   border: none;
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px solid #000;
   outline: none;
   background: transparent;
 }
@@ -59,7 +59,7 @@ a {
   left: 0;
   padding: 10px 0;
   font-size: 16px;
-  color: #fff;
+  /* color: #fff; */
   pointer-events: none;
   transition: .5s;
 }
@@ -88,10 +88,8 @@ a {
   background: #000;
   border: none;
 }
-#nav{
-  font-family: 'Josefin Sans',serif;
-  color: #f57600;
-  font-size: xx-large;
+.navlink a{
+  font-weight: bold;
 }
 #fdiv {
   margin-left: 55rem;
@@ -106,13 +104,13 @@ a {
   width: 80px;
 }
 .google a{
-  color: white;
+  color:black;
   text-decoration: none;
   font-size: large;
   padding: 10px;
 }
 .newUser a {
-  color: #fff;
+  color: black;
   text-decoration: none;
 }
 a:hover {
@@ -220,13 +218,14 @@ body, h1, h2, ul, li {
 .sidebar {
   width: 250px;
   height: 100vh;
-  flex: 0 0 200px; /* Fixed width for the sidebar */
+  flex: 0 0 180px; /* Fixed width for the sidebar */
   position: sticky;
   top: 0;
-  background-color: #333; /* Example background color */
+  
+  background-color: #000; /* Example background color */
   color: #fff; /* Example text color */
   
-  padding-top: 50px;
+  padding-top: 40px;
 }
 .content {
   flex: 1; /* Allow it to grow to fill available space */
@@ -242,6 +241,9 @@ body, h1, h2, ul, li {
 .nav-links li {
   margin-bottom: 10px;
   font-size: x-large;
+}
+.navhead {
+   color: #f57600;
 }
 
 .nav-links a {
@@ -586,4 +588,29 @@ main {
    */
   .horizontal-timeline .items .items-list {
   padding-top: 15px;
+  }
+  .cart-icon {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  #cart-counter {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 100%;
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+  #wishlist-counter {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 100%;
+    padding: 2px 6px;
+    font-size: 12px;
   }

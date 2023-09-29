@@ -1,8 +1,6 @@
 <%- include('../partials/header') %>
 <section class="h-100">
-  <div class="width-100 mt-4 pt-4">
-    <a href="/menu" class="btn btn-shadow"><i class="fa fa-cart-plus fs-1" aria-hidden="true"></i><span class="fs-2 p-2"><b>Continue Shopping</b></span></a>
-  </div>
+  
     <div class="container h-100 py-5">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-10">
@@ -19,8 +17,8 @@
     
     <%for(let i=0;i< cartData.length;i++){%>
       <%price =price+cartData[i].itemId.price%>
-      <div class="card rounded-3 mb-4">
-          <div class="card-body p-4">
+      <div class="card rounded-3 mb-4 shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
+          <div class="card-body p-4 ">
             <div class="row d-flex justify-content-between align-items-center">
               <div class="col-md-2 col-lg-2 col-xl-2">
                 <img
@@ -29,15 +27,15 @@
               </div>
               <div class="col-md-3 col-lg-3 col-xl-3">
                 <p class="lead fw-normal mb-2"><%=cartData[i].itemId.name%></p>
-                <p class="lead fw-normal mb-2"><%=cartData[i].itemId.description%></p>
-                <p><span class="text-muted">Quantity: </span><%=cartData[i].itemId.qty%> <span class="text-muted">Seller: </span><%=cartData[i].itemId.seller.name%></p>           </div>
+                <!-- <p class="lead fw-normal mb-2"><%=cartData[i].itemId.description%></p> -->
+                <p><span class="text-muted">Quantity: </span><%=cartData[i].itemId.qty%></p><p> <span class="text-muted">Seller: </span><%=cartData[i].itemId.seller.name%></p>           </div>
               <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                 <button class="btn btn-link px-2"
                 onclick="updateQuantity(this, -1, '<%=cartData[i].itemId.price%>','<%=i%>','<%=cartData[i].itemId._id%>')">
                   <i class="fa fa-minus" aria-hidden="true"></i>
                 </button>
   
-                <input id="form1" min="2" name="quantity" value="<%=cartData[i].quantity%>" type="number"
+                <input id="form1" min="1" name="quantity" value="<%=cartData[i].quantity%>" type="number"
                   class="form-control form-control-sm" readonly/>
   
                   <button class="btn btn-link px-2"
@@ -56,16 +54,16 @@
         </div>
       <%}%>
   
-          <div class="card mb-4">
+          <!-- <div class="card mb-4 shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
             <div class="card-body p-4 d-flex flex-row">
-              <div class="form-outline flex-fill">
+              <div class="form-outline flex-fill">7
                 <input type="text" id="form1" class="form-control form-control-lg" />
                 <label class="form-label" for="form1">Discound code</label>
               </div>
-              <button type="button" class="btn btn-outline-warning btn-lg ms-3">Apply</button>
+              <button type="button" class="btn btn-outline-warning  ms-3">Apply</button>
             </div>
-          </div>
-          <div class="card mb-4">
+          </div> -->
+          <div class="card mb-4 shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
             <div class="card-body p-4 d-flex flex-row">
               <div class="form-outline flex-fill">
                 <label class="form-label fs-1" for="form1">Total</label>
@@ -75,9 +73,9 @@
             </div>
           </div>
   
-          <div class="card">
+          <div class="card shadow-lg p-3 mb-3 m-4 rounded bg-transparent">
             <div class="card-body">
-              <a href="/users/checkout" class="btn btn-warning btn-block btn-lg">Proceed to Buy</a>
+              <a href="/users/checkout" class="btn btn-outline-danger btn-block btn-lg">Proceed to Buy</a>
             </div>
           </div>
           <%}else{%>
@@ -101,9 +99,20 @@
     let inputField = button.parentNode.querySelector('input[type=number]');
     let newValue = parseInt(inputField.value) + change;
     if (newValue >= 1) {
-        inputField.value = newValue;
-        updatePrice(inputField,p, i);
-        await fetch( `/users/changeQty/${id}/${newValue}`) // Pass cartData to the function
+        
+        
+        await fetch( `/users/changeQty/${id}/${newValue}`).then(res=>res.json()).then(res=>{
+          if(res.data){
+            inputField.value = newValue;
+            updatePrice(inputField,p, i);
+          }else{
+            Swal.fire({
+              icon: 'info',
+              title: 'Oops...',
+              text: 'Limited stock only',
+            })
+          }
+        }) // Pass cartData to the function
     }
 }
 

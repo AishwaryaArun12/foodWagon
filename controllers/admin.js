@@ -4,6 +4,7 @@ const Menu = require('../models/menu');
 const Item = require('../models/items');
 const nodemailer = require('nodemailer');
 const Orders = require('../models/orders')
+const Coupons = require('../models/coupon');
 
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
 
@@ -698,4 +699,26 @@ module.exports.order = async(req,res)=>{
    
       res.redirect('/admin/?error=Please login first')
   }
+}
+module.exports.coupon = async(req,res)=>{
+  const coupons = await Coupons.find();
+  res.render('pages/adminCoupon',{login : true, user : 'admin', coupons});
+}
+module.exports.addCoupon = async(req,res)=>{
+  const newCoupon = new Coupons(req.body);
+  const savedCoupon = await newCoupon.save();
+  console.log(savedCoupon);
+  res.redirect('/admin/coupon')
+};
+module.exports.editCoupon = async(req,res)=>{
+  const id = req.params.id;
+  const update = await Coupons.findByIdAndUpdate({_id : id},{$set : req.body},{new: true});
+  res.redirect('/admin/coupon');
+}
+module.exports.deleteCoupon = async(req,res)=>{
+  console.log('hai..........');
+  const id = req.params.id;
+  const deleted = await Coupons.deleteOne({ _id: id});
+  console.log(deleted);
+  res.json({data : '/admin/coupon'})
 }

@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
-<%- include('../partials/header') %>
+
 <div >
-    <div class="mt-4 pt-4 ms-3">
+    <div class="m-3">
         <h3>Orders</h3>
     </div>
     <div class="ms-4">
@@ -12,6 +12,8 @@
                 <th scope="col">No.</th>
                 <th scope="col">Products</th>
                 <th scope="col">Status</th>
+                <th scope="col">Payment Status</th>
+                <th scope="col">Payment Mode</th>
                 <th scope="col" >Date</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Seller</th>
@@ -29,12 +31,15 @@
                         <td><ul><%order.items.forEach((i)=>{%>
                             <li><%=i.status%></li>
                         <%})%></ul></td>
+                        <td><%=order.payment_mode%></td>
+                        <td><%=order.paymentStatus%></td>
                         <td><%=order.ordered_on.toLocaleDateString()%></td>
                         <td><%=Math.floor(order.amount)%></td>
                         
                         <td><%=order.seller.name%></td>
                         <td>
-                            <a href="/users/orderDetails/<%=order._id%>">Details</a>
+                            <a href="/users/orderDetails/<%=order._id%>">Details</a><br>
+                            <a href="/users/invoice/<%=order._id%>">Invoice</a>
                           </td>
                           
                     </tr>

@@ -564,7 +564,7 @@ a:hover {
   font-size: 18px;
 }
 
-.card button {
+.card .btn1 {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -575,7 +575,23 @@ a:hover {
   background-color: #000;
   text-align: center;
   cursor: pointer;
-  width: 100%;
+  width: 70%;
+  font-size: 18px;
+  align-self: baseline;
+  margin-top: auto;
+}
+.card .btn2 {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: none;
+  outline: 0;
+  padding: 12px;
+  color: white;
+  background-color: #000;
+  text-align: center;
+  cursor: pointer;
+  width: 30%;
   font-size: 18px;
   align-self: baseline;
   margin-top: auto;
@@ -629,3 +645,35 @@ a:hover {
 
 /* Add a grey background color on mouse-over */
 .pagination a:hover:not(.active) {background-color: #ddd;}
+#nav:hover{
+color:white;
+}
+#nav{
+  color: #000;
+}
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+}
+
+#cart-counter {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: red;
+  color: white;
+  border-radius: 100%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+#wishlist-counter {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: red;
+  color: white;
+  border-radius: 100%;
+  padding: 2px 6px;
+  font-size: 12px;
+}

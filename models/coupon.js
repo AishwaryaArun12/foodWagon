@@ -1,13 +1,10 @@
 const mongoose = require('mongoose');
-const coupons = new mongoose.model('coupons',{
+const coupons = new mongoose.model('Coupons',{
     name : {
         type : String,
         required : true
     },
-    description : {
-        type :String,
-        required : true
-    },
+    
     couponCode : {
         type : String,
         required : true

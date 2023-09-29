@@ -397,7 +397,12 @@ module.exports.home = async(req,res)=>{
 
             } catch (error) {
                console.log(error);
-               
+               if(req.session.user == 'sellerHome'){
+                res.redirect(`/sellers/product/${id}/?error=image validation faliled`);   
+            }else{
+                res.redirect(`/admin/allProducts/?error=image validation failed`)
+            }
+             return;  
             }
             const update = await Item.findOneAndUpdate(
                 { _id: id },

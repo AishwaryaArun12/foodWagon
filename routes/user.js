@@ -3,7 +3,8 @@ const User = require('../models/users');
 
 const {login,signUp,newUser,loginUser,otp,otpVerification,forgot,resend,postforgot,resetEJS,resetPassword
     ,home,product,cart,addCart,remCart,profile,addAddress, editAddress,removeAddress,editProfile,changeQty,
-checkout,order, orderDetails, eachOrder, orderReturn, wallet} = require('../controllers/user');
+checkout,order, orderDetails, eachOrder, orderReturn, wallet,applyCoupon,addWish,removeWish,wishlist,razorPost,
+ addAddressCheckout,orderInvoice} = require('../controllers/user');
 const {isAuthenticatedUser,isBlocked} = require('../controllers/authMiddleware');
 const { reset } = require('nodemon');
 
@@ -36,8 +37,14 @@ router.get('/checkout',isAuthenticatedUser,isBlocked, checkout);
 router.post('/order',isAuthenticatedUser,isBlocked, order);
 router.get('/orders',isAuthenticatedUser,isBlocked, orderDetails)
 router.get('/orderDetails/:id',isAuthenticatedUser,isBlocked, eachOrder);
+router.get('/invoice/:id',isAuthenticatedUser,isBlocked, orderInvoice);
 router.post('/order/:status/:id/:all' ,isAuthenticatedUser,isBlocked, orderReturn);
-router.get('/wallet' , wallet);
-
+router.get('/wallet' ,isAuthenticatedUser,isBlocked, wallet);
+router.get('/applyCoupon/:code', isAuthenticatedUser,isBlocked, applyCoupon);
+router.get('/addWish/:id',isAuthenticatedUser,isBlocked, addWish);
+router.get('/removeWish/:id',isAuthenticatedUser,isBlocked, removeWish);
+router.get('/wishlist',isAuthenticatedUser,isBlocked, wishlist);
+router.get('/razorPost/:amount', isAuthenticatedUser, isBlocked , razorPost);
+router.post('/addAddressCheckout', isAuthenticatedUser,isBlocked, addAddressCheckout)
 
 module.exports = router;
