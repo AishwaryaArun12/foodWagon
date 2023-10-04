@@ -43,8 +43,39 @@
                       <p><%=i.itemId.price%></p>
                       <%if(i.status != 'Cancelled' || i.status != 'Returned'){ sum+=i.itemId.price }%>
                     </div>
-                    <div class="col-md-4 col-lg-3">
+                    <div class="col-md-4 col-lg-2">
                       <%if(i.status == 'Returned' || i.status == 'Cancelled' || i.status == 'Cancel requested' || i.status == 'Cancelled' || i.status == 'Request denied'){%><p class="text-danger"><%=i.status%></p><%}else{%>
+                      <a href="#" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleModal<%=index%>"><%if(order.status == 'Delivered'){%>Return <%}else if(order.status != 'Delivered' && order.status != 'Cancelled'){%>Cancel<%}%>
+                      </a>
+                      <div class="modal fade" id="exampleModal<%=index%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Reason for <%if(order.status!= 'Delivered'){%>Cancel <%}else {%> Return <%}%> your order </h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <form method="post" <%if(i.status == 'Delivered'){%> action="/users/order/Return Requested/<%=order._id%>/<%=i.itemId._id%>" <%}else if(order.status != 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/<%=i.itemId._id%>"<%}%>>
+                                
+                                <div class="mb-3">
+                                  <label for="reason" class="form-label">Reason</label>
+                                  <textarea type="text" class="form-control" id="reason" name="reason"></textarea>
+                                </div>
+                                <input type="hidden" value="<%=i.itemId._id%>" name="itemId">
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                              </form>
+                            </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                      <%}%>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                      <%if(i.status == 'Delivered'){%>
                       <a href="#" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleModal<%=index%>"><%if(order.status == 'Delivered'){%>Return <%}else if(order.status != 'Delivered' && order.status != 'Cancelled'){%>Cancel<%}%>
                       </a>
                       <div class="modal fade" id="exampleModal<%=index%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

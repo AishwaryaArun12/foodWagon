@@ -1,0 +1,220 @@
+<%- include('../partials/header') %>
+<div class="content">
+    <div class="container mt-5">
+        <h1 class="text-center mb-3">Sales PDF Report</h1>
+        <form method="post" action="/sellers/salesReport">
+            <div class="form-row row">
+                <div class="form-group col-md-5 col-lg-5">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group col-md-5 col-lg-5">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-danger col-4 m-3">Generate PDF Report</button>
+        </form>
+
+        
+        <a href="<%=file%>" class="col-12 m-3" download="sales_report.pdf">
+            <button class="btn btn-success ">Download Report</button>
+        </a>
+       
+    </div>
+
+    <div class="container mt-3">
+        <h1 class="text-center mb-3">Sales Report</h1>
+        <div class="row">
+            <form action="/sellers/changeDate/start" class="col-md-5 m-3" id="sDate" method="post">
+                <div class="form-group">
+                    <input type="date" class="form-control" name="sDate" placeholder="Start Date" value="<%= sDate.toISOString().slice(0, 10) %>"
+                        id="order_start" required onchange="document.getElementById('sDate').submit();">
+                </div>
+            </form>
+            <form action="/sellers/changeDate/end" class="col-md-5 m-3" id="eDate" method="post">
+                <div class="form-group">
+                    <input type="date" name="eDate" class="form-control" placeholder="End Date" value="<%=eDate.toISOString().slice(0, 10); %>"
+                        id="order_end" required onchange="console.log(document.getElementById('order_end').value); document.getElementById('eDate').submit();">
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center shadow-lg p-3 mb-3 m-3 rounded">
+                        <h5 class="card-title">Total Orders</h5>
+                        <h4 class="card-text" id="total_orders"><%=salesData.length%></h4>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3 ">
+                <div class="card">
+                    <div class="card-body text-center shadow-lg p-3 mb-3 m-3 rounded">
+                        <h5 class="card-title">Total Order Revenue</h5>
+                        <h4 class="card-text" id="totalrevenue"><%=totalRevenue.toFixed(2)%></h4>
+                        
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3 ">
+                <div class="card">
+                    <div class="card-body text-center shadow-lg p-3 mb-3 m-3 rounded">
+                        <h5 class="card-title">Total Profit </h5>
+                        <h4 class="card-text" id="totalprofit"><%=(totalRevenue * 20/100).toFixed(2)%></h4>
+                        
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center shadow-lg p-3 mb-3 m-3 rounded">
+                        <h5 class="card-title">Net Profit </h5>
+                        <h4 class="card-text" id="totalprofit"><%=((totalRevenue * 20/100)*5/100).toFixed(2)%></h4>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <h1 class="text-center">Payment Analysis</h1>
+                <input type="hidden" name="" id="payment_methods">
+
+                <div class="mt-3">
+                    <canvas id="myChart" width="900px" height = "900px"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h4 class="text-center">Monthly Base Sales</h4>
+                        <div>
+                            <!-- <canvas id="myChart" width="900px" height = "900px"></canvas> -->
+                            <canvas id="myChart1"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <h4 class="text-center">Category Base Sales</h4>
+                        <div>
+                            <canvas id="myChart2"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="ordersData" value='<%= JSON.stringify(orders) %>'>
+<input type="hidden" id="orderCategoryData" value='<%= JSON.stringify(categories) %>'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script>
+     const orders = JSON.parse(document.getElementById('ordersData').value);
+     const categories = JSON.parse(document.getElementById('orderCategoryData').value);
+    const onlineOrders = orders.filter(i=>i.payment_mode == 'Online payment')
+    const cashOrders = orders.filter(i=>i.payment_mode == 'cash on delivery' || i.payment_mode == 'Cash on delivery')
+    const walletOrders = orders.filter(i=>i.payment_mode == 'Wallet')
+    const xValues = ["Online Payment", "Cash on Delivery", "Wallet"];
+    console.log(onlineOrders.length, cashOrders.length, walletOrders.length)
+const yValues = [onlineOrders.length, cashOrders.length, walletOrders.length];
+
+ const myChart =    new Chart("myChart", {
+  type: "pie",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor:[ "rgba(255, 99, 132)",
+        "rgba(54, 162, 235)",
+        "rgba(255, 206, 86)"],
+      data: yValues
+    }]
+  }
+});
+function getOrdersByMonth(orders, sDate) {
+  const currentDate = new Date(sDate);
+  const twelveMonthsAgo = new Date(sDate);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const monthlyOrderCounts = [];
+  const months = [];
+  while (currentDate >= twelveMonthsAgo) {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() , 31);
+
+    const ordersInMonth = orders.filter((order) =>{ 
+     return  new Date(order.ordered_on) >= startOfMonth && new Date(order.ordered_on) <= endOfMonth});
+
+    months.push(currentDate.getMonth())
+    monthlyOrderCounts.push(ordersInMonth.length);
+
+    currentDate.setMonth(currentDate.getMonth() - 1);
+  }
+
+  return [monthlyOrderCounts,months];
+}
+
+
+const sDate = "<%= eDate.toISOString().slice(0, 10) %>"; // Replace with your desired start date
+const [monthlyOrderCounts,months] = getOrdersByMonth(orders, sDate);
+const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+for(let i = 0 ;i< fullMonths.length;i++){
+    months[i] = fullMonths[months[i]];
+}
+const myChart1 = new Chart("myChart1", {
+  type: "bar",
+  data: {
+    labels: months,
+    datasets: [{
+        label: 'Total sales in month',
+      backgroundColor:
+        "rgb(226, 241, 0)",
+      data:monthlyOrderCounts,
+    }]
+  }
+});
+
+
+// Count category occurrences
+const categoryCounts = categories.reduce((counts, category) => {
+  counts[category] = (counts[category] || 0) + 1;
+  return counts;
+}, {});
+
+// Extract category names and counts
+const categoryNames = Object.keys(categoryCounts);
+const categoryValues = Object.values(categoryCounts);
+
+// Create the chart
+const myChart2 = new Chart("myChart2", {
+  type: "bar",
+  data: {
+    labels: categoryNames,
+    datasets: [
+        
+      {
+        label : 'Sales in categories',
+        backgroundColor: "rgba(0, 0, 255, 0.8)",
+        data: categoryValues,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true, // Start the y-axis at zero
+        min: 0, // Set a minimum value for the y-axis
+      },
+    },
+  },
+});
+
+</script>
+
+//<script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<%- include('../partials/footer') %>

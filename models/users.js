@@ -90,6 +90,10 @@ const users = new mongoose.model('users',{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Coupons' 
     }],
+    image: {
+        type : String,
+        default : '/img/gallery/defaultImage.svg',
+    }
     
 })
 module.exports = users;

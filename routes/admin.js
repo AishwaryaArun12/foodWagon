@@ -3,7 +3,7 @@ const express = require('express');
 const {login,loginAdmin,home,acceptSendMail,rejectSendMail,adminUser,block,unblock,adminSeller,adminMenu,search,
     searchUser,searchClose,adminAllUser, adminAllSeller,products, allProducts,category,newFoodType,newCategory,
     blockFoodType,blockCategory,unblockFoodType,unblockCategory,editCategory, editFoodType, order,coupon, addCoupon,
-    editCoupon,deleteCoupon} = require('../controllers/admin');
+    editCoupon,deleteCoupon, salesPdf, changeDate, } = require('../controllers/admin');
 // const { order } = require('../controllers/user');
 
 const router = express.Router();
@@ -39,6 +39,7 @@ router.get('/coupon', coupon);
 router.post('/addCoupon', addCoupon);
 router.post('/editCoupon/:id', editCoupon);
 router.get('/delCoupon/:id', deleteCoupon);
-
+router.post('/salesReport', salesPdf)
+router.post('/changeDate/:date', changeDate);
 
 module.exports = router;

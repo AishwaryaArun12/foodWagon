@@ -6,10 +6,27 @@
                 <div class="card-header">
                     <h2>User Profile</h2>
                 </div>
+                <div class="d-flex justify-content-center">
+                    <form action="/users/upload_profileImage" method="post" id="formImage" enctype="multipart/form-data">
+                        <div id="profile-photo-container" class="m-4">
+                            <div class="w-25">
+                                <label for="photo-upload" id="profile-photo-label">
+                                    <img id="profile-photo" src="<%=userData.image%>" class="rounded-circle" height="180px" width="180px" alt="Profile Photo">
+                                  </label>
+                            </div>
+                            <input type="file" style="display: none;" name="file" id="photo-upload" accept="image/*">
+                          </div>
+                    </form>
+                      <div class="m-4">
+                        <p><strong>Name:</strong> <%=userData.name%></p>
+                        <p><strong>Email:</strong> <%=userData.email%></p>
+                        <p><strong>Referral Code:</strong> <span id="referralCode"><%=userData.referralCode%></span> <button class="btn" id="copyBtn"><i class="fa fa-clone " id="copy" aria-hidden="true"></i></button><span id="copied">Copied<i class="fa fa-check"  aria-hidden="true"></i></span></p>
+    
+                        <button class="btn btn-warning mb-2" data-toggle="modal" data-target="#addAddressModal"><i class="fa fa-plus  fs-3 " aria-hidden="true"></i> Address</button>
+                      </div>
+                </div>
                 <div class="container-fluid">
-                    <p><strong>Name:</strong> <%=userData.name%></p>
-                    <p><strong>Email:</strong> <%=userData.email%></p>
-                    <button class="btn btn-warning mb-2" data-toggle="modal" data-target="#addAddressModal"><i class="fa fa-plus  fs-3 " aria-hidden="true"></i> Address</button>
+                    
                        <div class="p-3 row">
                         <%for(let i=0;i<userData.address.length;i++){%>
                            <div class="col-4">
@@ -182,6 +199,43 @@
     </div>
 </div>
 <script>
+    const profilePhoto = document.getElementById('profile-photo');
+const photoUpload = document.getElementById('photo-upload');
+
+// Add an event listener to the file input
+photoUpload.addEventListener('change',async function () {
+  
+  let form  =document.getElementById('formImage');
+  
+  form.submit();
+});
+
+     const copyButton = document.getElementById("copyBtn");
+  const copyIcon = document.getElementById("copy");
+  const copiedIcon = document.getElementById("copied");
+  const referralCode = document.getElementById("referralCode").textContent.trim();
+copiedIcon.style.display = 'none';
+  copyButton.addEventListener("click", function() {
+    const textArea = document.createElement("textarea");
+    textArea.value = referralCode;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+
+    // Toggle icons
+    copyIcon.style.display = "none";
+    copiedIcon.style.display = "inline";
+
+    // Revert to the "copy" icon after 2 seconds
+    setTimeout(function() {
+      copyIcon.style.display = "block";
+      copiedIcon.style.display = "none";
+    }, 2000);
+
+    // Alert can be removed if not needed
+  });
+
     function addressDelete(i){
         Swal.fire({
   title: 'Do you want delete the address?',

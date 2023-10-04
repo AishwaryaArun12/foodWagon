@@ -37,7 +37,7 @@
 <body data-spy="scroll" data-target="#navbar" class="static-layout">
 	<div id="canvas-overlay"></div>
 	<div class="boxed-page">
-        <nav class="navbar navbar-expand-lg navbar-light bg-warning" style="z-index: 1;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-warning position-sticky fixed-top" style="z-index: 1;">
             <div class="container">
                 <a class="navbar-brand d-flex" href="#">
                     <img src="https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png" alt="" width="80" height="44" class="d-inline-block align-text-top mb-4">
@@ -168,10 +168,10 @@
             </div>
             <div class="d-flex flex-wrap">
                 <%if(item.length==0){%>
-                    <h2 class="m-3 text-danger" >Sorry! Your querry does not match any products.</h2>
+                    <h2 class="m-3 text-danger" >Sorry! Your filter request  does not match any products.</h2>
                     <%}%>
                 <%for(let i = 0;i<item.length;i++){%>
-                    <div class="card ms-3 mb-2">
+                    <div class="card ms-1 mb-2">
                     <a href="/users/product/<%=item[i]._id%>">                       
                                 <img src="/sellers/getImage/<%=item[i]._id%>/<%=0%>" style="width:90%;height: 240px;">
                             <h3 class="text-dark text-truncate"><%=item[i].name%></h3>

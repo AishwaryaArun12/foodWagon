@@ -5,6 +5,14 @@ const Item = require('../models/items');
 const nodemailer = require('nodemailer');
 const Orders = require('../models/orders')
 const Coupons = require('../models/coupon');
+const fs = require('fs');
+const puppeteer = require('puppeteer');
+const { v4: uuidv4 } = require('uuid');
+const PDFDocument = require('pdfkit');
+const path = require('path');
+//const html2pdf = require('html2pdf.js');
+const ejs = require('ejs');
+//app.set('view engine', 'ejs');
 
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
 
@@ -52,9 +60,11 @@ module.exports.loginAdmin = async (req,res)=>{
             res.redirect('/admin/?error=Entered password or username is not correct');
         }
     }
-
+let sDate = new Date(2023,8,2);
+let eDate = new Date();
 module.exports.home = async (req,res)=>{
-    const sellers = await Seller.find({status : 'pending'});
+   // const sellers = await Seller.find({status : 'pending'});
+   const sellers = await Seller.find({status : 'approve'})
     if(req.cookies[req.session.email] || req.user){
         if(req.cookies[req.session.email] == req.session.password || req.user){
             if(req.user){
@@ -64,9 +74,35 @@ module.exports.home = async (req,res)=>{
                 req.session.login = true;
                 req.session.user = admin;
                 req.session.save();
+                
             }
-            console.log(sellers);
-            res.render('pages/adminHome',{sellers : sellers, user:'admin', login :true});
+            const userCount = await User.countDocuments();
+            const salesData = await Orders.find({
+              ordered_on: { $gte: sDate, $lte: eDate },
+            })
+            .populate({
+              path: 'items',
+              populate: {
+                path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+                model: 'Item'
+              },
+            }).populate('customer')
+            .populate('seller');
+            const categories = [];
+
+                // Extract category data from orders
+                salesData.forEach((order) => {
+                   
+                 order.items.forEach(i=>{
+                  if (i.itemId && i.itemId.category) {
+                    categories.push(i.itemId.category);
+                  }
+                 })
+                });
+                
+            let totalRevenue = salesData.reduce((total, sale) => total + sale.items.reduce((total, sale) => total + sale.amount, 0), 0);
+            let orders = await Orders.find();
+            res.render('pages/adminDashBoard',{userCount,categories,orders,sellers : sellers, user:'admin', login :true,file,salesData,totalRevenue,sDate,eDate});
         }else{
             res.redirect('/admin/?error=You are not an admin');
         }
@@ -721,4 +757,73 @@ module.exports.deleteCoupon = async(req,res)=>{
   const deleted = await Coupons.deleteOne({ _id: id});
   console.log(deleted);
   res.json({data : '/admin/coupon'})
+}
+let file;
+module.exports.salesPdf = async (req, res) => {
+  const start = req.body.start_date;
+  const end = req.body.end_date;
+  const salesData = await Orders.find({
+    ordered_on: { $gte: start, $lte: end },
+  })
+  .populate({
+    path: 'items',
+    populate: {
+      path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+      model: 'Item'
+    },
+  }).populate('customer')
+  .populate('seller')
+  let totalRevenue = salesData.reduce((total, sale) => total + sale.items.reduce((total, sale) => total + sale.amount, 0), 0);
+  console.log(totalRevenue);
+  let orderData = salesData;
+
+  // Render the EJS template with data
+  ejs.renderFile('views/pages/adminReport.ejs', { orderData, totalRevenue }, async (err, html) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error rendering EJS template');
+    }
+    let filename = `adminReport_${uuidv4()}.pdf`
+    const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
+    file = `/pdf_reports/${filename}`;
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      // Set the HTML content of the page
+      await page.setContent(html);
+
+      // Generate PDF from the page
+      await page.pdf({
+        path: pdfFilePath,
+        format: 'A4',
+        margin: {
+          top: '20px',
+          bottom: '20px',
+          left: '20px',
+          right: '20px',
+        },
+      });
+
+      await browser.close();
+
+      console.log(`PDF sales report saved to "${pdfFilePath}"`);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error generating PDF');
+    }
+
+    res.redirect('/admin/home');
+  });
+};
+
+
+module.exports.changeDate = (req,res)=>{
+  const date = req.params.date;
+  if(date == 'start'){
+    sDate = new Date(req.body.sDate);
+  }else{
+    eDate =  new Date(req.body.eDate);
+  }
+  res.redirect('/admin/home');
 }

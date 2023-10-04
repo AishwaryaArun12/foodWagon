@@ -100,7 +100,7 @@
             <div class="card-body">
                 <h3 class="card-title">Payment Mode</h3>
                     <div class="form-check m-1">
-                        <input class="form-check-input" type="radio" name="paymentMode" id="cashOnDelivery" value="cash on delivery" checked>
+                        <input class="form-check-input" type="radio" name="paymentMode" id="cashOnDelivery" value="Cash on delivery" checked>
                         <label class="form-check-label" for="cashOnDelivery">Cash on Delivery</label>
                     </div>
                     <div class="form-check m-1">
@@ -120,8 +120,9 @@
                 <h3 class="card-title">Apply Coupon</h3>
                     <div class="input-group mb-3">
                         <select type="text" class="form-control" id="coupon" name="coupon"  placeholder="Enter coupon code">
+                            <%if(coupons.length == 0){%><option value="Select available coupons" selected>No coupons available</option><%}%>
                             <%coupons.forEach(i=>{%>
-                                <option value="Select available coupons" >Select available coupons</option>
+                                <option value="Select available coupons" selected>Select available coupons</option>
                                 <option value="<%=i.couponCode%>"><%=i.name%>-discount for the order of minimum <%=i.min%> and maximum <%=i.max%>, valid till <%=i.validTill.toLocaleDateString()%></option>
                                 <%})%>
                         </select>
@@ -192,6 +193,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    
     let total = document.getElementById('total')
     const code = document.getElementById('coupon');
     console.log(code.value)

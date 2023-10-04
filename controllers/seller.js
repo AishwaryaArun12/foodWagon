@@ -9,6 +9,10 @@ const Coupon = require('../models/coupon');
 const User = require('../models/users');
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
 const { orderDetails } = require('./user');
+const puppeteer = require('puppeteer');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const ejs = require('ejs');
 
 module.exports.login = (req,res)=>{
     const error = req.query;
@@ -101,22 +105,40 @@ module.exports.loginSeller = async(req,res)=>{
     }
     
 };
-
+let sDate = new Date(2023,8,2);
+let eDate = new Date();
+let file;
 module.exports.home = async(req,res)=>{
     let error = req.query.error
     console.log(req.cookies,req.session);
     if(req.cookies[req.session.email]){
         if(req.cookies[req.session.email] == req.session.password){
-            const menu = await Menu.find({ _id: req.session.menuId });
-            const menus = await Menu.findById(req.session.menuId).populate({
-                path: 'menu.category.items.item',
-                model: 'Item'  // Make sure the model name matches the one you defined for items
+          const salesData = await Orders.find({
+            ordered_on: { $gte: sDate, $lte: eDate },seller : req.session.sellerId
+          })
+          .populate({
+            path: 'items',
+            populate: {
+              path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+              model: 'Item'
+            },
+          }).populate('customer')
+          .populate('seller');
+          const categories = [];
+
+              // Extract category data from orders
+              salesData.forEach((order) => {
+                 
+               order.items.forEach(i=>{
+                if (i.itemId && i.itemId.category) {
+                  categories.push(i.itemId.category);
+                }
+               })
               });
-            const category = menu[0].menu.map(i => {
-                return i.category.map(i=>i.name);
-              });
-              const foodType = menu[0].menu.map(foodType =>foodType.name);
-              res.render('pages/sellerHome',{error,foodType : foodType,category, menus : menus, search :search,user:'sellers', login:true});
+              
+          let totalRevenue = salesData.reduce((total, sale) => total + sale.items.reduce((total, sale) => total + sale.amount, 0), 0);
+          let orders = await Orders.find();
+          res.render('pages/sellerDashboard',{categories,orders, user:'sellers', login :true,file,salesData,totalRevenue,sDate,eDate});
         }else{
             res.redirect('/sellers');
         }
@@ -801,4 +823,84 @@ module.exports.cancelOrder = async (req,res)=>{
             }
     }
     
+}
+module.exports.products = async(req,res)=>{
+  const error = req.query.error;
+  const menu = await Menu.find({ _id: req.session.menuId });
+  const menus = await Menu.findById(req.session.menuId).populate({
+      path: 'menu.category.items.item',
+      model: 'Item'  // Make sure the model name matches the one you defined for items
+    });
+  const category = menu[0].menu.map(i => {
+      return i.category.map(i=>i.name);
+    });
+    const foodType = menu[0].menu.map(foodType =>foodType.name);
+    res.render('pages/sellerHome',{error,foodType : foodType,category, menus : menus, search :search,user:'sellers', login:true});
+}
+module.exports.salesPdf = async (req, res) => {
+  const start = req.body.start_date;
+  const end = req.body.end_date;
+  const salesData = await Orders.find({
+    ordered_on: { $gte: start, $lte: end },seller : req.session.sellerId
+  })
+  .populate({
+    path: 'items',
+    populate: {
+      path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+      model: 'Item'
+    },
+  }).populate('customer')
+  .populate('seller')
+  let totalRevenue = salesData.reduce((total, sale) => total + sale.items.reduce((total, sale) => total + sale.amount, 0), 0);
+  console.log(totalRevenue);
+  let orderData = salesData;
+
+  // Render the EJS template with data
+  ejs.renderFile('views/pages/adminReport.ejs', { orderData, totalRevenue }, async (err, html) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error rendering EJS template');
+    }
+    let filename = `sellersReport_${uuidv4()}.pdf`
+    const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
+    file = `/pdf_reports/${filename}`;
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      // Set the HTML content of the page
+      await page.setContent(html);
+
+      // Generate PDF from the page
+      await page.pdf({
+        path: pdfFilePath,
+        format: 'A4',
+        margin: {
+          top: '20px',
+          bottom: '20px',
+          left: '20px',
+          right: '20px',
+        },
+      });
+
+      await browser.close();
+
+      console.log(`PDF sales report saved to "${pdfFilePath}"`);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error generating PDF');
+    }
+
+    res.redirect('/sellers/home');
+  });
+};
+
+module.exports.changeDate = (req,res)=>{
+  const date = req.params.date;
+  if(date == 'start'){
+    sDate = new Date(req.body.sDate);
+  }else{
+    eDate =  new Date(req.body.eDate);
+  }
+  res.redirect('/sellers/home');
 }

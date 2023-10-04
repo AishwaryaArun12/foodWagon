@@ -465,6 +465,7 @@ module.exports.remCart = async(req,res)=>{
       }
 }
 module.exports.profile = async (req,res)=>{
+    
     const id = req.session.userId;
     if(req.session.login || req.user){
         const user = await User.findOne({_id : id})
@@ -718,7 +719,7 @@ let orderDetailsArray = await Promise.all(Object.entries(cartItemsBySeller).map(
       ordered_on: new Date(),
       amount: Math.round(totalAmount),
       status : 'Pending',
-      paymentStatus : mode == 'cashOnDelivery' ? 'Pending' : 'Paid',
+      paymentStatus : mode == 'Cash on delivery' ? 'Pending' : 'Paid',
       payment_mode: mode ,
       address: address,
       customer: req.session.userId,
@@ -732,11 +733,12 @@ let orderDetailsArray = await Promise.all(Object.entries(cartItemsBySeller).map(
     }
 }else{
     let paymentStatus ;
-    if( mode == 'cashOnDelivery') {
+    if( mode == 'Cash on delivery') {
         paymentStatus =  'Pending' 
     }else{
          paymentStatus =  'Paid'
         }
+        
     if(totalAmount<=3000){
         totalAmount +=totalAmount*5/100;
       }else{
@@ -857,6 +859,7 @@ module.exports.eachOrder = async(req,res)=>{
         const userId = req.session.userId;
         const orderId = req.params.id;
         let users = await User.findById(userId);
+        console.log(userId);
         const order = await Order.findOne({_id : orderId}).populate({
             path: 'items',
             populate: {
@@ -984,4 +987,10 @@ const updatedUser = await User.findByIdAndUpdate(
 
 console.log('update',updatedUser);
 res.redirect('/users/checkout');
+}
+module.exports.changeProfileImage = async (req,res)=>{
+    const id = req.session.userId;
+    const imagePath = `/img/${req.file.filename}`;
+    await User.findByIdAndUpdate(id, { image: imagePath });
+    res.redirect('/users/profile');
 }

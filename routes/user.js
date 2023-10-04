@@ -1,10 +1,23 @@
 const express = require('express');
 const User = require('../models/users');
-
+const multer = require('multer');
+const path = require('path');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'public/img/'); // Save files to the 'uploads' directory
+    },
+    filename: (req, file, cb) => {
+      const uniqueFileName = `${Date.now()}-${file.originalname}`;
+      cb(null, uniqueFileName);
+    },
+  });
+  
+  const upload = multer({ storage });
+  
 const {login,signUp,newUser,loginUser,otp,otpVerification,forgot,resend,postforgot,resetEJS,resetPassword
     ,home,product,cart,addCart,remCart,profile,addAddress, editAddress,removeAddress,editProfile,changeQty,
 checkout,order, orderDetails, eachOrder, orderReturn, wallet,applyCoupon,addWish,removeWish,wishlist,razorPost,
- addAddressCheckout,orderInvoice} = require('../controllers/user');
+ addAddressCheckout,orderInvoice,changeProfileImage} = require('../controllers/user');
 const {isAuthenticatedUser,isBlocked} = require('../controllers/authMiddleware');
 const { reset } = require('nodemon');
 
@@ -46,5 +59,6 @@ router.get('/removeWish/:id',isAuthenticatedUser,isBlocked, removeWish);
 router.get('/wishlist',isAuthenticatedUser,isBlocked, wishlist);
 router.get('/razorPost/:amount', isAuthenticatedUser, isBlocked , razorPost);
 router.post('/addAddressCheckout', isAuthenticatedUser,isBlocked, addAddressCheckout)
+router.post('/upload_profileImage',upload.single('file'), isAuthenticatedUser,isBlocked,changeProfileImage);
 
 module.exports = router;

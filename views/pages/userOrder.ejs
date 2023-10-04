@@ -31,8 +31,9 @@
                         <td><ul><%order.items.forEach((i)=>{%>
                             <li><%=i.status%></li>
                         <%})%></ul></td>
-                        <td><%=order.payment_mode%></td>
                         <td><%=order.paymentStatus%></td>
+                        <td><%=order.payment_mode%></td>
+                        
                         <td><%=order.ordered_on.toLocaleDateString()%></td>
                         <td><%=Math.floor(order.amount)%></td>
                         

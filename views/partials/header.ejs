@@ -26,7 +26,8 @@
 </head>
 <body data-spy="scroll" data-target="#navbar" class="static-layout">
 	<div id="canvas-overlay"></div>
-  <nav class="navbar navbar-expand-lg  bg-warning" style="z-index: 1;">
+  <div class="position-sticky fixed-top">
+    <nav class="navbar navbar-expand-lg  bg-warning" style="z-index: 1;">
     <div class="container-fluid">
         <a class="navbar-brand d-flex me-4 pe-4" href="#">
             <img src="https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png" alt="" width="80" height="44" class="d-inline-block align-text-top mb-4">
@@ -51,7 +52,7 @@
               </li>
               <li class="nav-item cart-icon">
                   <a class="nav-link text-dark" href="/users/wishlist"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                  <span id="wishlist-counter"><%=users.wishlist.length%></span>
+                  <%if(users){%><span id="wishlist-counter"><%=users.wishlist.length%></span><%}%>
               </li>
               <li class="nav-item">
                   <a class="nav-link text-dark" href="/users/wallet">Wallet</a>
@@ -63,7 +64,7 @@
               <li class="nav-item cart-icon">
                   <a class="nav-link text-dark" id="nav" href="/users/cart">
                       <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                      <span id="cart-counter"><%=users.cart.length%></span>
+                      <%if(users){%><span id="wishlist-counter"><%=users.cart.length%></span><%}%>
                   </a>
               </li>
               <li class="nav-item">
@@ -92,7 +93,7 @@
           </ul>
       </div>
         <%}else if(user == 'sellers' && login){%>
-          <a href="/sellers/home" class="fs-3 me-4 mt-1 text-light "><span class="text-danger">P</span>roducts</a>  
+          <a href="/sellers/products" class="fs-3 me-4 mt-1 text-light "><span class="text-danger">P</span>roducts</a>  
        
         <a href="/sellers/dashboard" class="fs-3 me-4 mt-1 text-light "><span class="text-danger">D</span>ashboard</a>  
         <a href="/sellers/orders" class="fs-3 me-4 mt-1 text-light "><span class="text-danger">O</span>rders</a>
@@ -100,11 +101,17 @@
           <a href="/logout"><button class="btn btn-warning ms-3 me-4" ><i class="fa fa-sign-out fs-2  me-2 mt-1" aria-hidden="true"></i></button>
           </a> 
           <%}else if(user == 'sellers' && !login){%>
-            <a href="/sellers/signUp" class="btn btn-warning m-2">SignUp
-
-            </a>
-            <a href="/users" class="btn btn-warning m-2">User Login</a> 
-             
+            <div class="collapse navbar-collapse" id="navbarNav">
+          
+                  <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                      <a href="/sellers/signUp" id="nav" class="nav-link text-dark me-3">SignUp</a>
+                    </li>
+              <li class="nav-item">
+                <a href="/users" class="nav-link text-dark me-3" id="nav">User Login</a>
+              </li>
+          </ul>
+      </div> 
               <%}else if(user == 'admin' && login){%>
                 <div>
                   <a href="/logout"><button class="btn btn-warning " ><i class="fa fa-sign-out fs-2 me-4 mt-1" aria-hidden="true"></i></button> 
@@ -112,5 +119,5 @@
                   </div>
                <%}%>
      </div>
-      </nav>
+      </nav></div>
     <!-- <div class="width-100 m-"></div> -->

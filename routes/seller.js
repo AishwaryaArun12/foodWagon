@@ -1,7 +1,7 @@
 const express = require('express');
 const {login,signUp,newSeller,loginSeller,home,displayImage,displayVideo,addVideo,addItem,addFoodType,search,searchClose
     ,product , block,unblock,editProduct,itemEdit,editImage, editVideo,addImage,profile,editProfile,order, orderAction
-    ,deleteImage,cancelOrder} = require('../controllers/seller');
+    ,deleteImage,cancelOrder,products,salesPdf,changeDate} = require('../controllers/seller');
 const multer  = require('multer');
 const {isBlocked,isLogin} = require('../controllers/authMiddleware')
 const storage = multer.memoryStorage();
@@ -35,5 +35,9 @@ router.post('/editProfile',isBlocked,isLogin, editProfile);
 router.get('/orders',isBlocked,isLogin, order);
 router.post('/orderAction/:id', isBlocked,isLogin, orderAction);
 router.get('/cancelOrder/:id' , cancelOrder);
+router.get('/products', isBlocked,isLogin, products)
+router.post('/salesReport', salesPdf)
+router.post('/changeDate/:date', changeDate);
+
 
 module.exports = router;

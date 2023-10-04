@@ -50,7 +50,19 @@ const mongoose = require('mongoose');
     category : {
         type : String,
         required : true
-    }
+    },
+    rating : [{
+        rate : {
+            type : Number,
+        },
+        review : {
+            type : String
+        },
+        customer : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'users',
+        },
+    }]
  })
 
   const items = mongoose.model('Item',itemSchema);
