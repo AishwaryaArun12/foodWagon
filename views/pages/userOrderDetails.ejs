@@ -76,28 +76,57 @@
                     </div>
                     <div class="col-md-4 col-lg-2">
                       <%if(i.status == 'Delivered'){%>
-                      <a href="#" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleModal<%=index%>"><%if(order.status == 'Delivered'){%>Return <%}else if(order.status != 'Delivered' && order.status != 'Cancelled'){%>Cancel<%}%>
+                      <a href="#" style="color: #f37a27;" data-bs-toggle="modal" data-bs-target="#exampleReview<%=index%>"><i class="fa fa-plus" aria-hidden="true"></i> Review
                       </a>
-                      <div class="modal fade" id="exampleModal<%=index%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal fade" id="exampleReview<%=index%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title" id="exampleModalLabel">Reason for <%if(order.status!= 'Delivered'){%>Cancel <%}else {%> Return <%}%> your order </h5>
+                              <h5 class="modal-title" id="exampleModalLabel">
+                                <%let flag = true; i.itemId.rating.forEach(i=>{
+                                  if(i.customer == order.customer._id){
+                                    flag = false;%>
+                                    Edit Your Review
+                                 <% }
+                                  }) if(flag ==true){%>
+                                    Add Your Review
+                                    <%}%>
+                              </h5>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                              <form method="post" <%if(i.status == 'Delivered'){%> action="/users/order/Return Requested/<%=order._id%>/<%=i.itemId._id%>" <%}else if(order.status != 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/<%=i.itemId._id%>"<%}%>>
-                                
-                                <div class="mb-3">
-                                  <label for="reason" class="form-label">Reason</label>
-                                  <textarea type="text" class="form-control" id="reason" name="reason"></textarea>
-                                </div>
-                                <input type="hidden" value="<%=i.itemId._id%>" name="itemId">
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                  <button type="submit" class="btn btn-primary">Submit</button>
-                                </div>
-                              </form>
+                              
+                              <% let flag = true; %>
+                              <% i.itemId.rating.forEach(ratingItem => {
+                                if (ratingItem.customer == order.customer._id) {
+                                  flag = false;
+                              %>
+                                  <form action="rating/edit/<%= i.itemId._id %>">
+                                    <div id="rating">
+                                      <% for (let i = 1; i <= ratingItem.rating; i++) { %>
+                                        <input type="radio" id="<%= i %>" name="rate" value="<%= i %>" checked>
+                                        <label for="<%= i %>"><i class="fa fa-star" aria-hidden="true"></i></label>
+                                      <% } %>
+                                      <% for (let i = ratingItem.rating + 1; i <= 5; i++) { %>
+                                        <input type="radio" id="<%= i %>" name="rate" value="<%= i %>">
+                                        <label for="<%= i %>"><i class="fa fa-star-o" aria-hidden="true"></i></label>
+                                      <% } %>
+                                    </div>
+                                    <textarea name="review" id="review" cols="30" rows="10"><%= ratingItem.review %></textarea>
+                                  </form>
+                              <% }
+                              }); %>
+                              <% if (flag == true) { %>
+                                <form action="rating/add/<%= i.itemId._id %>">
+                                  <div id="rating">
+                                    <% for (let i = 1; i <= i.rating; i++) { %>
+                                      <input type="radio" id="<%= i %>" name="rate" value="<%= i %>">
+                                      <label for="<%= i %>"><i class="fa fa-star-o" aria-hidden="true"></i></label>
+                                    <% } %>
+                                  </div>
+                                  <textarea name="review" id="review" cols="30" rows="10"></textarea>
+                                </form>
+                              <% } %>
                             </div>
                             
                           </div>

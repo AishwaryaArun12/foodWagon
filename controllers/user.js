@@ -934,7 +934,6 @@ module.exports.wishlist = async(req,res)=>{
 }
 module.exports.razorPost = async (req, res) => {
     const amount = req.params.amount;
-  console.log(amount,'gghhjhjjkljlkjlk')
     const options = {
       amount: amount * 100, // Razorpay expects the amount in paise (100 paise = 1 INR)
       currency: 'INR',
