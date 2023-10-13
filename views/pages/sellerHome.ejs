@@ -2,13 +2,7 @@
 
  <div >
   <div class="container d-flex w-100 ">
-    <!-- <button class="btn btn-danger m-3" id="menuBtn" onclick="toggle()">Menu</button> -->
-    <!-- Button trigger modal -->
-    <!-- <button type="button" class="btn btn-danger m-3 text-nowrap" data-bs-toggle="modal"
-      data-bs-target="#staticBackdrop">
-      Add New Item
-    </button> -->
-
+   
     <% if(error){ %>
       <div class="container w-100 border border-dark mb-3" id="error">
         <div class="text-center">
@@ -54,7 +48,7 @@
                         <select id="inputFoodType" name="foodType" class="form-select" required onchange="change(this.value)">
                           <option selected disabled>Choose...</option>
                           <% for(let i=0;i<foodType.length;i++){ %>
-                            <option value='<%=i%>'>
+                            <option  value='<%=foodType[i]%>'>
                               <%= foodType[i] %>
                             </option>
                             <% } %>
@@ -109,7 +103,7 @@
     </div>
     </div>
 
-    <div class="container-fluid row mb-2">
+    <div class="container-fluid row mb-2 mt-2">
       <div class="col-7"></div>
       <form class="d-flex col-5" action="../sellers/search">
         <input class="form-control border border-danger w-50" type="search" placeholder="Search Items.." aria-label="Search" name="q">
@@ -155,9 +149,9 @@
             <% }else{ %>
                 Blocked
                 <% } %></td>
-          <td><a href=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
+          <td><a href=""><i class="fa fa-pencil-square-o fs-4" aria-hidden="true"></i></a></td>
           <td><% if(item.blocked == false){ %>
-              <a href="" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+              <a href="" ><i class="fa fa-trash" aria-hidden="true"></td>
               <% }else{ %>
                   <a href=""><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                   <% } %>
@@ -182,7 +176,7 @@
                   Blocked
                   <% } %></h3>
             <% if(category.blocked == false){ %>
-              <a href="/sellers/block/<%=category.name%>/<%=menus._id%>" class="ms-auto p-2"><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+              <a href="/sellers/block/<%=category.name%>/<%=menus._id%>" class="ms-auto p-2"><img src="/img/icons/delete.png" alt="" width="30px" height="30px"></a></td>
               <% }else{ %>
                   <a href="/sellers/unblock/<%=category.name%>/<%=menus._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                   <% } %>
@@ -213,9 +207,9 @@
                     </td>   
 
                     <td>
-                      <%for(let i=0;i<item.item.images.length;i++){%>
-                      <img class="myImg m-3" src="/sellers/getImage/<%=item.item._id%>/<%=i%>" width="100px" height="100px" alt="image">
-                      <%}%>
+                      
+                      <img class="myImg m-3" src="/sellers/getImage/<%=item.item._id%>/<%=0%>" width="100px" height="100px" alt="image">
+                     
                     </td>
                       <div id="myModal" class="modal">
 
@@ -242,9 +236,9 @@
                       <% }else{ %>
                           Blocked
                           <% } %></td>
-                    <td><a href="/sellers/editItem/<%=item.item._id%>"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/UniversalEditButton3.svg/1200px-UniversalEditButton3.svg.png" alt="edit" width="40px" height="40px"></a></td>
+                    <td><a href="/sellers/editItem/<%=item.item._id%>"><i class="fa fa-pencil-square-o fs-3 text-light" aria-hidden="true"></i></a></td>
                     <td><% if(item.item.blocked == false){ %>
-                        <a href="/sellers/block/item/<%=item.item._id%>" ><img src="/img/icons/delete.png" alt="" width="40px" height="40px"></a></td>
+                        <a href="/sellers/block/item/<%=item.item._id%>" ><i class="fa fa-trash fs-3 text-light" aria-hidden="true"></a></td>
                         <% }else{ %>
                             <a href="/sellers/unblock/item/<%=item.item._id%>"><img src="/img/icons/unblock.png" alt="" height="40px" width="40px"></a></td>
                             <% } %>
@@ -261,8 +255,10 @@
   
   <script>
        var categories = JSON.parse('<%- JSON.stringify(category) %>');
+       var foodType =  JSON.parse('<%- JSON.stringify(foodType) %>');
+function change(j){
   
-function change(i){
+  let i = foodType.indexOf(j);
   const categorySelect = document.getElementById("category");
   // Clear existing category options
   categorySelect.innerHTML = "";

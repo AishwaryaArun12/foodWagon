@@ -68,7 +68,7 @@
           <label><h2 class="m-3"><strong>Price:</strong>&#8377;</h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.price%>" name="price"><br>
           <label><h2 class="m-3"><strong>Discount:</strong></h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.discount%>" name="discount"><br>
           <label><h2 class="m-3"><strong>Quantity:</strong></h2></label><input class="bg-transparent mt-4" value="<%=products.qty%>" name="qty">
-          <br><label><h2 class="m-3"><strong>Stock:</strong></h2></label><input class="bg-transparent mt-4" type="number" value="<%=products.stock%>" name="stock">
+          <br><label><h2 class="m-3"><strong>Stock:</strong></h2></label><input class="bg-transparent mt-4" type="number" min="1" value="<%=products.stock%>" name="stock">
           
           <br>  <button class="btn btn-success m-2" type="submit"> Save changes</button>
         </form>

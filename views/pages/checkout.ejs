@@ -121,8 +121,9 @@
                     <div class="input-group mb-3">
                         <select type="text" class="form-control" id="coupon" name="coupon"  placeholder="Enter coupon code">
                             <%if(coupons.length == 0){%><option value="Select available coupons" selected>No coupons available</option><%}%>
+                            <option value="Select available coupons" selected>Select available coupons</option>
                             <%coupons.forEach(i=>{%>
-                                <option value="Select available coupons" selected>Select available coupons</option>
+                                
                                 <option value="<%=i.couponCode%>"><%=i.name%>-discount for the order of minimum <%=i.min%> and maximum <%=i.max%>, valid till <%=i.validTill.toLocaleDateString()%></option>
                                 <%})%>
                         </select>
@@ -139,6 +140,7 @@
                 <h3 class="card-title">Cart Items</h3>
                 <table class="table ">
                     <thead>
+                        <th scope="col">Image</th>
                         <th scope="col">Name</th>
                         <th scope="col">Price</th>
                         <th scope="col">Qty</th>
@@ -149,19 +151,21 @@
                     <% cartData.forEach((item) => { %>
                         
                         <tr>
+                            <td><img src="/sellers/getImage/<%=item.itemId._id%>/0" width="80px" height="80px" alt="image"></td>
                             <td><%= item.itemId.name %></td>
-                            <td> <%= item.quantity %> </td>
                             <td><%= item.itemId.price %></td>
+                            <td> <%= item.quantity %> </td>
+                            
                             <td><%= item.itemId.price*item.quantity %></td>
                             <% sum +=item.itemId.price*item.quantity%>
                         </tr>
                     <% }); %>
-                    <tr class="bg-warning">
-                        <td colspan="3">Total</td>
+                    <tr id="firstTotal" class="bg-warning">
+                        <td colspan="4">Total</td>
                         <td ><%=sum%></td>
                     </tr>
                     <tr class="bg-warning">
-                        <td colspan="3">Add GST</td>
+                        <td colspan="4">Add GST</td>
                         <td>
                             <%if(sum<=3000){%>
                                 <%=sum*5/100 %>
@@ -173,7 +177,7 @@
                         </td>
                     </tr>
                     <tr class="bg-warning">
-                        <td colspan="3">Grand Total</td>
+                        <td colspan="4">Grand Total</td>
                         <td><input type="number" id="total" value="<%=sum%>" name="total" readonly></td>
                     </tr>
                 </tbody>
@@ -203,7 +207,15 @@
            if(res.min<=total.value && res.max>=total.value){
             console.log(res)
             let data = res.data;
-            total.value = total.value * (100-data)/100;
+            
+            let discount = (total.value *data/100).toFixed(2);
+            total.value = total.value - discount;
+            let firstTotal = document.getElementById('firstTotal');
+            let newNode = document.createElement('tr');
+            newNode.classList.add("bg-warning");
+            newNode.innerHTML =`<td colspan="4">Discount</td>
+                        <td>${discount}</td>`
+            firstTotal.parentNode.insertBefore(newNode, firstTotal.nextSibling);
             code.innerHTML = `<option selected value=${res.id} ></option>`
             const att = document.createAttribute("readonly");
             code.setAttributeNode(att);
@@ -231,7 +243,7 @@
                
 
         }
-    console.log('hai');
+   
     function submitForm(e){
         e.preventDefault();
         const form = document.getElementById('form');
@@ -244,7 +256,6 @@
         }else if(mode.value == 'Online payment'){
             total = total.value;
             const url = `/users/razorPost/${total}`;
-console.log(url,'hjkkl',total);
             fetch(url)
             .then(response => {
                 if (!response.ok) {
@@ -285,6 +296,15 @@ console.log(url,'hjkkl',total);
                 // Handle errors here
                 console.error('Fetch error:', error);
             });
+        }else if(mode.value== 'Wallet'){
+            if('<%=user.walletBalance%>'< total.value){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Insufficient fund in wallet!',
+                    })
+                    return false;
+            }
         }
         else{
             form.submit();

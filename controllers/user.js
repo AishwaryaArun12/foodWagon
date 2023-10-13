@@ -25,35 +25,41 @@ const transporter = nodemailer.createTransport({
   })
 let login = false;
 module.exports.login = (req,res)=>{
-    console.log('ulogin');
+   try {
     req.session.user = 'users';
     const error =  req.query; 
     if(req.cookies[req.session.email] || req.user){
         if(req.cookies[req.session.email] == req.session.password || req.user){
-            console.log(req.session,'login to home')
             res.redirect('/users/home');
         }else{
             res.render('pages/login',{user : 'users',error:error.error,login:false});
         }
     }else{
-        console.log(req.session,'user');
         res.render('pages/login',{user : 'users',error : error.error,login : false});
     }    
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.signUp = async (req,res)=>{
+   try {
     const user = await User.findOne({email: req.session.email});
     const error = req.query;
     if(req.cookies[req.session.email]){
         if(req.cookies[req.session.email] == req.session.password && user.verified){
             res.redirect('/users/home');
         }else{
-            res.render('pages/signUp',{user : 'users',error : error.error,login:login}); 
+            res.render('pages/signUp',{user : 'users',error : error.error,login:false}); 
         }
     }else{
         res.render('pages/signUp', {user : 'users',error : error.error,login : login});
     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.newUser =async (req,res)=>{
+  try {
     const user = await User.findOne({email : req.body.email});
     if(user){
         req.session.email = user.email;
@@ -76,7 +82,7 @@ module.exports.newUser =async (req,res)=>{
                 console.error('Error sending mail : ',error);
                 res.status(500).send('Error in sending email')
             }else{
-                console.log('Email sent for OTP:', info.response);
+             
                 res.status(200).send('Email send successfully');
             }
         });
@@ -84,12 +90,17 @@ module.exports.newUser =async (req,res)=>{
         
     }else{
         let {name,email,password,location} = req.body;
+        let regex =  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/; 
+        if(!regex.test(password)){
+            res.redirect('/users/signUp/?error=Password must be atleast 8 characters which contains atleast one smallcase one uppercase one special character one and one number.')
+          return
+        }
        bcrypt.hash(password, saltRounds,async (err, hash) => {
             if (err) {
-                console.log(err);
+              
             } else {
                 password = hash;
-                console.log(password, hash);
+                
               const newUser = new User({ name, password, email, location });
               try {
                 const referral = req.body.referral;
@@ -112,7 +123,7 @@ module.exports.newUser =async (req,res)=>{
                     
                 }
                 const savedUser = await newUser.save();
-                console.log(savedUser);
+                
                 req.session.email = savedUser.email;
                     const otp = otpGenerator.generate(6, { digits: true, alphabets: true, upperCase: true });
             
@@ -130,10 +141,10 @@ module.exports.newUser =async (req,res)=>{
             
                     transporter.sendMail(mailOptions, (error, info)=>{
                         if(error){
-                            console.error('Error sending mail : ',error);
+                            
                             res.status(500).send('Error in sending email')
                         }else{
-                            console.log('Email sent for OTP:', info.response);
+                            
                             res.status(200).send('Email send successfully');
                         }
                     });
@@ -146,9 +157,13 @@ module.exports.newUser =async (req,res)=>{
         });
          
        }
+  } catch (error) {
+    res.redirect('/error');
+  }
    
 }
 module.exports.loginUser = async (req,res)=>{    
+    try {
         let user = await User.find({email : req.body.email});
         if(user.length == 0){
             res.redirect('/users/?error=You are not registered. Please login')
@@ -159,7 +174,8 @@ module.exports.loginUser = async (req,res)=>{
         
         bcrypt.compare(password, hashedPassword,async (err, result) => {
             if (err) {
-              console.log(err,'err');
+              res.redirect('/error');
+              return;
             } else if (result) {
                 if(user.length!=0 && user[0].verified){
                     login = true;
@@ -194,7 +210,7 @@ module.exports.loginUser = async (req,res)=>{
                         console.error('Error sending mail : ',error);
                         res.status(500).send('Error in sending email')
                     }else{
-                        console.log('Email sent for OTP:', info.response);
+                       
                         res.status(200).send('Email send successfully');
                     }
                 });
@@ -204,16 +220,24 @@ module.exports.loginUser = async (req,res)=>{
               res.redirect('../users/?error=Password does not match')
             }
           });      
+    } catch (error) {
+        res.redirect('/error');
+    }
     }
 
 
 module.exports.otp = async (req,res)=>{
+  try {
     const users = await User.findOne({email :req.session.email})
     const error = req.query;
     res.render('pages/otp',{user : 'users',error : error.error,login : false,users:users});
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 
 module.exports.otpVerification = async (req,res)=>{
+  try {
     const email = req.session.email;
     const enteredOtp = req.body.otp;
     const user = await User.findOne({email : email});
@@ -221,14 +245,13 @@ module.exports.otpVerification = async (req,res)=>{
         const name = req.session.name;
         const user = await User.findOne({name : name});
     }
-    console.log(user,user.otp===enteredOtp,user.otpExpiration > new Date());
+   
     if(!user){
         res.redirect('/users/?error=User not found')
     }else{
         if (user.otp === enteredOtp && user.otpExpiration > new Date()) {
             // Clear OTP and OTP expiration in the user's document
             let update = await User.findOneAndUpdate({ email : email }, { otp: null, otpExpiration: null, verified: true });
-            console.log(update,'here');
             req.session.verified = 'true';
             if(req.session.forgot){
                 res.redirect('/users/reset');
@@ -244,13 +267,21 @@ module.exports.otpVerification = async (req,res)=>{
             res.redirect('/users/otp/?error=Your OTP expired. Please click resend OTP ')
         }
     }
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 
 module.exports.forgot =  (req,res)=>{
+   try {
     let error = req.query.error;
-  res.render('pages/forgot.ejs' , {user: 'users',login:false, error : error})
+    res.render('pages/forgot.ejs' , {user: 'users',login:false, error : error})
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.resend = async (req,res) =>{
+  try {
     const otp = otpGenerator.generate(6, { digits: true, alphabets: true, upperCase: true });
         
     const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
@@ -267,59 +298,70 @@ module.exports.resend = async (req,res) =>{
 
     transporter.sendMail(mailOptions, (error, info)=>{
         if(error){
-            console.error('Error sending mail : ',error);
-            res.status(500).send('Error in sending email')
+            res.redirect('/error');
+            return
         }else{
-            console.log('Email sent for OTP:', info.response);
             res.redirect('/users/otp');
         }
     });
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 module.exports.postforgot = async (req,res)=>{
+   try {
     let email = req.body.email;
-        req.session.email = email;
-      let  user = await User.findOne({email : email})
+    req.session.email = email;
+  let  user = await User.findOne({email : email})
+
+   
+if(user){
+    req.session.forgot = true;
+    const otp = otpGenerator.generate(6, { digits: true, alphabets: true, upperCase: true });
+
+    const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
+    let update = await User.findOneAndUpdate({ email : req.session.email }, { otp, otpExpiration });
     
-       
-    if(user){
-        req.session.forgot = true;
-        const otp = otpGenerator.generate(6, { digits: true, alphabets: true, upperCase: true });
-
-        const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
-        let update = await User.findOneAndUpdate({ email : req.session.email }, { otp, otpExpiration });
-        
-        //const toEmail =user.email;
-        const toEmail = 'jj4245888@gmail.com';
-        const mailOptions = {
-            from : 'foodmailerwagon@gmail.com',
-            to : toEmail,
-            subject : 'OTP for registeration in foodWagon',
-            html : `<p>Hai, </p><p> this OTP only valid for 5 minutes </p><p>${otp}</p><p>with regards,</p><p> foodWagon</p>`
-        }
-
-        await transporter.sendMail(mailOptions, (error, info)=>{
-            if(error){
-                console.error('Error sending mail : ',error);
-                res.status(500).send('Error in sending email')
-            }else{
-                console.log('Email sent for OTP:', info.response);
-                res.status(200).send('Email send successfully');
-            }
-        });
-        res.redirect('../users/otp/?error=We send an email with OTP, Please enter that OTP')
-    }else{
-        res.redirect('../users/forgotPassword/?error=Name or Email does not match any registered user');
+    //const toEmail =user.email;
+    const toEmail = 'jj4245888@gmail.com';
+    const mailOptions = {
+        from : 'foodmailerwagon@gmail.com',
+        to : toEmail,
+        subject : 'OTP for registeration in foodWagon',
+        html : `<p>Hai, </p><p> this OTP only valid for 5 minutes </p><p>${otp}</p><p>with regards,</p><p> foodWagon</p>`
     }
 
+    await transporter.sendMail(mailOptions, (error, info)=>{
+        if(error){
+            
+            res.redirect('/error');
+            return;
+        }else{
+            res.status(200).send('Email send successfully');
+        }
+    });
+    res.redirect('../users/otp/?error=We send an email with OTP, Please enter that OTP')
+}else{
+    res.redirect('../users/forgotPassword/?error=Name or Email does not match any registered user');
+}
+
+   } catch (error) {
+ req.redirect('/error');   
+   }
 }
 module.exports.resetEJS = async (req,res) =>{
+   try {
     if(req.session.forgot){
         res.render('pages/reset',{user:'users',login : false,error : null})
     }else{
         res.redirect('/users');
     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.resetPassword = async (req,res)=>{
+   try {
     const email = req.session.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
@@ -328,60 +370,75 @@ module.exports.resetPassword = async (req,res)=>{
         req.session.forgot = false;
         res.redirect('/users')
     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.home = async (req,res)=>{
+   try {
     const user = await User.findOne({email: req.session.email});
-   if(!user && ! req.user){
-    res.redirect(req.originalUrl+'/../?error=Please login...')
-    return;
-    }else if(user && ! req.user){
-        
-        if(!user.verified){
-            console.log('here');
-            res.redirect(req.originalUrl+'/../signUp/?error=You can not login. Please verify your email.')       
-    }
-  }
-   if(req.cookies[req.session.email] || req.user ){
-        if(req.cookies[req.session.email] == req.session.password || req.user){
-            if(req.user){
-                const user = await User.findOne({email : req.user.email});
-                if(req.user.email == 'aishwarya4arun@gmail.com'){res.redirect('/admin/home'); return;}
-                if(!user){
-                    const newUser = new User({name: req.user.displayName, email : req.user.email});
-                    req.session.email = req.user.email;
-                    try {
-                        const savedUser = await newUser.save();
-                        req.session.userId = savedUser._id;
-                        console.log(savedUser);
-                    } catch (error) {
-                        res.status(500).send(error)
-                    };
-                }else{
-                    req.session.userId = user._id;
-                    req.session.email = req.user.email;
-                }
-            }
-            const items = await Item.find();
-            let users = await User.findById(req.session.userId)
-            res.render('pages/userHome',{items :items, login : true, user : 'users', users});
-        }else{
-            res.redirect(req.originalUrl+'/../?error=Please login..');
-        }
-    }else{
-        res.redirect(req.originalUrl+'/../?error=Please login..');
-    }
-    
+    if(!user && ! req.user){
+     res.redirect(req.originalUrl+'/../?error=Please login...')
+     return;
+     }else if(user && ! req.user){
+         
+         if(!user.verified){
+             res.redirect(req.originalUrl+'/../signUp/?error=You can not login. Please verify your email.')       
+     }
+   }
+    if(req.cookies[req.session.email] || req.user ){
+         if(req.cookies[req.session.email] == req.session.password || req.user){
+             if(req.user){
+                 const user = await User.findOne({email : req.user.email});
+                 if(req.user.email == 'aishwarya4arun@gmail.com'){res.redirect('/admin/home'); return;}
+                 if(!user){
+                     const newUser = new User({name: req.user.displayName, email : req.user.email});
+                     req.session.email = req.user.email;
+                     try {
+                         const savedUser = await newUser.save();
+                         req.session.userId = savedUser._id;
+                         
+                     } catch (error) {
+                         res.status(500).send(error)
+                     };
+                 }else{
+                     req.session.userId = user._id;
+                     req.session.email = req.user.email;
+                 }
+             }
+             const items = await Item.find();
+             let users = await User.findById(req.session.userId)
+             res.render('pages/userHome',{items :items, login : true, user : 'users', users});
+         }else{
+             res.redirect(req.originalUrl+'/../?error=Please login..');
+         }
+     }else{
+         res.redirect(req.originalUrl+'/../?error=Please login..');
+     }
+     
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 
 module.exports.product = async(req,res)=>{
-    console.log(req.session.email);
-    const id = req.params.id;
-    const items = await Item.findOne({_id : id});
-        console.log(req.cookies);
+    try {
+        const id = req.params.id;
+    const items = await Item.findOne({_id : id}).populate({
+        path : 'rating',
+        populate : {
+            path :'customer',
+            model : 'users'
+        }
+    });
         const users = await User.findById(req.session.userId)
         res.render('pages/userProduct',{user:'users',users,login : true, products:items})
+    } catch (error) {
+        res.redirect('/error');
+    }
 }
 module.exports.cart = async(req,res)=>{
+  try {
     if(req.session.login || req.user){
         let cartData='';
         try {
@@ -392,9 +449,7 @@ module.exports.cart = async(req,res)=>{
       model: 'sellers', // Replace 'Seller' with the actual model name for sellers
     },
             });           
-            // The 'user' object now contains the populated 'cart' field with 'Item' documents.
-            //console.log(user.cart[0].itemId.seller,'cart'); // This will log the user's cart data.
-            // You can access each cart item's associated 'Item' document like user.cart[0].itemId.
+           
             cartData = user.cart;
             for(let i=0;i<cartData.length-1;i++){
                 for(let j=i+1;j<cartData.length;j++){
@@ -407,9 +462,10 @@ module.exports.cart = async(req,res)=>{
             }
 
           } catch (err) {
-            console.error(err);
+            
             // Handle any errors, e.g., send an error response.
-            res.status(500).send('Internal Server Error');
+            res.redirect('/error');
+            return;
           }
           const users = await User.findById(req.session.userId)
         res.render('pages/userCart',{user:'users',login :true,cartData,users});
@@ -417,9 +473,13 @@ module.exports.cart = async(req,res)=>{
         res.send('<script>alert("Please login to view your cart."); window.location.href="/";</script>');
 
     }
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
     
 module.exports.addCart = async(req,res)=>{
+  try {
     let q = 1;
     if(req.query.q){
          q=req.query.q;
@@ -445,6 +505,9 @@ module.exports.addCart = async(req,res)=>{
         res.json({'error' : 'Out of stock'});
     }
     
+  } catch (error) {
+    res.redirect('/error');
+  }
 
 }
 
@@ -456,46 +519,52 @@ module.exports.remCart = async(req,res)=>{
           { _id: userId },
           { $pull: { cart: { itemId: id } } }
         );
-      console.log(result);
-        
+      
         res.redirect(`../cart`)
       } catch (error) {
-        console.error(error);
+        res.redirect('/error');
         // Handle the error
       }
 }
 module.exports.profile = async (req,res)=>{
     
+   try {
     const id = req.session.userId;
     if(req.session.login || req.user){
         const user = await User.findOne({_id : id})
         let users = user;
         res.render('pages/userProfile',{user:'users',login:true ,userData : user,users})
     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.addAddress = async (req,res)=>{
+  try {
     const id = req.session.userId;
-const formData = {
-    Name : req.body.name,
- HouseName: req.body.houseName, // Replace with the submitted house name
-  landmark: req.body.lMark, // Replace with the submitted landmark
-  Mobile: req.body.mobile, // Replace with the submitted mobile number
-  Zipcode: req.body.pin, // Replace with the submitted ZIP code
-  District: req.body.dist, // Replace with the submitted district
-  State: req.body.state, // Replace with the submitted state
-};
-
-const updatedUser = await User.findByIdAndUpdate(
-    id,
-    { $push: { address: formData } },
-    { new: true }
-  );
-
-console.log('update',updatedUser);
-res.redirect('/users/profile');
+    const formData = {
+        Name : req.body.name,
+     HouseName: req.body.houseName, // Replace with the submitted house name
+      landmark: req.body.lMark, // Replace with the submitted landmark
+      Mobile: req.body.mobile, // Replace with the submitted mobile number
+      Zipcode: req.body.pin, // Replace with the submitted ZIP code
+      District: req.body.dist, // Replace with the submitted district
+      State: req.body.state, // Replace with the submitted state
+    };
+    
+     await User.findByIdAndUpdate(
+        id,
+        { $push: { address: formData } },
+        { new: true }
+      );
+    
+    res.redirect('/users/profile');
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 module.exports.editAddress = async(req,res)=>{
-    console.log('hai')
+ try {
     const i = req.params.i
     const id = req.session.userId; 
 const updatedAddress = {
@@ -508,12 +577,15 @@ const updatedAddress = {
     State: req.body.state,
 };
 
-const update = await User.findOneAndUpdate(
+ await User.findOneAndUpdate(
     { _id: id },
     { $set: { [`address.${i}`]: updatedAddress } },
     { new: true }
   );
  res.redirect('../profile');
+ } catch (error) {
+    res.redirect('/error');
+ }
 }
 module.exports.removeAddress = async(req,res)=>{
  const id = req.session.userId;
@@ -539,14 +611,13 @@ module.exports.removeAddress = async(req,res)=>{
      return res.status(400).json({ error: 'Invalid index' });
    }
  } catch (error) {
-    console.log(error,'gh');
-   return res.status(500).json({ error: 'Internal server error' });
+   res.redirect('/error');
  }
 }
 module.exports.editProfile = async(req,res)=>{
-    const id = req.session.userId;
+    try {
+        const id = req.session.userId;
     if(req.session.login || req.user){
-        console.log('hai');
         const name = req.body.name;
         const email = req.body.email;
         if(!req.body.password){
@@ -559,7 +630,8 @@ module.exports.editProfile = async(req,res)=>{
             let password = req.body.password
             bcrypt.hash(password, 10,async (err, hash) => {
                 if (err) {
-                    console.log(err);
+                  res.redirect('/error');
+                  return
                 } else {
                   
                   let user= await  User.findOneAndUpdate(
@@ -571,8 +643,12 @@ module.exports.editProfile = async(req,res)=>{
         })
     }
 }
+    } catch (error) {
+    res.redirect('/error');       
+    }
 }
 module.exports.changeQty = async(req,res)=>{
+   try {
     let id = req.params.id;
     let newQuantity = req.params.newValue
     let item = await Item.findById(id);
@@ -591,16 +667,19 @@ module.exports.changeQty = async(req,res)=>{
                 new: true, // Return the updated user document
             }
         );
-        console.log(update);
         if(update){
             res.json({'data' : 'updated success'});
         }
     }else{
         res.json({'error' : 'Out of stock'});
     }
+   } catch (error) {
+    res.redirect('/error');
+   }
   
 }
 module.exports.checkout = async (req,res)=>{
+  try {
     let data = req.query.data;
     let cartData='';
     const users = await User.findById(req.session.userId);
@@ -612,43 +691,41 @@ module.exports.checkout = async (req,res)=>{
       model: 'sellers', // Replace 'Seller' with the actual model name for sellers
     },
             });           
-            // The 'user' object now contains the populated 'cart' field with 'Item' documents.
-            //console.log(user.cart[0].itemId.seller,'cart'); // This will log the user's cart data.
-            // You can access each cart item's associated 'Item' document like user.cart[0].itemId.
+           
             cartData = user.cart;
           } catch (err) {
-            console.error(err);
-            // Handle any errors, e.g., send an error response.
-            res.status(500).send('Internal Server Error');
+            res.redirect('/error');
+            return;
           }
           let total=0 ;
-          cartData.forEach(async i=>{
-            let stock = await Item.findById(i.itemId._id);
-            stock = stock.stock;
-            
-            console.log(i.itemId.price,i.quantity);
+          cartData.forEach( i=>{
+           
+          let  stock = i.itemId.stock;
             total += parseInt(i.itemId.price)*parseInt(i.quantity);
           })
           
             let used = users.usedCoupons;
             let coupons;
-            console.log(total)
             if(used.length>0){
               coupons = await Coupon.find({
-                  min: { $lte: total },
-                  _id: { $nin: used }
+                   min: { $lte: total },
+                   _id: { $nin: used }
                 });
             }else{
-              coupons = await Coupon.find();
+              coupons = await Coupon.find({min :{$lte : total}});
             }
              
       res.render('pages/checkout',{user : 'users', login : true, cartData,users,data,coupons});
           
+  } catch (error) {
+    res.redirect('/error');
+  }
          
         
 }
 module.exports.order = async(req,res)=>{
     
+   try {
     const mode = req.body.paymentMode;
     const addressIndex = req.body.address;
     const coupon = req.body.coupon;
@@ -692,13 +769,13 @@ let orderDetailsArray = await Promise.all(Object.entries(cartItemsBySeller).map(
     if(coupon != 'Select available coupons'){
         const couponDetails = await Coupon.findById(coupon);
         totalAmount = totalAmount - (totalAmount*couponDetails.discount/100);
-        console.log(totalAmount,'ghhjjkk');
+        
         if(totalAmount<=3000){
             totalAmount +=totalAmount*5/100;
           }else{
             totalAmount +=totalAmount*10/100;
           }
-          console.log(totalAmount);
+          
      let items = await Promise.all(cartItems.map(async (cartItem) => {
         let item = await Item.findById(cartItem.itemId);
         let amount = (item.price*cartItem.quantity)-((item.price*cartItem.quantity) *couponDetails.discount/100);
@@ -729,7 +806,7 @@ let orderDetailsArray = await Promise.all(Object.entries(cartItemsBySeller).map(
     if(mode == 'Wallet'){
         let walletBalance = user.walletBalance-(Math.round(totalAmount))
         const update = await User.findOneAndUpdate({_id:req.session.userId},{$set : {walletBalance : walletBalance}, $push : {wallet : {amount : Math.round(totalAmount),sellerName : seller.name,description : 'Debited for place an order',date : Date.now(), orderDetails : walletItem}}})
-    console.log(update);
+    
     }
 }else{
     let paymentStatus ;
@@ -811,15 +888,17 @@ for (const orderDetails of orderDetailsArray) {
           );
     })
   } catch (error) {
-    console.error('Error creating order or updating collections:', error);
-    // Handle errors appropriately
+    res.redirect('/error');
+    return;
   }
 }
-
-console.log('Orders created and collections updated:', createdOrders);
 res.redirect('/users/checkout/?data=Your order confirmed');
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.orderDetails = async (req,res)=>{
+  try {
     if(req.session.login || req.user){
         const id = req.session.userId;
         const orders = await Order.find({customer : id}).populate({
@@ -835,8 +914,12 @@ module.exports.orderDetails = async (req,res)=>{
     }else{
         res.redirect('/users/?error=Please login first');
     }
+  } catch (error) {
+    res.redirect('/error')
+  }
 }
 module.exports.orderInvoice = async (req,res)=>{
+   try {
     if(req.session.login || req.user){
         const userId = req.session.userId;
         const users = await User.findById(req.session.userId);
@@ -852,85 +935,109 @@ module.exports.orderInvoice = async (req,res)=>{
     }else{
         res.redirect('/users/?error=Please login first')
     }
+   } catch (error) {
+    res.redirect('/error')
+   }
 }
 
 module.exports.eachOrder = async(req,res)=>{
-    if(req.session.login || req.user){
-        const userId = req.session.userId;
-        const orderId = req.params.id;
-        let users = await User.findById(userId);
-        console.log(userId);
-        const order = await Order.findOne({_id : orderId}).populate({
-            path: 'items',
-            populate: {
-              path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
-              model: 'Item'
-            },
-          }).populate('seller').populate('customer');
-        res.render('pages/userOrderDetails',{order, login : true, user : 'users',users});
-    }else{
-        res.redirect('/users/?error=Please login first')
-    }
+try {
+        if(req.session.login || req.user){
+            const userId = req.session.userId;
+            const orderId = req.params.id;
+            let users = await User.findById(userId);
+            const order = await Order.findOne({_id : orderId}).populate({
+                path: 'items',
+                populate: {
+                  path: 'itemId', // Replace 'itemId' with the actual field name in the item schema
+                  model: 'Item'
+                },
+              }).populate('seller').populate('customer');
+            res.render('pages/userOrderDetails',{order, login : true, user : 'users',users});
+        }else{
+            res.redirect('/users/?error=Please login first')
+        }
+} catch (error) {
+    res.redirect('/error');
+}
 }
 module.exports.orderReturn = async(req,res)=>{
-    if(req.session.login || req.user){
-        const id = req.params.id;
-        const reason = req.body.reason;
-        const status = req.params.status;
-       console.log(req.params,'para');
-        if(req.params.all != 'all'){     
-            console.log('!all');                  
-            const itemId = req.params.all;
-            const update = await Order.findOneAndUpdate(
-                { _id: id, "items.itemId": itemId },
-                { $set: { "items.$.status": status, "items.$.reason": reason} },{new : true}
-              );
-              console.log(update,'updated');
-        }else{
-            const update = await Order.findOneAndUpdate(
-                { _id: id},
-                { $set: { status: status, reason: reason ,'items.$[].status': status,'items.$[].reason': reason,} },{new : true}
-              );
-              console.log(update,'update');
-        }
-        res.redirect(`/users/orderDetails/${id}`)
-    }else{
-        res.redirect('/users/?error=Please login first')
-    }
+   try {
+     if(req.session.login || req.user){
+         const id = req.params.id;
+         const reason = req.body.reason;
+         const status = req.params.status;
+         if(req.params.all != 'all'){                    
+             const itemId = req.params.all;
+              await Order.findOneAndUpdate(
+                 { _id: id, "items.itemId": itemId },
+                 { $set: { "items.$.status": status, "items.$.reason": reason} },{new : true}
+               );
+         }else{
+             const update = await Order.findOneAndUpdate(
+                 { _id: id},
+                 { $set: { status: status, reason: reason ,'items.$[].status': status,'items.$[].reason': reason,} },{new : true}
+               );
+         }
+         res.redirect(`/users/orderDetails/${id}`)
+     }else{
+         res.redirect('/users/?error=Please login first')
+     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.wallet = async(req,res)=>{
-    const userData = await User.findById(req.session.userId);
-    const users = userData;
-    let wallet = userData.wallet;
-    res.render('pages/userWallet', { user: 'users',login : true,userData,wallet,users});
+    try {
+        const userData = await User.findById(req.session.userId);
+        const users = userData;
+        let wallet = userData.wallet;
+        res.render('pages/userWallet', { user: 'users',login : true,userData,wallet,users});
+    } catch (error) {
+        res.redirect('/error');
+    }
 }
 module.exports.applyCoupon = async(req,res)=>{
-    const code = req.params.code;
-    const data = await Coupon.findOne({couponCode : code});
-    console.log(data);
-    res.json({data : data.discount , id : data._id, min:data.min, max : data.max});
+    try {
+        const code = req.params.code;
+        const data = await Coupon.findOne({couponCode : code});
+        res.json({data : data.discount , id : data._id, min:data.min, max : data.max});
+    } catch (error) {
+        res.redirect('/error');
+    }
 }
 module.exports.addWish = async(req,res)=>{
-    console.log('hai');
-    const id = req.params.id;
-    const userId = req.session.userId;
-    const update = await User.findOneAndUpdate({_id : userId},{$push : {wishlist : id}});
-    if(update){
-        res.json({'data' : 'ok'});
-    }
+  try {
+      const id = req.params.id;
+      const userId = req.session.userId;
+      const update = await User.findOneAndUpdate({_id : userId},{$push : {wishlist : id}});
+      if(update){
+          res.json({'data' : 'ok'});
+      }
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 module.exports.removeWish = async(req,res)=>{
-    const id = req.params.id;
-    const userId = req.session.userId;
-    const update = await User.findOneAndUpdate({_id : userId},{$pull : {wishlist : id}});
-    if(update){
-        res.json({'data' : 'ok'});
-    }
+   try {
+     const id = req.params.id;
+     const userId = req.session.userId;
+     const update = await User.findOneAndUpdate({_id : userId},{$pull : {wishlist : id}});
+     if(update){
+         res.json({'data' : 'ok'});
+     }
+   } catch (error) {
+    res.redirect('/error');
+   }
 }
 module.exports.wishlist = async(req,res)=>{
-    const users = await User.findById(req.session.userId).populate({path : 'wishlist'});
-    const wishlist = users.wishlist;
-    res.render('pages/userWishlist',{user : 'users',login : true, wishlist,users})
+    try {
+        const users = await User.findById(req.session.userId).populate({path : 'wishlist'});
+        const wishlist = users.wishlist;
+        res.render('pages/userWishlist',{user : 'users',login : true, wishlist,users})
+    } catch (error) {
+        res.redirect('/error');
+    }
 }
 module.exports.razorPost = async (req, res) => {
     const amount = req.params.amount;
@@ -944,52 +1051,97 @@ module.exports.razorPost = async (req, res) => {
       res.json({ orderId: order.id });
     } catch (error) {
       console.error('Error creating order:', error);
-      res.status(500).json({ error: 'Could not create order' });
+      res.redirect('/error');
     }
   }
   module.exports.addAddressCheckout = async (req,res)=>{
-    const id = req.session.userId;
-const formData = {
- houseName: req.body.houseName, // Replace with the submitted house name
-  landmark: req.body.lMark, // Replace with the submitted landmark
-  mobile: req.body.mobile, // Replace with the submitted mobile number
-  zipcode: req.body.pin, // Replace with the submitted ZIP code
-  district: req.body.dist, // Replace with the submitted district
-  state: req.body.state, // Replace with the submitted state
-};
-
-// Create a new address object with only the filled fields
-const newAddress = {};
-
-  newAddress.HouseName = formData.houseName;
-if (formData.landmark) {
-  newAddress.Landmark = formData.landmark;
-}
-
-  newAddress.Mobile = formData.mobile;
-
-  newAddress.Zipcode = formData.zipcode;
-
-if (formData.district) {
-  newAddress.District = formData.district;
-}
-
-if (formData.state) {
-  newAddress.State = formData.state;
-}
-
-const updatedUser = await User.findByIdAndUpdate(
-    id,
-    { $push: { address: newAddress } },
-    { new: true }
-  );
-
-console.log('update',updatedUser);
-res.redirect('/users/checkout');
+  try {
+      const id = req.session.userId;
+  const formData = {
+   houseName: req.body.houseName, // Replace with the submitted house name
+    landmark: req.body.lMark, // Replace with the submitted landmark
+    mobile: req.body.mobile, // Replace with the submitted mobile number
+    zipcode: req.body.pin, // Replace with the submitted ZIP code
+    district: req.body.dist, // Replace with the submitted district
+    state: req.body.state, // Replace with the submitted state
+  };
+  
+  // Create a new address object with only the filled fields
+  const newAddress = {};
+  
+    newAddress.HouseName = formData.houseName;
+  if (formData.landmark) {
+    newAddress.Landmark = formData.landmark;
+  }
+  
+    newAddress.Mobile = formData.mobile;
+  
+    newAddress.Zipcode = formData.zipcode;
+  
+  if (formData.district) {
+    newAddress.District = formData.district;
+  }
+  
+  if (formData.state) {
+    newAddress.State = formData.state;
+  }
+  
+  const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $push: { address: newAddress } },
+      { new: true }
+    );
+  res.redirect('/users/checkout');
+  } catch (error) {
+    res.redirect('/error');
+  }
 }
 module.exports.changeProfileImage = async (req,res)=>{
-    const id = req.session.userId;
-    const imagePath = `/img/${req.file.filename}`;
-    await User.findByIdAndUpdate(id, { image: imagePath });
-    res.redirect('/users/profile');
+   try {
+     const id = req.session.userId;
+     const imagePath = `/img/${req.file.filename}`;
+     await User.findByIdAndUpdate(id, { image: imagePath });
+     res.redirect('/users/profile');
+   } catch (error) {
+    res.redirect('/error');
+   }
+}
+module.exports.rating = async (req,res)=>{
+    try {
+        const rating = req.body.rate;
+        const reviewText = req.body.review;
+        const productId = req.params.id;
+        const userId = req.session.userId;
+        const action = req.params.action;
+        if(action == 'add'){
+            await Item.findByIdAndUpdate(
+                productId,
+                {
+                  $push: {
+                    rating: {
+                      customer : userId,
+                      rate : rating,
+                      review : reviewText,
+                    },
+                  },
+                },
+                { new: true } // To return the updated product
+              );
+        }else{
+            const i = req.body.i;
+            const update = {
+                $set: {
+                  [`rating.${i}.rate`]: rating,
+                  [`rating.${i}.review`]: reviewText,
+                },
+              };
+              // Use findByIdAndUpdate to update the rating
+              const updatedItem = await Item.findByIdAndUpdate(productId, update);
+            
+        }
+        const orderId = req.body.orderId;
+        res.redirect(`/users/orderDetails/${orderId}`);
+    } catch (error) {
+        res.redirect('/error');
+    }
 }

@@ -60,11 +60,9 @@
     })
   }     
      async function addWish(id,i){
-           console.log('f',i);
                 const btn = document.getElementById(i);
                 
                     await fetch(`/users/removeWish/${id}`).then(res=>res.json()).then(res=>{
-                    console.log(res);
                     if(res.data == 'ok'){
                         wishlist.innerHTML = wn-1;
                     wn -=1;

@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 const {login,signUp,newUser,loginUser,otp,otpVerification,forgot,resend,postforgot,resetEJS,resetPassword
     ,home,product,cart,addCart,remCart,profile,addAddress, editAddress,removeAddress,editProfile,changeQty,
 checkout,order, orderDetails, eachOrder, orderReturn, wallet,applyCoupon,addWish,removeWish,wishlist,razorPost,
- addAddressCheckout,orderInvoice,changeProfileImage} = require('../controllers/user');
+ addAddressCheckout,orderInvoice,changeProfileImage,rating} = require('../controllers/user');
 const {isAuthenticatedUser,isBlocked} = require('../controllers/authMiddleware');
 const { reset } = require('nodemon');
 
@@ -60,5 +60,6 @@ router.get('/wishlist',isAuthenticatedUser,isBlocked, wishlist);
 router.get('/razorPost/:amount', isAuthenticatedUser, isBlocked , razorPost);
 router.post('/addAddressCheckout', isAuthenticatedUser,isBlocked, addAddressCheckout)
 router.post('/upload_profileImage',upload.single('file'), isAuthenticatedUser,isBlocked,changeProfileImage);
+router.post('/rating/:action/:id', isAuthenticatedUser,isBlocked,rating);
 
 module.exports = router;

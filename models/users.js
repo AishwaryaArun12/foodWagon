@@ -29,7 +29,9 @@ const users = new mongoose.model('users',{
     address : [{
         type : Object
     }],
-    
+    location : {
+        type : String,
+    },
     orders : [{
         type : mongoose.Schema.Types.ObjectId, 
         ref : 'Orders'

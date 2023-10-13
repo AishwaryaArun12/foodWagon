@@ -64,7 +64,7 @@ app.use('/delivery_staffs', deliveryRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', mainRoute);
 
-app.get('/logout',async (req,res)=>{
+app.post('/logout',async (req,res)=>{
   let user;
   let seller;
   if(req.session.userId || req.user){
@@ -77,7 +77,6 @@ app.get('/logout',async (req,res)=>{
   }else if(req.session.sellerId){
     seller = await Seller.findById(req.session.sellerId);
   }
-  console.log('logout..Ss.');
   const email = req.session.email;
   res.clearCookie(email);
   req.session.destroy();
@@ -91,6 +90,15 @@ app.get('/logout',async (req,res)=>{
   res.redirect('/users')
 })
 
+const isAuthenticated = (req, res, next) => {
+  if (req.session.login) {
+    // User is authenticated, redirect to their home page
+    return res.redirect('/users/home');
+  }
+  // User is not authenticated, continue to the next middleware
+  next();
+};
+
 app.get('/auth' , passport.authenticate('google', { scope:
   [ 'email', 'profile' ]
 }));
@@ -98,7 +106,7 @@ app.get('/auth' , passport.authenticate('google', { scope:
 
 
 // Auth Callback
-app.get( '/auth/callback',
+app.get( '/auth/callback', 
   passport.authenticate( 'google', {
       successRedirect: '/auth/callback/success',
       failureRedirect: '/auth/callback/failure'
@@ -106,7 +114,6 @@ app.get( '/auth/callback',
 
 // Success 
 app.get('/auth/callback/success' ,isBlocked, (req , res) => {
-  console.log(req.session,req.user.displayName);
   if(!req.user){
       res.redirect('/auth/callback/failure');
   }else if(req.user.displayName == 'Aishwarya Arun' && req.user.email == 'aishwarya4arun@gmail.com'){
@@ -120,5 +127,17 @@ app.get('/auth/callback/success' ,isBlocked, (req , res) => {
 app.get('/auth/callback/failure' , (req , res) => {
   res.redirect(`/${req.session.user}/?error=Google authentication failed`);
 })
+app.get('/error',(req,res)=>{
+  res.render('pages/500',{user : req.session.user})
+})
+
+
+app.use((req, res) => {
+  // Set the status to 404
+  res.status(404);
+  // Render a custom 404 page
+  res.render('pages/page404', {user : req.session.user});
+});
+
 
 app.listen(3000,()=>{console.log('your app is running on port 3000....')})

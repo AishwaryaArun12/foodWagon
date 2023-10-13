@@ -109,11 +109,11 @@
                
                 <div class="d-flex justify-content-end">
                     <p class="text-muted me-3">GST:</p>
-                    <%if(sum<=3000){ sum = sum+(sum*5/100)%><span>+&#8377;<%=sum*5/100%></span><%}else{ sum = sum+(sum*10/100)%><span>+&#8377;<%=sum*10/100%></span><%}%>
+                    <%if(sum<=3000){ sum = sum+(sum*5/100)%><span>+&#8377;<%=(sum*5/100).toFixed(2)%></span><%}else{ sum = sum+(sum*10/100)%><span>+&#8377;<%=(sum*10/100).toFixed(2)%></span><%}%>
                   </div>
               <div class="d-flex justify-content-end mt-3">
                 <h5 class="me-3">Total:</h5>
-                <h5 class="text-success">&#8377;<%=sum%></h5>
+                <h5 class="text-success">&#8377;<%=sum.toFixed(2)%></h5>
               </div>
             </div>
           </div>

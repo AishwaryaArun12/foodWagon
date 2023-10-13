@@ -34,12 +34,16 @@
               </div>
               <%sum = 0%>
               <div class="mx-n5 px-5 py-4" style="background-color: #f2f2f2;">
+                <%let p=0;%>
                 <%order.items.forEach((i,index)=>{%>
                   <div class="row">
-                    <div class="col-md-8 col-lg-5">
+                    <div class="col-md-8 col-lg-2">
+                      <p><img src="/sellers/getImage/<%=i.itemId._id%>/0" width="80px" height="80px" alt="image"></p>
+                    </div>
+                    <div class="col-md-8 col-lg-3">
                       <p><%=i.itemId.name%></p>
                     </div>
-                    <div class="col-md-4 col-lg-3">
+                    <div class="col-md-4 col-lg-2">
                       <p><%=i.itemId.price%></p>
                       <%if(i.status != 'Cancelled' || i.status != 'Returned'){ sum+=i.itemId.price }%>
                     </div>
@@ -55,13 +59,12 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                              <form method="post" <%if(i.status == 'Delivered'){%> action="/users/order/Return Requested/<%=order._id%>/<%=i.itemId._id%>" <%}else if(order.status != 'Delivered'){%>action="/users/order/Cancel requested/<%=order._id%>/<%=i.itemId._id%>"<%}%>>
-                                
+                              <form method="post" <% if (i.status == 'Delivered') { %> action= "/users/order/Return Requested/<%= order._id %>/<%= i.itemId._id %>"<% } else { %> action = "/users/order/Cancel requested/<%= order._id %>/<%= i.itemId._id %>"<% } %>>
                                 <div class="mb-3">
                                   <label for="reason" class="form-label">Reason</label>
                                   <textarea type="text" class="form-control" id="reason" name="reason"></textarea>
                                 </div>
-                                <input type="hidden" value="<%=i.itemId._id%>" name="itemId">
+                                <input type="hidden" value="<%= i.itemId._id %>" name="itemId">
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                   <button type="submit" class="btn btn-primary">Submit</button>
@@ -83,48 +86,61 @@
                           <div class="modal-content">
                             <div class="modal-header">
                               <h5 class="modal-title" id="exampleModalLabel">
-                                <%let flag = true; i.itemId.rating.forEach(i=>{
-                                  if(i.customer == order.customer._id){
-                                    flag = false;%>
-                                    Edit Your Review
-                                 <% }
-                                  }) if(flag ==true){%>
+                                
+                                <% let flag1 = true; %>
+                                  <% i.itemId.rating.forEach(ratingItem => {%>
+                                    <%if (ratingItem.customer.toString() == order.customer._id.toString()) {
+                                      flag1  = false;
+                                  %>
+                                      Edit Your Review
+                                  <% }
+                                  }); %>
+                                  <% if (flag1 == true) { %>
                                     Add Your Review
-                                    <%}%>
+                                  <% } %>
                               </h5>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                               
                               <% let flag = true; %>
-                              <% i.itemId.rating.forEach(ratingItem => {
-                                if (ratingItem.customer == order.customer._id) {
+                              <% i.itemId.rating.forEach((ratingItem,index) => {
+                                if (ratingItem.customer.toString() == order.customer._id.toString()) {
                                   flag = false;
                               %>
-                                  <form action="rating/edit/<%= i.itemId._id %>">
+                                  <form action="/users/rating/edit/<%= i.itemId._id %>" method="post">
                                     <div id="rating">
-                                      <% for (let i = 1; i <= ratingItem.rating; i++) { %>
-                                        <input type="radio" id="<%= i %>" name="rate" value="<%= i %>" checked>
-                                        <label for="<%= i %>"><i class="fa fa-star" aria-hidden="true"></i></label>
+                                      <% for (let i = 1; i <= ratingItem.rate; i++) { %>
+                                        <%p++%>
+                                        <input type="radio" id="<%= p %>" style="display: none;" name="rate" value="<%= i %>" checked>
+                                        <label for="<%= p %>" class="star-label"><i class="fa fa-star text-warning mb-2" aria-hidden="true"></i></label>
                                       <% } %>
-                                      <% for (let i = ratingItem.rating + 1; i <= 5; i++) { %>
-                                        <input type="radio" id="<%= i %>" name="rate" value="<%= i %>">
-                                        <label for="<%= i %>"><i class="fa fa-star-o" aria-hidden="true"></i></label>
+
+                                      <% for (let i = ratingItem.rate + 1; i <= 5; i++) { %>
+                                        <%p++%>
+                                        <input type="radio" id="star<%= p %>" style="display: none;" name="rate" value="<%= i %>">
+                                        <label for="<%= p %>" class="star-label"><i class="fa fa-star-o" aria-hidden="true"></i></label>
                                       <% } %>
                                     </div>
-                                    <textarea name="review" id="review" cols="30" rows="10"><%= ratingItem.review %></textarea>
+                                    <input type="hidden" value="<%=index%>" name="i">
+                                    <input type="hidden" value="<%=order._id%>" name="orderId">
+                                    <textarea name="review" id="review" cols="30" rows="5"><%= ratingItem.review %></textarea>
+                                    <button type="submit" class="btn btn-transparent"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                                   </form>
                               <% }
                               }); %>
                               <% if (flag == true) { %>
-                                <form action="rating/add/<%= i.itemId._id %>">
+                                <form action="/users/rating/add/<%= i.itemId._id %>" method="post">
+                                  <input type="hidden" value="<%=order._id%>" name="orderId">
                                   <div id="rating">
-                                    <% for (let i = 1; i <= i.rating; i++) { %>
-                                      <input type="radio" id="<%= i %>" name="rate" value="<%= i %>">
-                                      <label for="<%= i %>"><i class="fa fa-star-o" aria-hidden="true"></i></label>
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                      <%p++;%>
+                                      <input type="radio" id="star<%= p %>" style="display: none;" name="rate" value="<%= i %>">
+                                      <label for="<%= p %>" class="star-label"><i class="fa fa-star-o " aria-hidden="true"></i></label>
                                     <% } %>
                                   </div>
-                                  <textarea name="review" id="review" cols="30" rows="10"></textarea>
+                                  <textarea name="review" id="review" cols="30" rows="5"></textarea>
+                                  <button type="submit" class="btn btn-transparent"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                                 </form>
                               <% } %>
                             </div>
@@ -178,23 +194,23 @@
                     <div class="horizontal-timeline">
                       <%if(order.status == 'Pending'){%>
                         <div class="slidecontainer">
-                          <input type="range" min="1" max="100" value="10" class="custom-range" id="myRange">
+                          <input type="range" min="1" max="100" value="10" class="custom-range" id="myRange" disabled>
                         </div>
                         <%}else if(order.status == 'Confirmed'){%>
                           <div class="slidecontainer">
-                            <input type="range" min="1" max="100" value="35" class="custom-range" id="myRange">
+                            <input type="range" min="1" max="100" value="35" class="custom-range" id="myRange" disabled>
                           </div>
                           <%}else if(order.status == 'Packed'){%>
                           <div class="slidecontainer">
-                            <input type="range" min="1" max="100" value="53" class="custom-range" id="myRange">
+                            <input type="range" min="1" max="100" value="53" class="custom-range" id="myRange" disabled>
                           </div>
                           <%}else if(order.status == 'Shipped'){%>
                             <div class="slidecontainer">
-                              <input type="range" min="1" max="100" value="73" class="custom-range" id="myRange">
+                              <input type="range" min="1" max="100" value="73" class="custom-range" id="myRange" disabled>
                             </div>
                             <%}else if(order.status == 'Delivered'){%>
                               <div class="slidecontainer">
-                                <input type="range" min="1" max="100" value="100" class="custom-range" id="myRange">
+                                <input type="range" min="1" max="100" value="100" class="custom-range" id="myRange" disabled>
                               </div>
                               <%}%>
     
@@ -262,15 +278,41 @@
     </div>
   </section>
   <script>
+   
+   const starLabels = document.querySelectorAll(".star-label");
+ 
+starLabels.forEach(function(starLabel, index) {
+  
+  starLabel.addEventListener("click", function() {
+    const rating = index + 1;
+    starLabels.forEach(function(label, i) {
+      if (i < rating) {
+        label.innerHTML = '<i class="fa fa-star text-warning mb-2" aria-hidden="true"></i>';
+      } else {
+        label.innerHTML = '<i class="fa fa-star-o" aria-hidden="true"></i>';
+      }
+    });
+
+    // Update the selected rating in the hidden input
+    let ratingInput ;
+    if(starLabel){
+      ratingInput = document.querySelector(`#star${starLabel.htmlFor}`);
+    }
+
+    if (ratingInput) {
+      ratingInput.checked = true;
+    }
+  });
+});
   const rangeInput = document.getElementById('myRange');
 
-// Function to update the background color of the track based on the value
+//Function to update the background color of the track based on the value
 function updateRangeColor() {
-  const value = (rangeInput.value - rangeInput.min) / (rangeInput.max - rangeInput.min) * 100;
+  console.log('hjasj');
+  const value = rangeInput.value;
   rangeInput.style.background = `linear-gradient(to right, #f37a27 0%, #f37a27 ${value}%, transparent ${value}%, transparent 100%)`;
 }
-
-// Add an event listener to update the range color when the value changes
+//Add an event listener to update the range color when the value changes
 rangeInput.addEventListener('input', updateRangeColor);
 
 // Initial update
