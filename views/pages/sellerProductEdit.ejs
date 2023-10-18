@@ -31,7 +31,7 @@
           </div>
         <% if (products.images && products.images.length > 0) { %>
             <% for (let i = 0; i < products.images.length; i++) { %>
-                <div class="ms-5 mt-2 mb-4 d-flex"><img data-bs-toggle="modal" data-bs-target="#exampleEditImageModal<%=i%>"  src="/sellers/getImage/<%=products._id%>/<%=i%>" width="100px" height="100px" alt="image">
+                <div class="ms-5 mt-2 mb-4 d-flex"><img data-bs-toggle="modal" data-bs-target="#exampleEditImageModal<%=i%>" id="img<%=i%>"  src="/<%=products.images[i]%>" width="100px" height="100px" alt="image">
                    <button  onclick="delImage('/sellers/deleteImage/<%=products._id%>/<%=i%>')" class="m-2 btn btn-hover btn-transparent"><i class="fa fa-trash fs-5 text-dark" aria-hidden="true"></i>
                    </a></div>
                 <div class="modal fade" id="exampleEditImageModal<%=i%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -42,8 +42,8 @@
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                          <form action="/sellers/editImage/<%=products._id%>/<%=i%>" enctype="multipart/form-data"  method="post">
-                              <input type="file" accept="image/*" name="image" required>
+                          <form id="form<%=i%>" action="/sellers/editImage/<%=products._id%>/<%=i%>"  enctype="multipart/form-data"  method="post">
+                              <input type="file" accept="image/*" name="image" id="inputImg<%=i%>" required>
                               <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                   <button class="btn btn-primary" type="submit" >Change Image</button>
@@ -76,7 +76,7 @@
     </section>
 </main>
 <video id="product-video" controls autoplay muted data-bs-toggle="modal" data-bs-target="#exampleModal" height="400px" width="400px">
-    <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4">
+    <source src="<%=products.video%>" type="video/mp4">
     Your browser does not support the video tag.
 </video>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -119,14 +119,8 @@
     }
   });
 };
-      
-// Get the <span> element that closes the modal
-// var span = document.getElementsByClassName("close")[0];
+     
 
-// When the user clicks on <span> (x), close the modal
-// span.onclick = function() {
-//   modal.style.display = "none";
-// }
 
 </script>
 <%- include('../partials/footer') %>

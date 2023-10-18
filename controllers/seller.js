@@ -13,6 +13,7 @@ const puppeteer = require('puppeteer');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const ejs = require('ejs');
+const { error } = require('console');
 
 module.exports.login = (req,res)=>{
     try {
@@ -177,62 +178,36 @@ module.exports.home = async(req,res)=>{
           res.redirect('/error');
         }
     }
-    module.exports.displayImage = async (req,res) => { 
-        try {
-            const itemId = req.params.itemId;
-            const i = req.params.i;
-            const item = await Item.findById(itemId);
-            
-            // if (!item || !item.image) {
-            //     return res.status(404).send('Image not found');
-            // }
-    
-            if(item.images){
-                res.set('Content-Type', 'image/jpeg'); // Set the appropriate content type
-                res.send(item.images[i]);
-            }
-        } catch (error) {
-          res.redirect('/error');
-        }
-    
-    }
-    module.exports.displayVideo = async (req,res)=>{
-        try {
-            const itemId = req.params.itemId;
-            const item = await Item.findById(itemId);
-            res.setHeader('Content-Type', 'video/mp4');
-            
-            res.send(item.video);
-        } catch (error) {
-          res.redirect('/error');
-        }
-    }
-    let videoBuffer = '';
+   
+    let videoFile = '';
     module.exports.addVideo = (req,res) => {
        try {
-         videoBuffer = req.file.buffer;
+         videoFile = req.file.filename;
        } catch (error) {
-        res.redirect('/error');
+        res.redirect('/error',{error:error.error});
        }
     }
     module.exports.addItem = async (req, res) => {
      try {
          let { foodType, category, itemName, description, discount, price, qty, tasteOrcapacity, stock } = req.body;
-        try {
-         const imageBuffers = req.files.map(file => file.buffer);
-   
-             for (const buffer of imageBuffers) {
-                 await Jimp.read(buffer);
-                 // Process each image if reading is successful
-             }
+         const imageFileNames = req.files.map(file => `/img/${file.filename}`);
+         try {
+          const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+          const fileExtensions = req.files.map(file => path.extname(file.originalname).toLowerCase())
+          fileExtensions.forEach(fileExtension=>{
+            if (!allowedImageExtensions.includes(fileExtension)) {
+              throw new error('image validation failed');
+            }
+          })
+             
         } catch (error) {
-         res.redirect('/sellers/home?error=Image is not valid. Item not saved');
+         res.redirect('/sellers/products?error=Image is not valid. Item not saved');
          return;
         }
          const newItem = new Item({
              name: itemName,
-             images: req.files.map((file)=>file.buffer),
-             video : videoBuffer,
+             images: imageFileNames,
+             video : videoFile,
              discount: discount,
              description : description,
              price: price,
@@ -279,9 +254,10 @@ module.exports.home = async(req,res)=>{
              }
          }
      
-         res.redirect('../sellers/home');
+         res.redirect('../sellers/products');
      } catch (error) {
-      res.redirect('/error');
+      console.log(error.message);
+      res.redirect('/error',{error:error.error});
      }
     }
     let search = "";
@@ -321,7 +297,7 @@ module.exports.home = async(req,res)=>{
           const user = req.params.user;
           if(user == 'item'){
               const update = await Item.updateOne({_id : id},{$set :{blocked : true}})
-              res.redirect('/sellers/home');
+              res.redirect('/sellers/products');
           }else {
               const matchingDocument = await Menu.findOne({
                   _id: id
@@ -346,7 +322,7 @@ module.exports.home = async(req,res)=>{
         ];
       
         // Update the document in the database
-        const update = await Menu.updateOne(
+       await Menu.updateOne(
           { _id: id },
           updateQuery,
           {
@@ -366,8 +342,8 @@ module.exports.home = async(req,res)=>{
          const id = req.params.id;
          const user = req.params.user;
          if(user == 'item'){
-             const update = await Item.updateOne({_id : id},{$set :{blocked : false}})
-             res.redirect('/sellers/home');
+             await Item.updateOne({_id : id},{$set :{blocked : false}})
+             res.redirect('/sellers/products');
          }else {
              
              const matchingDocument = await Menu.findOne({
@@ -395,7 +371,7 @@ module.exports.home = async(req,res)=>{
        ];
      
        // Update the document in the database
-       const update = await Menu.updateOne(
+       await Menu.updateOne(
          { _id: id },
          updateQuery,
          {
@@ -443,13 +419,19 @@ module.exports.home = async(req,res)=>{
       }
     }
     module.exports.editImage = async(req,res)=>{
+      
        try {
          if(req.session.login){
              const id = req.params.id;
              const i = req.params.i;
-             const imageBuffer  = req.file.buffer;
+             const imagePath = `img/${req.file.filename}`;
+             const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+
              try {
-                 await Jimp.read(imageBuffer);
+              const fileExtension = path.extname(req.file.originalname).toLowerCase();
+              if (!allowedImageExtensions.includes(fileExtension)) {
+                throw new error('image validation failed');
+              }
  
              } catch (error) {
                 if(req.session.user == 'sellerHome'){
@@ -459,11 +441,10 @@ module.exports.home = async(req,res)=>{
              }
               return;  
              }
-             const update = await Item.findOneAndUpdate(
-                 { _id: id },
-                 { $set: { [`images.${i}`]: imageBuffer } },
-                 { new: true }
-               );
+             const item = await Item.findById(id);
+             item.images[i] = imagePath;
+             await item.save();
+            
                if(req.session.user == 'sellerHome'){
                  res.redirect(`/sellers/product/${id}`);   
              }else{
@@ -473,6 +454,7 @@ module.exports.home = async(req,res)=>{
              res.redirect('/sellers/?error=Please login')
          }
        } catch (error) {
+        console.log(error.message);
         res.redirect('/error');
        }
     }
@@ -500,10 +482,10 @@ module.exports.home = async(req,res)=>{
        try {
          if(req.session.login){
              const id = req.params.id;
-             const videoBuffer  = req.file.buffer;
-             const update = await Item.findOneAndUpdate(
+             const videoFile  =  `/img/${req.file.filename}`;
+               await Item.findOneAndUpdate(
                  { _id: id },
-                 { $set: { video: videoBuffer } },
+                 { $set: { video: videoFile } },
                  { new: true }
                );
                if(req.session.user == 'sellerHome'){
@@ -522,17 +504,22 @@ module.exports.home = async(req,res)=>{
         try {
           if(req.session.login){
               const id = req.params.id;
-              const imageBuffer  = req.file.buffer;
+              const imageFile  =  `img/${req.file.filename}`;
+              const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
               try {
-                  await Jimp.read(imageBuffer);
+                const fileExtension = path.extname(req.file.originalname).toLowerCase();
+                if (!allowedImageExtensions.includes(fileExtension)) {
+                  throw new error('image validation failed');
+                }
   
               } catch (error) {
+                console.log(error.message);
                 res.redirect('/error');
                  return;
               }
-              const update = await Item.findOneAndUpdate(
+                 await Item.findOneAndUpdate(
                   { _id: id },
-                  { $push: { [`images`]: imageBuffer } },
+                  { $push: { [`images`]: imageFile } },
                   { new: true }
                 );
                 if(req.session.user == 'sellerHome'){
@@ -544,6 +531,7 @@ module.exports.home = async(req,res)=>{
               res.redirect('/sellers/?error=Please login')
           }
         } catch (error) {
+          console.log(error.message);
           res.redirect('/error');
         }
     }
@@ -963,7 +951,7 @@ module.exports.salesPdf = async (req, res) => {
      const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
      file = `/pdf_reports/${filename}`;
      try {
-       const browser = await puppeteer.launch();
+       const browser = await puppeteer.launch({ headless: "new" });
        const page = await browser.newPage();
  
        // Set the HTML content of the page

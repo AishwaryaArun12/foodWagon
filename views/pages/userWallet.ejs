@@ -11,37 +11,44 @@
     </div>
 
     <!-- Transaction History Section -->
-    <div class="row mt-5 shadow-lg p-3 mb-3 m-3 rounded">
-        <div class="col-md-12">
-            <h2>Transaction History</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Source</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Loop through wallet transactions and generate rows -->
-                   <%for(let i=wallet.length-1;i>=0;i--){%>
-                    <tr>
-                        
-                        <td><%=wallet[i].date.toLocaleDateString()%></td>
-                        <td><%=wallet[i].sellerName%></td>
-                        <td><%=wallet[i].description%></td>
-                        <td><%=wallet[i].amount%></td>
-                        <td><%wallet[i].orderDetails.forEach(i=>{%>
-                            <p><%=i.name%> - &#8377;<%=i.amount%></p>
-                            <%})%></td>
-                    </tr>
-                  <% }%>
-                    <!-- Add more rows for transactions -->
-                </tbody>
-            </table>
+    
+        <div class="row mt-5 shadow-lg p-3 mb-3 m-3 rounded">
+            <div class="col-md-12">
+                <%if(wallet.length > 0){%>
+                <h2>Transaction History</h2>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loop through wallet transactions and generate rows -->
+                       <%for(let i=wallet.length-1;i>=0;i--){%>
+                        <tr>
+                            
+                            <td><%=wallet[i].date.toLocaleDateString()%></td>
+                            <td><%=wallet[i].sellerName%></td>
+                            <td><%=wallet[i].description%></td>
+                            <td><%=wallet[i].amount%></td>
+                            <td><%wallet[i].orderDetails.forEach(i=>{%>
+                                <p><%=i.name%> - &#8377;<%=i.amount%></p>
+                                <%})%></td>
+                        </tr>
+                      <% }%>
+                        <!-- Add more rows for transactions -->
+                    </tbody>
+                </table>
+                <%}else{%>
+                    <h2>No transaction history..</h2>
+                    <%}%>
+            </div>
         </div>
-    </div>
+       
 </div>
 <%- include('../partials/footer') %>

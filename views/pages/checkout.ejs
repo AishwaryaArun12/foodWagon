@@ -136,37 +136,37 @@
 
         <!-- Cart Items -->
         <div class="shadow-lg p-3 mb-3 m-3 rounded bg-transparent">
-            <div class="card-body">
+            <div class="card-body ">
                 <h3 class="card-title">Cart Items</h3>
-                <table class="table ">
-                    <thead>
-                        <th scope="col">Image</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Qty</th>
-                        <th scope="col">Tottal</th>
+                <table class="table row">
+                    <thead class="col-12 row">
+                        <th class="col-3" scope="col">Image</th>
+                        <th class="col-4" scope="col">Name</th>
+                        <th class="col-2" scope="col">Price</th>
+                        <th class="col-1" scope="col">Qty</th>
+                        <th class="col-1" scope="col">Tottal</th>
                     </thead>
-                    <tbody>
+                    <tbody class="col-12 row">
                         <%let sum = 0%>
                     <% cartData.forEach((item) => { %>
                         
-                        <tr>
-                            <td><img src="/sellers/getImage/<%=item.itemId._id%>/0" width="80px" height="80px" alt="image"></td>
-                            <td><%= item.itemId.name %></td>
-                            <td><%= item.itemId.price %></td>
-                            <td> <%= item.quantity %> </td>
+                        <tr class="col-12 row ">
+                            <td class="col-3"><img src="/<%=item.itemId.images[0]%>" width="80px" height="80px" alt="image"></td>
+                            <td class="col-4"><%= item.itemId.name %></td>
+                            <td class="col-2"><%= item.itemId.price %></td>
+                            <td class="col-2"> <%= item.quantity %> </td>
                             
-                            <td><%= item.itemId.price*item.quantity %></td>
+                            <td class="col-1"><%= item.itemId.price*item.quantity %></td>
                             <% sum +=item.itemId.price*item.quantity%>
                         </tr>
                     <% }); %>
-                    <tr id="firstTotal" class="bg-warning">
-                        <td colspan="4">Total</td>
-                        <td ><%=sum%></td>
+                    <tr id="firstTotal" class="row">
+                        <td class="col-11">Total</td>
+                        <td class="col-1"><%=sum%></td>
                     </tr>
-                    <tr class="bg-warning">
-                        <td colspan="4">Add GST</td>
-                        <td>
+                    <tr class="row">
+                        <td class="col-11">Add GST</td>
+                        <td class="col-1">
                             <%if(sum<=3000){%>
                                 <%=sum*5/100 %>
                                 <% sum +=sum*5/100%>
@@ -176,9 +176,9 @@
                                     <%}%>
                         </td>
                     </tr>
-                    <tr class="bg-warning">
-                        <td colspan="4">Grand Total</td>
-                        <td><input type="number" id="total" value="<%=sum%>" name="total" readonly></td>
+                    <tr class="row">
+                        <td class="col-11">Grand Total</td>
+                        <td class="col-1"><input class="border-light" type="number" id="total" value="<%=sum%>" name="total" readonly></td>
                     </tr>
                 </tbody>
             </table>
@@ -246,6 +246,7 @@
    
     function submitForm(e){
         e.preventDefault();
+        console.log('sdsf');
         const form = document.getElementById('form');
         const formData = new FormData(form);
         const mode = document.querySelector('input[name="paymentMode"]:checked');

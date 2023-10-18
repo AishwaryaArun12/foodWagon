@@ -432,6 +432,7 @@ module.exports.category = async (req,res)=>{
 }
 module.exports.newFoodType = async (req,res)=>{
    try {
+    console.log('foodType');
      if(req.session.login || req.user){
          const { foodType } = req.body;
          
@@ -475,22 +476,26 @@ module.exports.newFoodType = async (req,res)=>{
    }
 }
 module.exports.newCategory = async (req,res)=>{
+  
   try {
       if(req.session.login || req.user){
           const { foodType,category } = req.body;
-          
-          const existingCategory = ()=>{
+          console.log('category');
+          const existingCategory = ()=>{          
             for (const menu of defaultData.menu) {
-              for (const cat of menu.category) {
-                if (cat.name.toLowerCase() === category.toLowerCase()) {
-                  return true;
+              if(menu.name === foodType ){
+                for (const cat of menu.category) {
+                  if (cat.name.toLowerCase() === category.toLowerCase()) {
+                    return true;
+                  }
                 }
               }
             }
             return false;
           }
-        
-          if (!existingCategory) {
+
+          if (!existingCategory()) {
+
             // Create a new food type
             const newCategory = {
               name: category,
@@ -502,7 +507,7 @@ module.exports.newCategory = async (req,res)=>{
   
             // Add the new food type to the menu
             for(let i=0;i<defaultData.menu.length;i++){
-              if(foodType.name==foodType){
+              if(defaultData.menu[i].name==foodType){
                   defaultData.menu[i].category.push(newCategory);
                   break;
               }
@@ -874,7 +879,7 @@ module.exports.salesPdf = async (req, res) => {
       const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
       file = `/pdf_reports/${filename}`;
       try {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({ headless: "new" });
         const page = await browser.newPage();
   
         // Set the HTML content of the page

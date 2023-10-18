@@ -9,7 +9,7 @@
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Resto - Restaurant Bootstrap 4 Template by GetTemplates.co</title>
+    <title>foodWagon</title>
     <meta name="description" content="Resto">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -24,7 +24,7 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="../css/style.min.css">
-    <link rel="icon" type="image/x-icon" href="../img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/x-icon" href="https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png">
     <!-- Modernizr JS for IE8 support of HTML5 elements and media queries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
     
@@ -170,12 +170,13 @@
                 <%for(let i = 0;i<item.length;i++){%>
                     <div class="card ms-1 mb-2">
                     <a href="/users/product/<%=item[i]._id%>">                       
-                                <img src="/sellers/getImage/<%=item[i]._id%>/<%=0%>" style="width:90%;height: 240px;">
+                                <img src="<%=item[i].images[0]%>" style="width:90%;height: 240px;">
                             <h3 class="text-dark text-truncate"><%=item[i].name%></h3>
                             
                             <pre><h3 class="price"><span class="text-danger text-decoration-line-through">&#8377;<%= Math.round(item[i].price*(100+item[i].discount)/100) %></span> &#8377;<span style="font-size: xx-large;"><%= item[i].price %></span><span class="text-dark">(<%=item[i].discount%></span><img class="pb-3" src="/img/icons/discounts.png" alt="" width="50px" height="50px">off)</h3></pre>
                         </a><p><button class="btn1" onclick="addCart('<%=item[i]._id%>')" >Add to Cart</button><button class="btn2"  onclick="wish('<%=item[i]._id%>','btn<%=i%>')"><%if(wish.includes(item[i]._id)){%><i class="fa fa-heart text-danger " id="btn<%=i%>" aria-hidden="true"></i><%}else{%><i class="fa fa-heart text-light " id="btn<%=i%>" aria-hidden="true"></i><%}%></button></p>
-                          </div>
+                          
+                    </div>
                     <%}%>
                 </div>
     </div>
@@ -198,27 +199,59 @@
 </div> 
 	
 </div>
-	<!-- External JS -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-	<script src="/vendor/bootstrap/popper.min.js"></script>
-	<script src="/vendor/bootstrap/bootstrap.min.js"></script>
-	<script src="/vendor/select2/select2.min.js "></script>
-	<script src="/vendor/owlcarousel/owl.carousel.min.js"></script>
-	<script src="https://cdn.rawgit.com/noelboss/featherlight/1.7.13/release/featherlight.min.js"></script>
-	<script src="/vendor/stellar/jquery.stellar.js" type="text/javascript" charset="utf-8"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
-
-	<!-- Main JS -->
-    <script>
-        async function wish(id,i){
+<div class="inner container">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="footer-widget pr-lg-5 pr-0">
+               <img src="https://foodwagon.co.zw/wp-content/uploads/2022/06/Icon-Form.png" alt="" width="80" height="62" class="d-inline-block align-text-top mb-4">
+                <p>A tradition that began in 1924 has transformed into an illustrious venture today.
+                   A business that brings quality and authenticity in cuisine. An enterprise that blends entrepreneurship with originality. This is the rich legacy of MTR.
+                   </p>
+                <nav class="nav nav-mastfoot justify-content-start">
+                   <a class="nav-link" href="#">
+                       <i class="fa fa-facebook-f"></i>
+                   </a>
+                   <a class="nav-link" href="#">
+                       <i class="fa fa-twitter"></i>
+                   </a>
+                   <a class="nav-link" href="#">
+                       <i class="fa fa-instagram"></i>
+                   </a>
+               </nav>
+            </div>
             
-            if('<%=login%>'){
-                const cart = document.getElementById('cart-counter');
+        </div>
+        
+        <div class="col-lg-6 pt-4">
+            <div class="footer-widget pt-4 pl-lg-5 pl-0">
+                <h4>Newsletter</h4>
+                <p>Subscribe to stay updated</p>
+                <form id="newsletter">
+                   <div class="form-group">
+                       <input type="email" class="form-control" id="emailNewsletter" aria-describedby="emailNewsletter" placeholder="Enter email">
+                   </div>
+                   <button type="submit" class="btn btn-primary w-100">Submit</button>
+               </form>
+            </div>
+            
+        </div>
+        <div class="col-md-12 d-flex align-items-center">
+            <p class="mx-auto text-center mb-0">Copyright 2019. All Right Reserved.</p>
+        </div>
+       
+   </div>
+</div>
+    <script>
         let cn = '<%=users.cart.length%>'
         cn = parseInt(cn);
         let wn = '<%=users.wishlist.length%>'
                 wn = parseInt(wn);
+                const cart = document.getElementById('cart-counter');
+                let flag = '<%=login%>';
+        async function wish(id,i){
+            
+            if(flag){
+           
                 const btn = document.getElementById(i);
                 const wishlist = document.getElementById('wishlist-counter');
                 
@@ -227,8 +260,9 @@
                     if(res.data == 'ok'){
                     btn.classList.remove('text-danger');
                     btn.classList.add('text-light');
-                    wishlist.innerHTML = wn-1;
-                    wn -=1;
+                   
+                    wn = wn - 1;
+                    wishlist.innerHTML = wn;
                     }
                    }).catch(error=>{console.log(error);}) 
                 }else{
@@ -237,8 +271,9 @@
                     if(res.data == 'ok'){
                     btn.classList.remove('text-light');
                     btn.classList.add('text-danger');
-                    wishlist.innerHTML = wn+1;
-                    wn +=1;
+                    
+                    wn = wn + 1;
+                    wishlist.innerHTML = wn;
                     }
                    }).catch(error=>{console.log(error);}) 
                 }

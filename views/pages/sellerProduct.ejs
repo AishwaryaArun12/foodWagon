@@ -26,7 +26,7 @@
     <div class="product-images">
         <% if (products.images && products.images.length > 0) { %>
             <% for (let i = 0; i < products.images.length; i++) { %>
-                <div class="ms-5 mt-2 mb-4"><img class="myImg" src="/sellers/getImage/<%=products._id%>/<%=i%>" width="200px" height="100px" alt="image"></div>
+                <div class="ms-5 mt-2 mb-4"><img class="myImg" src="/<%=products.images[i]%>" width="200px" height="100px" alt="image"></div>
             <% } %>
         <% } %>
     </div>
@@ -46,7 +46,7 @@
     </section>
 </main>
 <video id="product-video" controls autoplay muted width="400px" height="400px">
-    <source src="/sellers/getVideo/<%=products._id%>" type="video/mp4">
+    <source src="<%=products.video%>" type="video/mp4">
     Your browser does not support the video tag.
 </video>
 </div>

@@ -18,7 +18,7 @@ const {login,signUp,newUser,loginUser,otp,otpVerification,forgot,resend,postforg
     ,home,product,cart,addCart,remCart,profile,addAddress, editAddress,removeAddress,editProfile,changeQty,
 checkout,order, orderDetails, eachOrder, orderReturn, wallet,applyCoupon,addWish,removeWish,wishlist,razorPost,
  addAddressCheckout,orderInvoice,changeProfileImage,rating} = require('../controllers/user');
-const {isAuthenticatedUser,isBlocked} = require('../controllers/authMiddleware');
+const {isAuthenticatedUser,isBlocked} = require('../middlewares/authMiddleware');
 const { reset } = require('nodemon');
 
 

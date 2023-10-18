@@ -1,7 +1,7 @@
 const express = require('express');
 
 const {main,menu,edit, filter} = require('../controllers/main');
-const {isBlocked} = require('../controllers/authMiddleware')
+const {isBlocked} = require('../middlewares/authMiddleware')
 
 const router = express.Router();
 

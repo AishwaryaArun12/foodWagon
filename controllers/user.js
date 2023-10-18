@@ -1086,14 +1086,14 @@ module.exports.razorPost = async (req, res) => {
     newAddress.State = formData.state;
   }
   
-  const updatedUser = await User.findByIdAndUpdate(
+     await User.findByIdAndUpdate(
       id,
       { $push: { address: newAddress } },
       { new: true }
     );
   res.redirect('/users/checkout');
   } catch (error) {
-    res.redirect('/error');
+    res.redirect('/error',{error:error.error});
   }
 }
 module.exports.changeProfileImage = async (req,res)=>{

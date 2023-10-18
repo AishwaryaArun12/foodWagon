@@ -1,11 +1,19 @@
 const express = require('express');
-const {login,signUp,newSeller,loginSeller,home,displayImage,displayVideo,addVideo,addItem,addFoodType,search,searchClose
+const {login,signUp,newSeller,loginSeller,home,addVideo,addItem,addFoodType,search,searchClose
     ,product , block,unblock,editProduct,itemEdit,editImage, editVideo,addImage,profile,editProfile,order, orderAction
     ,deleteImage,cancelOrder,products,salesPdf,changeDate} = require('../controllers/seller');
 const multer  = require('multer');
-const {isBlocked,isLogin} = require('../controllers/authMiddleware')
-const storage = multer.memoryStorage();
-const upload = multer({ storage : storage})
+const {isBlocked,isLogin} = require('../middlewares/authMiddleware')
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'public/img/'); // Save files to the 'uploads' directory
+    },
+    filename: (req, file, cb) => {
+      const uniqueFileName = `${Date.now()}-${file.originalname}`;
+      cb(null, uniqueFileName);
+    },
+  });
+  const upload = multer({ storage : storage})
 
 const router = express.Router();
 
@@ -17,8 +25,7 @@ router.get('/home',isBlocked,isLogin, home);
 router.post('/addVideo',isBlocked,isLogin, upload.single('video'), addVideo);
 router.post('/addItem',upload.array('images',8) ,isBlocked ,isLogin, addItem);
 router.post('/addFoodType',isBlocked, isLogin, addFoodType);
-router.get('/getImage/:itemId/:i',isBlocked,isLogin, displayImage);
-router.get('/getVideo/:itemId',isBlocked,isLogin, displayVideo);
+
 router.get('/search',isBlocked,isLogin, search);
 router.get('/search/close',isBlocked,isLogin, searchClose);
 router.get('/product/:id',isBlocked,isLogin, product);

@@ -5,11 +5,11 @@ const mongoose = require('mongoose');
         required : true
     },
     images : [{
-        type : Buffer,
+        type : String,
         required : true,
     },],
     video : {
-        type : Buffer,
+        type : String,
     },
     description : {
         type : String,

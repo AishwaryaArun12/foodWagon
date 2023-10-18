@@ -10,6 +10,7 @@ const passport = require('./passport');
 //const cookieSession = require('cookie-session');
 const nodemailer = require('nodemailer');
 //require('./passport');
+app.use(bodyParser.urlencoded({ extended : true}));
 const User = require('./models/users');
 const Seller = require('./models/seller');
 
@@ -19,12 +20,12 @@ const userRoutes = require('./routes/user')
 const sellerRoutes = require('./routes/seller');
 const deliveryRoutes = require('./routes/delivery_staff');
 const adminRoutes = require('./routes/admin');
-const {isLogin, isBlocked} = require('./controllers/authMiddleware');
+const {isLogin, isBlocked} = require('./middlewares/authMiddleware');
 app.use(express.static('public'));
 mongoose.connect(process.env.foodwagon).then(()=>{console.log('database connected..');})
 app.set('view engine','ejs');
 
-app.use(bodyParser.urlencoded({ extended : true}));
+
 
 app.use(session({
   secret: 'SECRET KEY',

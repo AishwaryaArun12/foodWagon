@@ -1,5 +1,6 @@
 <%- include('../partials/header') %>
-<section class="h-100 h-custom " >
+<div>
+  <section class="h-100 h-custom " >
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100 " >
         <div class="col-lg-8 col-xl-9" >
@@ -38,7 +39,7 @@
                 <%order.items.forEach((i,index)=>{%>
                   <div class="row">
                     <div class="col-md-8 col-lg-2">
-                      <p><img src="/sellers/getImage/<%=i.itemId._id%>/0" width="80px" height="80px" alt="image"></p>
+                      <p><img src="<%=i.itemId.images[0]%>" width="80px" height="80px" alt="image"></p>
                     </div>
                     <div class="col-md-8 col-lg-3">
                       <p><%=i.itemId.name%></p>
@@ -182,7 +183,7 @@
                 </div>
               </div>
   
-            <%if(order.status == 'Returned' || order.status == 'Cancelled'){%>
+            <%if(order.status == 'Returned' || order.status == 'Cancelled'||order.status == 'Cancel requested'|| order.status == 'Return requested'){%>
               <p class="lead fw-bold mb-4 pb-2" style="color: #f37a27;">Order <%if(order.status == 'Returned'){%>returned <%}else{%>cancelled<%}%></p>
               <p class="lead mb-4 pb-2" style="color: #f37a27;">Reason : <%=order.reason%></p>
               <%}else{%>
@@ -277,6 +278,7 @@
       </div>
     </div>
   </section>
+</div>
   <script>
    
    const starLabels = document.querySelectorAll(".star-label");

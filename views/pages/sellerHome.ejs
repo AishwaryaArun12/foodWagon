@@ -140,7 +140,7 @@
         <tr>
           
           <td><%= item.name %></td>
-          <td><img src="/sellers/getImage/<%=item._id%>/0" width="100px" height="100px" alt="image"></td>
+          <td><img src="<%=item.images[0]%>" width="100px" height="100px" alt="image"></td>
           <td><%= item.discount %></td>
           <td><%= item.price %></td>
           <td><%= item.stock %></td>
@@ -208,7 +208,7 @@
 
                     <td>
                       
-                      <img class="myImg m-3" src="/sellers/getImage/<%=item.item._id%>/<%=0%>" width="100px" height="100px" alt="image">
+                      <img class="myImg m-3" src="/<%=item.item.images[0]%>" width="100px" height="100px" alt="image">
                      
                     </td>
                       <div id="myModal" class="modal">
@@ -223,7 +223,7 @@
                         <div id="caption"></div>
                       </div>
                       <td><video controls width="200" height="200">
-                        <source src="/sellers/getVideo/<%=item.item._id%>" type="video/mp4">
+                        <source src="<%=item.item.video%>" type="video/mp4">
                         Your browser does not support the video tag.
                     </video></td>
                     <td><%= item.item.discount %>%</td>

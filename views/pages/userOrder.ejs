@@ -5,49 +5,52 @@
         <h3>Orders</h3>
     </div>
     <div class="ms-4">
-        <table class="table table-dark table-hover align-middle table-striped overflow-y: hidden">
-            <thead>
-              <tr>
-
-                <th scope="col">No.</th>
-                <th scope="col">Products</th>
-                <th scope="col">Status</th>
-                <th scope="col">Payment Status</th>
-                <th scope="col">Payment Mode</th>
-                <th scope="col" >Date</th>
-                <th scope="col">Total Amount</th>
-                <th scope="col">Seller</th>
-                <th scope="col">Details</th>
-              </tr>
-              
-            </thead>
-            <tbody>
-                <%orders.forEach((order,i)=>{%>
-                    <tr>
-                        <td><%=i+1%></td>
-                        <td><ul><%order.items.forEach((i)=>{%>
-                            <li><%=i.itemId.name%></li>
-                        <%})%></ul></td>
-                        <td><ul><%order.items.forEach((i)=>{%>
-                            <li><%=i.status%></li>
-                        <%})%></ul></td>
-                        <td><%=order.paymentStatus%></td>
-                        <td><%=order.payment_mode%></td>
-                        
-                        <td><%=order.ordered_on.toLocaleDateString()%></td>
-                        <td><%=Math.floor(order.amount)%></td>
-                        
-                        <td><%=order.seller.name%></td>
-                        <td>
-                            <a href="/users/orderDetails/<%=order._id%>">Details</a><br>
-                            <a href="/users/invoice/<%=order._id%>">Invoice</a>
-                          </td>
-                          
-                    </tr>
-                    <%})%>
-            </tbody>
-            </table>
+        <%if(orders.length > 0){%>
+            <table class="table table-dark table-hover align-middle table-striped overflow-y: hidden">
+                <thead>
+                  <tr>
+    
+                    <th scope="col">No.</th>
+                    <th scope="col">Products</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Payment Status</th>
+                    <th scope="col">Payment Mode</th>
+                    <th scope="col" >Date</th>
+                    <th scope="col">Total Amount</th>
+                    <th scope="col">Seller</th>
+                    <th scope="col">Details</th>
+                  </tr>
+                  
+                </thead>
+                <tbody>
+                    <%orders.forEach((order,i)=>{%>
+                        <tr>
+                            <td><%=i+1%></td>
+                            <td><ul><%order.items.forEach((i)=>{%>
+                                <li><%=i.itemId.name%></li>
+                            <%})%></ul></td>
+                            <td><ul><%order.items.forEach((i)=>{%>
+                                <li><%=i.status%></li>
+                            <%})%></ul></td>
+                            <td><%=order.paymentStatus%></td>
+                            <td><%=order.payment_mode%></td>
+                            
+                            <td><%=order.ordered_on.toLocaleDateString()%></td>
+                            <td><%=Math.floor(order.amount)%></td>
+                            
+                            <td><%=order.seller.name%></td>
+                            <td>
+                                <a href="/users/orderDetails/<%=order._id%>">Details</a><br>
+                                <a href="/users/invoice/<%=order._id%>">Invoice</a>
+                              </td>
+                              
+                        </tr>
+                        <%})%>
+                </tbody>
+                </table>
+            <%}else{%>
+                <h3 class="text-danger">You didn't made any orders yet!!</h3>
+                <%}%>
     </div>
 </div>            
-<%- include('../partials/footer') %>
 <%- include('../partials/footer') %>

@@ -14,7 +14,7 @@
     <% wishlist.forEach(function(item,i) { %>
         <div class="card ms-4 mb-2 ">
             <a href="/users/product/<%=item._id%>">                       
-                        <img src="/sellers/getImage/<%=item._id%>/<%=0%>" style="width:90%;height: 240px;">
+                        <img src="/<%=item.images[0]%>" style="width:90%;height: 240px;">
                     <h3 class="text-dark text-truncate"><%=item.name%></h3>
                     
                     <pre><h3 class="price"><span class="text-danger text-decoration-line-through">&#8377;<%= Math.round(item.price*(100+item.discount)/100) %></span> &#8377;<span style="font-size: xx-large;"><%= item.price %></span><span class="text-dark">(<%=item.discount%></span><img class="pb-3" src="/img/icons/discounts.png" alt="" width="50px" height="50px">off)</h3></pre>
