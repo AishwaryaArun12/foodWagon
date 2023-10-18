@@ -75,14 +75,17 @@ module.exports.menu =async (req,res)=>{
    let length = items.length;
    
     item = items.slice((page-1)*4,((page-1)*4)+4);
+    let wish = [];
      if(req.session.login || req.user){
        let users = await User.findById(req.session.userId);
        wish= users.wishlist;
           res.render('pages/menu',{length,set,page,users,item:item,login:true,sellers:sellers,foodtype:foodtype,category:category,wish});
      }else{
+      
          res.render('pages/menu',{length,set,page,users : null,item:item,login:false,sellers:sellers,foodtype:foodtype,category:category,wish});
      }
    } catch (error) {
+    console.error(error.message)
     res.redirect('/error');
    }
 }

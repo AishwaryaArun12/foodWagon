@@ -7,9 +7,8 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
  const MongoStore = require('connect-mongo');
 const passport = require('./passport');
-//const cookieSession = require('cookie-session');
+
 const nodemailer = require('nodemailer');
-//require('./passport');
 app.use(bodyParser.urlencoded({ extended : true}));
 const User = require('./models/users');
 const Seller = require('./models/seller');

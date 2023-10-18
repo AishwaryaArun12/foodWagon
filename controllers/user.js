@@ -506,6 +506,7 @@ module.exports.addCart = async(req,res)=>{
     }
     
   } catch (error) {
+    console.log(error.message)
     res.redirect('/error');
   }
 
@@ -590,20 +591,14 @@ const updatedAddress = {
 module.exports.removeAddress = async(req,res)=>{
  const id = req.session.userId;
  const i = req.params.i; // Assuming you have the index to remove
-
  try {
    const updatedUser = await User.findOne(
      { _id: id },
      
    )
- 
-   if (!updatedUser) {
-     return res.status(404).json({ error: 'User not found' });
-   }
- 
    // Check if the index is valid
    if (i >= 0 && i < updatedUser.address.length) {
-    
+    console.log(i,'asss');
      updatedUser.address.splice(i, 1); // Remove the i-th element
      await updatedUser.save(); // Save the updated document
      return res.redirect('/users/profile');

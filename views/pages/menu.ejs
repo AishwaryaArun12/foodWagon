@@ -85,7 +85,7 @@
                         </li>
                         
                         <li class="nav-item">
-                            <form action="/logout" method="post"><button type="submit" class="btn btn-danger" href="/logout">Logout</button></form>
+                            <form action="/logout" method="post"><button type="submit" class="btn btn-danger" >Logout</button></form>
                         </li>
                         <% } %>
                     </ul>
@@ -193,13 +193,7 @@
         <%}%>
         <%if(length>set*20){%> <a href="/menu/pagination/front" id="front">&raquo;</a><%}%>
   </div>
-</div>
-
-
-</div> 
-	
-</div>
-<div class="inner container">
+  <div class="inner container">
     <div class="row">
         <div class="col-lg-6">
             <div class="footer-widget pr-lg-5 pr-0">
@@ -241,23 +235,28 @@
        
    </div>
 </div>
+</div>
+
+
+</div> 
+
+</div>
+
 <input type="hidden" id="users" value="<%=users%>">
 <input type="hidden" id="cartLength" <%if(users){%>value="<%=users.cart.length%>"<%}%>>
 <input type="hidden" id="wishLength" <%if(users){%>value="<%=users.wishlist.length%>"<%}%> ">
 
 
-    <script>
-    
+    <script>    
         let flag = document.getElementById('users').value;
         let cn =0;
         let wn =0;
         const cart = document.getElementById('cart-counter');
         if(flag){
-         cn = document.getElementById('cartLength');
-        cn = parseInt(cn);
-         wn = document.getElementById('wishLength');
-        wn = parseInt(wn);
-        
+         cn = document.getElementById('cartLength').value; 
+         cn = parseInt(cn)
+         wn = document.getElementById('wishLength').value;
+         wn = parseInt(wn);
         }
 
         async function wish(id,i){    
@@ -268,8 +267,7 @@
                     await fetch(`/users/removeWish/${id}`).then(res=>res.json()).then(res=>{
                     if(res.data == 'ok'){
                     btn.classList.remove('text-danger');
-                    btn.classList.add('text-light');
-                   
+                    btn.classList.add('text-light');                  
                     wn = wn - 1;
                     wishlist.innerHTML = wn;
                     }
@@ -279,15 +277,12 @@
                     console.log(res);
                     if(res.data == 'ok'){
                     btn.classList.remove('text-light');
-                    btn.classList.add('text-danger');
-                    
+                    btn.classList.add('text-danger');                   
                     wn = wn + 1;
                     wishlist.innerHTML = wn;
                     }
                    }).catch(error=>{console.log(error);}) 
                 }
-                
-            
             }else{
                 Swal.fire({    
             icon: 'warning',
@@ -298,7 +293,6 @@
         }
         async function search(){
             const search = document.getElementById('searchInput').value;
-            console.log(search,'df');
            await fetch(`/menu/search/${search}`)
             window.location.href = '/menu'
         }
@@ -307,11 +301,7 @@ var i;
 
 for (i = 0; i < acc.length; i++) {
   acc[i].addEventListener("click", function() {
-    /* Toggle between adding and removing the "active" class,
-    to highlight the button that controls the panel */
     this.classList.toggle("active");
-
-    /* Toggle between hiding and showing the active panel */
     var panel = this.nextElementSibling;
     if (panel.style.display === "block") {
       panel.style.display = "none";
@@ -321,16 +311,16 @@ for (i = 0; i < acc.length; i++) {
   });
 }
   async function addCart(id){
-    await fetch(`/users/addcart/${id}`).then(res=>res.json()).then(data=>{ 
+    await fetch(`/users/addcart/${id}`).then(res=>{console.log(res,'sd'); return res.json()}).then(data=>{ 
+        console.log(data);
         if(data.data=='Product added to cart successfully'){
             Swal.fire({    
             icon: 'success',
             title: 'Product added to cart successfully',    
-            timer: 1000,
-            
+            timer: 1000,           
             })
             cart.innerHTML = cn+1;
-            cn +=1;
+            cn =cn+1;
         }else if(data.data == 'Already added this product to cart.'){
             Swal.fire({    
             icon: 'warning',
@@ -344,10 +334,10 @@ for (i = 0; i < acc.length; i++) {
               text: 'Out of stock',
             })
         }
-    })
+    }).catch(error=>console.error(error))
   }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script src="js/app.min.js "></script>
+	
 </body>
 </html>
