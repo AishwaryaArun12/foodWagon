@@ -80,7 +80,7 @@ module.exports.menu =async (req,res)=>{
        wish= users.wishlist;
           res.render('pages/menu',{length,set,page,users,item:item,login:true,sellers:sellers,foodtype:foodtype,category:category,wish});
      }else{
-         res.render('pages/menu',{length,set,page,users : null,item:item,login:false,sellers:sellers,foodtype:foodtype,category:category});
+         res.render('pages/menu',{length,set,page,users : null,item:item,login:false,sellers:sellers,foodtype:foodtype,category:category,wish});
      }
    } catch (error) {
     res.redirect('/error');

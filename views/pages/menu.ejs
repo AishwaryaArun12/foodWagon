@@ -241,20 +241,29 @@
        
    </div>
 </div>
+<input type="hidden" id="users" value="<%=users%>">
+<input type="hidden" id="cartLength" <%if(users){%>value="<%=users.cart.length%>"<%}%>>
+<input type="hidden" id="wishLength" <%if(users){%>value="<%=users.wishlist.length%>"<%}%> ">
+
+
     <script>
-        let cn = '<%=users.cart.length%>'
+    
+        let flag = document.getElementById('users').value;
+        let cn =0;
+        let wn =0;
+        const cart = document.getElementById('cart-counter');
+        if(flag){
+         cn = document.getElementById('cartLength');
         cn = parseInt(cn);
-        let wn = '<%=users.wishlist.length%>'
-                wn = parseInt(wn);
-                const cart = document.getElementById('cart-counter');
-                let flag = '<%=login%>';
-        async function wish(id,i){
-            
-            if(flag){
-           
+         wn = document.getElementById('wishLength');
+        wn = parseInt(wn);
+        
+        }
+
+        async function wish(id,i){    
+            if(flag){          
                 const btn = document.getElementById(i);
-                const wishlist = document.getElementById('wishlist-counter');
-                
+                const wishlist = document.getElementById('wishlist-counter');               
                 if(btn.classList.contains('text-danger')){
                     await fetch(`/users/removeWish/${id}`).then(res=>res.json()).then(res=>{
                     if(res.data == 'ok'){
