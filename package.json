@@ -1,6 +1,5 @@
 {
   "name": "week-10",
-  "type": "module",
   "engines": {
     "node": ">=16.2.0"
   },
