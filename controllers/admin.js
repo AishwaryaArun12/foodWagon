@@ -899,6 +899,7 @@ module.exports.salesPdf = async (req, res) => {
   
         await browser.close();
       } catch (error) {
+        console.log(error,'sssssssss');
         res.redirect('/error');
         return;
       } 
