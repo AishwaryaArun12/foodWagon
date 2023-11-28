@@ -898,7 +898,7 @@ module.exports.salesPdf = async (req, res) => {
     // Use chromePath as needed in your application
  
         const browser = await puppeteer.launch({  headless: false,
-        executablePath: 'path/to/chrome', });
+        executablePath: chromePath, });
         const page = await browser.newPage();
   
         // Set the HTML content of the page
