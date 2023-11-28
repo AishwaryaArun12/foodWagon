@@ -12,6 +12,7 @@ const PDFDocument = require('pdfkit');
 const path = require('path');
 //const html2pdf = require('html2pdf.js');
 const ejs = require('ejs');
+const chromeLauncher = require('chrome-launcher');
 //app.set('view engine', 'ejs');
 
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
@@ -878,8 +879,26 @@ module.exports.salesPdf = async (req, res) => {
       let filename = `adminReport_${uuidv4()}.pdf`
       const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
       file = `/pdf_reports/${filename}`;
+     async function getChromePath() {
+        try {
+          const chrome = await chromeLauncher.launch();
+          console.log('Chrome Executable Path:', chrome.executablePath);
+          await chrome.kill();
+          return chrome.executablePath;
+        } catch (error) {
+          console.error('Error getting Chrome path:', error);
+          return null;
+        }
+      }
+
+      
       try {
-        const browser = await puppeteer.launch({ headless: "new" });
+        getChromePath()
+  .then(async(chromePath) => {
+    // Use chromePath as needed in your application
+ 
+        const browser = await puppeteer.launch({  headless: false,
+        executablePath: 'path/to/chrome', });
         const page = await browser.newPage();
   
         // Set the HTML content of the page
@@ -898,6 +917,10 @@ module.exports.salesPdf = async (req, res) => {
         });
   
         await browser.close();
+      })
+      .catch((error) => {
+        // Handle the error
+      });
       } catch (error) {
         console.log(error,'sssssssss');
         res.redirect('/error');
