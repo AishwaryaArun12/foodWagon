@@ -15,6 +15,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "chrome-launcher": "^1.1.0",
     "connect-mongo": "^5.0.0",
     "connect-mongodb-session": "^3.1.1",
     "cookie-parser": "^1.4.6",
@@ -39,7 +40,7 @@
     "passport-oauth2": "^1.7.0",
     "path": "^0.12.7",
     "pdfkit": "^0.13.0",
-    "puppeteer": "^21.3.6",
+    "puppeteer-core": "^21.3.6",
     "razorpay": "^2.9.2",
     "sweetalert2": "^11.7.28",
     "uuid": "^9.0.1",
