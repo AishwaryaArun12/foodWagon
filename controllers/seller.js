@@ -14,7 +14,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const ejs = require('ejs');
 const { error } = require('console');
-const chromeLauncher = (await import('chrome-launcher')).default;
+const chromeLauncher = require('chrome-launcher');
 
 module.exports.login = (req,res)=>{
     try {
