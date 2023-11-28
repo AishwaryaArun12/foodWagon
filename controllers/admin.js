@@ -12,7 +12,7 @@ const PDFDocument = require('pdfkit');
 const path = require('path');
 //const html2pdf = require('html2pdf.js');
 const ejs = require('ejs');
-const chromeLauncher = require('chrome-launcher');
+const chromeLauncher = (await import('chrome-launcher')).default;
 //app.set('view engine', 'ejs');
 
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');

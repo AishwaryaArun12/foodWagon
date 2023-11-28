@@ -14,6 +14,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const ejs = require('ejs');
 const { error } = require('console');
+const chromeLauncher = (await import('chrome-launcher')).default;
 
 module.exports.login = (req,res)=>{
     try {
@@ -950,31 +951,53 @@ module.exports.salesPdf = async (req, res) => {
      let filename = `sellersReport_${uuidv4()}.pdf`
      const pdfFilePath =   path.join(__dirname, '../public/pdf_reports', filename);
      file = `/pdf_reports/${filename}`;
-     try {
-       const browser = await puppeteer.launch({ headless: "new" });
-       const page = await browser.newPage();
- 
-       // Set the HTML content of the page
-       await page.setContent(html);
- 
-       // Generate PDF from the page
-       await page.pdf({
-         path: pdfFilePath,
-         format: 'A4',
-         margin: {
-           top: '20px',
-           bottom: '20px',
-           left: '20px',
-           right: '20px',
-         },
-       });
- 
-       await browser.close();
-     } catch (error) {
+     async function getChromePath() {
+      try {
+        const chrome = await chromeLauncher.launch();
+        console.log('Chrome Executable Path:', chrome.executablePath);
+        await chrome.kill();
+        return chrome.executablePath;
+      } catch (error) {
+        console.error('Error getting Chrome path:', error);
+        return null;
+      }
+    }
+
+    
+    try {
+      getChromePath()
+.then(async(chromePath) => {
+  // Use chromePath as needed in your application
+
+      const browser = await puppeteer.launch({  headless: false,
+      executablePath: chromePath, });
+      const page = await browser.newPage();
+
+      // Set the HTML content of the page
+      await page.setContent(html);
+
+      // Generate PDF from the page
+      await page.pdf({
+        path: pdfFilePath,
+        format: 'A4',
+        margin: {
+          top: '20px',
+          bottom: '20px',
+          left: '20px',
+          right: '20px',
+        },
+      });
+
+      await browser.close();
+    })
+    .catch((error) => {
+      // Handle the error
+    });
+    } catch (error) {
+      console.log(error,'sssssssss');
       res.redirect('/error');
       return;
-     }
- 
+    }
      res.redirect('/sellers/home');
    });
  } catch (error) {
