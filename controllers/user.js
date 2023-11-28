@@ -49,10 +49,10 @@ module.exports.signUp = async (req,res)=>{
         if(req.cookies[req.session.email] == req.session.password && user.verified){
             res.redirect('/users/home');
         }else{
-            res.render('pages/signUp',{user : 'users',error : error.error,login:false}); 
+            res.render('pages/signUp',{user : 'users',error : error.error,login:false,users :null}); 
         }
     }else{
-        res.render('pages/signUp', {user : 'users',error : error.error,login : login});
+        res.render('pages/signUp', {user : 'users',error : error.error,login : login,users : null});
     }
    } catch (error) {
     res.redirect('/error');
@@ -125,7 +125,7 @@ module.exports.newUser =async (req,res)=>{
                 const savedUser = await newUser.save();
                 
                 req.session.email = savedUser.email;
-                    const otp = otpGenerator.generate(6, { digits: true, alphabets: true, upperCase: true });
+                    const otp = otpGenerator.generate(6, { digits: true, alphabets: false, upperCase: false });
             
                     const otpExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
                     await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });

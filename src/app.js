@@ -6,20 +6,20 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
  const MongoStore = require('connect-mongo');
-const passport = require('./passport');
-
+const passport = require('../passport');
+app.use(bodyParser.json());
 const nodemailer = require('nodemailer');
 app.use(bodyParser.urlencoded({ extended : true}));
-const User = require('./models/users');
-const Seller = require('./models/seller');
+const User = require('../models/users');
+const Seller = require('../models/seller');
 
 
-const mainRoute = require('./routes/main');
-const userRoutes = require('./routes/user')
-const sellerRoutes = require('./routes/seller');
-const deliveryRoutes = require('./routes/delivery_staff');
-const adminRoutes = require('./routes/admin');
-const {isLogin, isBlocked} = require('./middlewares/authMiddleware');
+const mainRoute = require('../routes/main');
+const userRoutes = require('../routes/user')
+const sellerRoutes = require('../routes/seller');
+const deliveryRoutes = require('../routes/delivery_staff');
+const adminRoutes = require('../routes/admin');
+const {isLogin, isBlocked} = require('../middlewares/authMiddleware');
 app.use(express.static('public'));
 mongoose.connect(process.env.foodwagon).then(()=>{console.log('database connected..');})
 app.set('view engine','ejs');
