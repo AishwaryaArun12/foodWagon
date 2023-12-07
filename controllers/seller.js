@@ -9,13 +9,28 @@ const Coupon = require('../models/coupon');
 const User = require('../models/users');
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
 const { orderDetails } = require('./user');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const ejs = require('ejs');
 const { error } = require('console');
-const chromeLauncher = require('chrome-launcher');
+let chromeLauncher;
 
+const fn = async () => {
+  try {
+    chromeLauncher = require('chrome-launcher');
+  } catch (error) {
+    if (error.code === 'ERR_REQUIRE_ESM') {
+      // Handle the ESM import using dynamic import
+      const importedModule = await import('chrome-launcher');
+      chromeLauncher = importedModule.default || importedModule;
+    } else {
+      throw error;
+    }
+  }
+};
+
+fn();
 module.exports.login = (req,res)=>{
     try {
       const error = req.query;

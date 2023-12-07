@@ -6,13 +6,29 @@ const nodemailer = require('nodemailer');
 const Orders = require('../models/orders')
 const Coupons = require('../models/coupon');
 const fs = require('fs');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const { v4: uuidv4 } = require('uuid');
 const PDFDocument = require('pdfkit');
 const path = require('path');
 //const html2pdf = require('html2pdf.js');
 const ejs = require('ejs');
-const chromeLauncher = require('chrome-launcher');
+let chromeLauncher;
+
+const fn = async () => {
+  try {
+    chromeLauncher = require('chrome-launcher');
+  } catch (error) {
+    if (error.code === 'ERR_REQUIRE_ESM') {
+      // Handle the ESM import using dynamic import
+      const importedModule = await import('chrome-launcher');
+      chromeLauncher = importedModule.default || importedModule;
+    } else {
+      throw error;
+    }
+  }
+};
+
+fn();
 //app.set('view engine', 'ejs');
 
 const { defaultData, updateDefaultData } = require('../models/defaultMenu');
