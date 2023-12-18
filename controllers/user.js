@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
     service : 'Gmail',
     auth : {
       user : 'foodmailerwagon@gmail.com',
-      pass : 'sywiowzgrzajpjpa'
+      pass : 'khkk vaip jfar tssn'
     }
   })
 let login = false;
