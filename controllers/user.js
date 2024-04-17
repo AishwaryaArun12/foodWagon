@@ -68,7 +68,7 @@ module.exports.newUser =async (req,res)=>{
         const otpExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
         await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
 
-        const toEmail =savedUser.email;
+        const toEmail =req.body.email;
        // const toEmail = 'jj4245888@gmail.com';
         const mailOptions = {
             from : 'foodmailerwagon@gmail.com',
@@ -130,7 +130,7 @@ module.exports.newUser =async (req,res)=>{
                     const otpExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
                     await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
             
-                    const toEmail =savedUser.email;
+                    const toEmail =req.body.email;
                    // const toEmail = 'jj4245888@gmail.com';
                     const mailOptions = {
                         from : 'foodmailerwagon@gmail.com',
@@ -197,7 +197,7 @@ module.exports.loginUser = async (req,res)=>{
                 const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
                 await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
         
-                const toEmail =savedUser.email;
+                const toEmail =req.body.email;
                // const toEmail = 'jj4245888@gmail.com';
                 const mailOptions = {
                     from : 'foodmailerwagon@gmail.com',
@@ -288,7 +288,7 @@ module.exports.resend = async (req,res) =>{
     const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
     await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
 
-    const toEmail =savedUser.email;
+    const toEmail =req.body.email;
     //const toEmail = 'jj4245888@gmail.com';
     const mailOptions = {
         from : 'foodmailerwagon@gmail.com',
@@ -323,7 +323,7 @@ if(user){
     const otpExpiration = new Date(Date.now() + 1 * 60 * 1000); // 1 minutes from now
     let update = await User.findOneAndUpdate({ email : req.session.email }, { otp, otpExpiration });
     
-    const toEmail =user.email;
+    const toEmail =req.session.email;
     //const toEmail = 'jj4245888@gmail.com';
     const mailOptions = {
         from : 'foodmailerwagon@gmail.com',
