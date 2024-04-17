@@ -141,7 +141,7 @@ module.exports.home = async (req,res)=>{
     
 module.exports.acceptSendMail =async (req,res)=>{
     try {
-      const toEmail = 'jj4245888@gmail.com'//req.params['address'];
+      const toEmail = req.params['address'];
       const mailOptions = {
           from : 'foodmailerwagon@gmail.com',
           to : toEmail,
@@ -178,7 +178,7 @@ module.exports.acceptSendMail =async (req,res)=>{
 
 module.exports.rejectSendMail = async (req,res)=>{
    try {
-     const toEmail = 'jj4245888@gmail.com'//req.params['address'];
+     const toEmail = req.params['address'];
      const reason = req.params['reason'];
      const mailOptions = {
          from : 'foodmailerwagon@gmail.com',
