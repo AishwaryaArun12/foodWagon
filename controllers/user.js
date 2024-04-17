@@ -68,8 +68,8 @@ module.exports.newUser =async (req,res)=>{
         const otpExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
         await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
 
-        //const toEmail =savedUser.email;
-        const toEmail = 'jj4245888@gmail.com';
+        const toEmail =savedUser.email;
+       // const toEmail = 'jj4245888@gmail.com';
         const mailOptions = {
             from : 'foodmailerwagon@gmail.com',
             to : toEmail,
@@ -130,8 +130,8 @@ module.exports.newUser =async (req,res)=>{
                     const otpExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
                     await User.findOneAndUpdate({ email : req.body.email }, { otp, otpExpiration });
             
-                    //const toEmail =savedUser.email;
-                    const toEmail = 'jj4245888@gmail.com';
+                    const toEmail =savedUser.email;
+                   // const toEmail = 'jj4245888@gmail.com';
                     const mailOptions = {
                         from : 'foodmailerwagon@gmail.com',
                         to : toEmail,
