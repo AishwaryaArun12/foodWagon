@@ -150,6 +150,7 @@ module.exports.newUser =async (req,res)=>{
                     });
                     res.redirect('/users/otp')
                } catch (error) {
+                console.log(error)
                 res.status(500).send(error)
                };
             

@@ -86,7 +86,7 @@ const users = new mongoose.model('users',{
     referralCode: {
         type: String,
         default: uuidv4(),
-        unique: true, 
+         
       },
     usedCoupons : [{
         type : mongoose.Schema.Types.ObjectId,
